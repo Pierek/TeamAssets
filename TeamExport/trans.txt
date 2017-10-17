@@ -1,0 +1,84 @@
+--- <summary>Move entity data from staging to transform</summary>
+--- <event author="Piotr Purwin" date="2017-06-21" project="JLR MoDAS" UserStory="JLR MoDAS-109285">Procedure created</event>
+CREATE PROCEDURE [transform].[uspPopulateentity]
+
+AS
+
+BEGIN
+
+	SET	XACT_ABORT, NOCOUNT ON
+
+	/* declare constants */
+	DECLARE  @DEBUG bit
+			,@PROCEDURE_NAME sysname
+			,@SCHEMA_NAME sysname
+
+	/* declare variables */
+	DECLARE	 @EventMessage nvarchar(MAX)
+			,@EventParams nvarchar(MAX)
+			,@EventRowcount int
+			,@ETLProcessId smallint
+			,@ETLDataSource sysname
+
+	BEGIN TRY
+		/* initialise constants */
+		SET	@PROCEDURE_NAME = ISNULL(OBJECT_NAME(@@PROCID),'Debug')
+		SET @SCHEMA_NAME = ISNULL(OBJECT_SCHEMA_NAME(@@PROCID),'Debug')
+
+		/* initialise variables */
+		SET @ETLProcessId = (SELECT config.fnGetParameterValue('ETLProcessId'))
+		SET @ETLDataSource = @SCHEMA_NAME + '.' + @PROCEDURE_NAME
+
+		/* log start */
+		EXEC log.uspEventHandler
+			 @ProcedureName = @PROCEDURE_NAME,@SchemaName = @SCHEMA_NAME
+			,@EventMessage = 'Started'
+
+		/*  truncate table  */
+		TRUNCATE TABLE transform.transformtablename
+
+		/* populate table */
+		INSERT INTO transform.transformtablename
+		(
+
+			,[SourceSystemDate]
+			,[SourceSystemUser]
+			,[ETLOriginSystemId]
+			,[ETLDataSource]
+			,[ETLProcessId]
+			,[AddDate]
+			,[AddUser]
+		)
+		SELECT
+
+			,SourceSystemDate
+			,SourceSystemUser
+			,ETLOriginSystemId
+			,[ETLDataSource] = @ETLDataSource
+			,[ETLProcessId] = @ETLProcessId
+			,[AddDate] = GETDATE()
+			,[AddUser] = 'MIG'
+		FROM staging.stagingtablename
+
+		SET @EventRowcount = @@ROWCOUNT
+
+		EXEC log.uspEventHandler
+			 @ProcedureName = @PROCEDURE_NAME,@SchemaName = @SCHEMA_NAME
+			,@EventRowcount = @EventRowcount
+			,@EventMessage = 'Rowcount'
+			,@EventParams = 'Transform entity'
+
+		/* log complete */
+		EXEC log.uspEventHandler
+			 @ProcedureName = @PROCEDURE_NAME,@SchemaName = @SCHEMA_NAME
+			,@EventMessage = 'Completed'
+
+	END TRY
+	BEGIN CATCH
+		IF @@TRANCOUNT > 0 ROLLBACK TRAN
+		EXEC log.uspEventHandler /* this will reraise error and cause to bomb out in global try/catch */
+			 @ProcedureName = @PROCEDURE_NAME,@SchemaName = @SCHEMA_NAME
+			,@EventMessage = 'Unable to populate table transform.transformtablename'
+	END CATCH
+
+END

@@ -1,6 +1,4 @@
-USE TeamExport;
-
-CREATE TABLE tblProduct
+CREATE TABLE dbo.tblProduct
 (
 	 [Id]                   int NOT NULL
 	,[product_code]         varchar(100) NOT NULL
@@ -11,13 +9,13 @@ CREATE TABLE tblProduct
 	,[category]             nvarchar(50) NULL
 	,[brand]                varchar(20) NULL
 	,[Pojemnosc_Opakowania] smallint NULL
-	,[dimension_h]          decimal(6,2) NULL
-	,[dimension_w]          decimal(6,2) NULL
-	,[dimension_l]          decimal(6,2) NULL
+	,[dimension_h]          decimal(7,3) NULL
+	,[dimension_w]          decimal(7,3) NULL
+	,[dimension_l]          decimal(7,3) NULL
 	,[Max_Na_Palecie]       int NULL
-	,[Karton_Wysokosc]      smallint NULL
-	,[Karton_Szerokosc]     smallint NULL
-	,[Karton_Dlugosc]       smallint NULL
+	,[Karton_Wysokosc]      decimal(7,3) NULL
+	,[Karton_Szerokosc]     decimal(7,3) NULL
+	,[Karton_Dlugosc]       decimal(7,3) NULL
 	,[description]          varchar(100) NULL
 	,[category_en]          varchar(70) NULL
 	,[rap_state]            bit NULL
