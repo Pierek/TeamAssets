@@ -8,24 +8,26 @@ SELECT
 	 [Id] = T.ID
 	,[product_code] = LTRIM(RTRIM(T.Kod)) /* COLLATE Latin1_General_100_BIN2 */
 	,[product_description] = LTRIM(RTRIM(T.Nazwa)) /* COLLATE Latin1_General_100_BIN2 */
+	,[promo] = CASE WHEN LTRIM(RTRIM(FPROM.Data)) = '' THEN NULL ELSE LTRIM(RTRIM(FPROM.Data)) END
 	,[ean] =  CASE WHEN LTRIM(RTRIM(ean)) /* COLLATE Latin1_General_100_BIN2 */ = '' THEN NULL ELSE LTRIM(RTRIM(T.EAN)) /* COLLATE Latin1_General_100_BIN2 */ END
 	,[integral_code] = CASE WHEN LTRIM(RTRIM(FIntref.Data)) /* COLLATE Latin1_General_100_BIN2 */ = '' THEN NULL ELSE LTRIM(RTRIM(FIntref.Data)) /* COLLATE Latin1_General_100_BIN2 */ END
 	,[series] = CASE WHEN LTRIM(RTRIM(FSerie.Data)) /* COLLATE Latin1_General_100_BIN2 */ = '' THEN NULL ELSE LTRIM(RTRIM(FSerie.Data)) /* COLLATE Latin1_General_100_BIN2 */ END 
 	,[category] = CASE WHEN LTRIM(RTRIM(FPOD.Data)) /* COLLATE Latin1_General_100_BIN2 */ = '' THEN NULL ELSE LTRIM(RTRIM(FPOD.Data)) /* COLLATE Latin1_General_100_BIN2 */ END
 	,[brand] = LTRIM(RTRIM(Fbrand.Data)) /* COLLATE Latin1_General_100_BIN2 */
-	,[Pojemnosc_Opakowania] = CONVERT(smallint,LTRIM(RTRIM(FPojOp.Data)))
-	,[dimension_h] = /* CASE WHEN CONVERT(decimal(10,2),LTRIM(RTRIM(dimension_h))) < 1.00 THEN CONVERT(decimal(7,2),LTRIM(RTRIM(dimension_h))) * 100 ELSE */ CONVERT(decimal(7,3),LTRIM(RTRIM(REPLACE(Fwys.Data,',','.')))) --END
-	,[dimension_w] = /* CASE WHEN CONVERT(decimal(10,2),LTRIM(RTRIM(dimension_w))) < 1.00 THEN CONVERT(decimal(7,2),LTRIM(RTRIM(dimension_w))) * 100 ELSE */ CONVERT(decimal(7,3),LTRIM(RTRIM(REPLACE(Fszer.Data,',','.')))) --END
-	,[dimension_l] = /* CASE WHEN CONVERT(decimal(10,2),LTRIM(RTRIM(dimension_l))) < 1.00 THEN CONVERT(decimal(7,2),LTRIM(RTRIM(dimension_l))) * 100 ELSE */ CONVERT(decimal(7,3),LTRIM(RTRIM(REPLACE(Fd³.Data,',','.')))) --END
-	,[Max_Na_Palecie] = CONVERT(int,LTRIM(RTRIM(FMAX.Data)))
-	,[Karton_Wysokosc] = CONVERT(decimal(7,3),LTRIM(RTRIM(REPLACE(FKwys.Data,',','.'))))
-	,[Karton_Szerokosc] = CONVERT(decimal(7,3),LTRIM(RTRIM(REPLACE(FKszer.Data,',','.'))))
-	,[Karton_Dlugosc] = CONVERT(decimal(7,3),LTRIM(RTRIM(REPLACE(FKd³.Data,',','.'))))
-	,[description] = CASE WHEN LTRIM(RTRIM(Fdesc.Data)) /* COLLATE Latin1_General_100_BIN2 */ = '' THEN NULL ELSE LTRIM(RTRIM(Fdesc.Data)) /* COLLATE Latin1_General_100_BIN2 */ END
+	,[range] = CONVERT(bit,LTRIM(RTRIM(Frange.Data))) /* COLLATE Latin1_General_100_BIN2 */
+	,[product_description_en] = CASE WHEN LTRIM(RTRIM(Fdesc.Data)) /* COLLATE Latin1_General_100_BIN2 */ = '' THEN NULL ELSE LTRIM(RTRIM(Fdesc.Data)) /* COLLATE Latin1_General_100_BIN2 */ END
 	,[category_en] = CASE WHEN LTRIM(RTRIM(FPODen.Data)) /* COLLATE Latin1_General_100_BIN2 */ = '' THEN NULL ELSE LTRIM(RTRIM(FPODen.Data)) /* COLLATE Latin1_General_100_BIN2 */ END
-	,[rap_state] = CONVERT(bit,LTRIM(RTRIM(FRS.Data)))
-	,[rap_state_www] = CONVERT(bit,LTRIM(RTRIM(FRSWWW.Data)))
-	,[kgo] = NULL
+	,[box_capacity] = CONVERT(smallint,LTRIM(RTRIM(FPojOp.Data)))
+	,[dimension_h] = CONVERT(decimal(7,3),LTRIM(RTRIM(REPLACE(Fwys.Data,',','.')))) --END
+	,[dimension_w] = CONVERT(decimal(7,3),LTRIM(RTRIM(REPLACE(Fszer.Data,',','.')))) --END
+	,[dimension_l] = CONVERT(decimal(7,3),LTRIM(RTRIM(REPLACE(Fd³.Data,',','.')))) --END
+	,[pallete_capacity] = CONVERT(int,LTRIM(RTRIM(FMAX.Data)))
+	,[box_dimension_h] = CONVERT(decimal(7,3),LTRIM(RTRIM(REPLACE(FKwys.Data,',','.'))))
+	,[box_dimension_w] = CONVERT(decimal(7,3),LTRIM(RTRIM(REPLACE(FKszer.Data,',','.'))))
+	,[box_dimension_l] = CONVERT(decimal(7,3),LTRIM(RTRIM(REPLACE(FKd³.Data,',','.'))))
+	,[rep_state] = CONVERT(bit,LTRIM(RTRIM(FRS.Data)))
+	,[rep_state_www] = CONVERT(bit,LTRIM(RTRIM(FRSWWW.Data)))
+	,[kgo] = (CONVERT(decimal(7,3),LTRIM(RTRIM(FKGO.Data))) * 0.09) -- kgo wartosc jest wyliczana jako wartosc KGO WAGA * 0,09 zgadza sie dla wszystkich produktów
 	,[LastUpdate] = GETDATE()
 	,[LastUser] = CURRENT_USER
 FROM TEAM.dbo.Towary T
@@ -62,4 +64,8 @@ LEFT JOIN TEAM.dbo.Features FRSWWW ON FRSWWW.Parent = T.ID
 LEFT JOIN TEAM.dbo.Features FRS ON FRS.Parent = T.ID
 	AND FRS.ParentType = N'Towary' AND FRS.Name = N'rap stany'
 LEFT JOIN TEAM.dbo.Features FPROM ON FPROM.Parent = T.ID
-	AND FPROM.ParentType = N'Towary' AND FRS.Name = N'Promocja'
+	AND FPROM.ParentType = N'Towary' AND FPROM.Name = N'Promocja'
+LEFT JOIN TEAM.dbo.Features Frange ON Frange.Parent = T.ID
+	AND Frange.ParentType = N'Towary' AND Frange.Name = N'range'
+LEFT JOIN TEAM.dbo.Features FKGO ON FKGO.Parent = T.ID
+	AND FKGO.ParentType = N'Towary' AND FKGO.Name = N'KGO WAGA'
