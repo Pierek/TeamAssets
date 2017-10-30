@@ -1,6 +1,6 @@
 CREATE TABLE dbo.tblProduct
 (
-	 [Id]                     int NOT NULL
+	 [product_id]             int NOT NULL
 	,[product_code]           varchar(100) NOT NULL
 	,[product_description]    nvarchar(200) NOT NULL
 	,[promo]                  nvarchar(20) NULL

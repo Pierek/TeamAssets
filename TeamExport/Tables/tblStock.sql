@@ -1,7 +1,7 @@
 CREATE TABLE dbo.tblStock
 (
-	 [Id]             int NOT NULL
-	,[product_code]   varchar(100) NOT NULL
+	 [product_id]     int NOT NULL
+	,[client_id]      int NOT NULL
 	,[stock_physical] int NULL
 	,[stock_ordered]  int NULL
 	,[stock_reserved] int NULL

@@ -36,7 +36,7 @@ BEGIN
 		ON (T.product_code = S.product_code) 
 		WHEN MATCHED AND ( 
 
-			 T.Id <> S.Id OR (T.Id IS NULL AND S.Id IS NOT NULL) OR (T.Id IS NOT NULL AND S.Id IS NULL)
+			 T.product_id <> S.product_id OR (T.product_id IS NULL AND S.product_id IS NOT NULL) OR (T.product_id IS NOT NULL AND S.product_id IS NULL)
 	OR		 T.product_description <> S.product_description OR (T.product_description IS NULL AND S.product_description IS NOT NULL) OR (T.product_description IS NOT NULL AND S.product_description IS NULL)
 	OR		 T.promo <> S.promo OR (T.promo IS NULL AND S.promo IS NOT NULL) OR (T.promo IS NOT NULL AND S.promo IS NULL)
 	OR		 T.ean <> S.ean OR (T.ean IS NULL AND S.ean IS NOT NULL) OR (T.ean IS NOT NULL AND S.ean IS NULL)
@@ -61,12 +61,9 @@ BEGIN
 
 	)
 
-		--CHECKSUM(S.product_description,S.ean,S.integral_code,S.series,S.category,S.brand,S.box_capacity,S.dimension_h,S.dimension_w,S.dimension_l,S.Max_Na_Palecie,S.Karton_Wysokosc,S.Karton_Szerokosc,S.Karton_Dlugosc,S.description,S.category_en,S.rap_state,S.rap_state_www,S.kgo)
-		--<>
-		--CHECKSUM(T.product_description,T.ean,T.integral_code,T.series,T.category,T.brand,T.box_capacity,T.dimension_h,T.dimension_w,T.dimension_l,T.Max_Na_Palecie,T.Karton_Wysokosc,T.Karton_Szerokosc,T.Karton_Dlugosc,T.description,T.category_en,T.rap_state,T.rap_state_www,T.kgo)
 
 			THEN UPDATE
-				SET  T.Id = S.Id
+				SET  T.product_id = S.product_id
 					,T.product_description = S.product_description
 					,T.promo = S.promo
 					,T.ean = S.ean
@@ -92,8 +89,8 @@ BEGIN
 					,T.LastUser = S.LastUser 
 				
 		WHEN NOT MATCHED
-			THEN INSERT(Id,product_code,product_description,promo,ean,integral_code,series,category,brand,range,product_description_en,category_en,box_capacity,dimension_h,dimension_w,dimension_l,pallete_capacity,box_dimension_h,box_dimension_w,box_dimension_l,rep_state,rep_state_www,kgo,LastUpdate,LastUser)
-			VALUES(S.Id,S.product_code,S.product_description,S.promo,S.ean,S.integral_code,S.series,S.category,S.brand,S.range,S.product_description_en,S.category_en,S.box_capacity,S.dimension_h,S.dimension_w,S.dimension_l,S.pallete_capacity,S.box_dimension_h,S.box_dimension_w,S.box_dimension_l,S.rep_state,S.rep_state_www,S.kgo,S.LastUpdate,S.LastUser);
+			THEN INSERT(product_id,product_code,product_description,promo,ean,integral_code,series,category,brand,range,product_description_en,category_en,box_capacity,dimension_h,dimension_w,dimension_l,pallete_capacity,box_dimension_h,box_dimension_w,box_dimension_l,rep_state,rep_state_www,kgo,LastUpdate,LastUser)
+			VALUES(S.product_id,S.product_code,S.product_description,S.promo,S.ean,S.integral_code,S.series,S.category,S.brand,S.range,S.product_description_en,S.category_en,S.box_capacity,S.dimension_h,S.dimension_w,S.dimension_l,S.pallete_capacity,S.box_dimension_h,S.box_dimension_w,S.box_dimension_l,S.rep_state,S.rep_state_www,S.kgo,S.LastUpdate,S.LastUser);
 
 
 		SET @EventRowcount = @@ROWCOUNT

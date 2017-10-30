@@ -5,7 +5,7 @@ CREATE VIEW dbo.vwProduct
 AS
 
 SELECT 
-	 [Id] = T.ID
+	 [product_id] = T.ID
 	,[product_code] = LTRIM(RTRIM(T.Kod)) /* COLLATE Latin1_General_100_BIN2 */
 	,[product_description] = LTRIM(RTRIM(T.Nazwa)) /* COLLATE Latin1_General_100_BIN2 */
 	,[promo] = CASE WHEN LTRIM(RTRIM(FPROM.Data)) = '' THEN NULL ELSE LTRIM(RTRIM(FPROM.Data)) END
