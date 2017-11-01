@@ -1,4 +1,4 @@
-TRUNCATE TABLE dbo.tblEventType;
+﻿TRUNCATE TABLE dbo.tblEventType;
 
 INSERT INTO dbo.tblEventType
     (EventTypeId, EventTypeCode, Description, AddDate, AddUser, ModDate, ModUser)

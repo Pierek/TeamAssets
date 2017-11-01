@@ -1,4 +1,4 @@
-CREATE TABLE [dbo].[tblEventLog]
+﻿CREATE TABLE [dbo].[tblEventLog]
 (
 	 [EventLogId]      int IDENTITY(1,1) NOT NULL
 	,[EventTypeId]     int NOT NULL

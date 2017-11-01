@@ -1,4 +1,4 @@
-CREATE TABLE dbo.tblClientDict
+﻿CREATE TABLE dbo.tblClientDict
 (
 	 [client_id]          int NOT NULL
 	,[client_code]        varchar(100) NOT NULL

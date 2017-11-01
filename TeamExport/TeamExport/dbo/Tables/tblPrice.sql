@@ -1,4 +1,4 @@
-CREATE TABLE dbo.tblPrice
+﻿CREATE TABLE dbo.tblPrice
 (
 	 [product_id]      int NOT NULL
 	,[price_client_id] int NOT NULL

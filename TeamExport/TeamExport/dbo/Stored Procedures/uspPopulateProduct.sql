@@ -1,4 +1,4 @@
---- <summary>Move Product data from enova to TeamExport</summary>
+﻿--- <summary>Move Product data from enova to TeamExport</summary>
 --- <event author="Piotr Purwin" date="2017-10-16" project="TEAM">Procedure created</event>
 CREATE PROCEDURE [dbo].[uspPopulateProduct]
 

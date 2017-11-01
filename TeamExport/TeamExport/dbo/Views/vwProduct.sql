@@ -1,4 +1,4 @@
---- <summary>Move product data from enova to TeamExport</summary>
+Ôªø--- <summary>Move product data from enova to TeamExport</summary>
 --- <event author="Piotr Purwin" date="2017-10-16" project="TEAM">View created</event>
 CREATE VIEW dbo.vwProduct
 
@@ -20,14 +20,14 @@ SELECT
 	,[box_capacity] = CONVERT(smallint,LTRIM(RTRIM(FPojOp.Data)))
 	,[dimension_h] = CONVERT(decimal(7,3),LTRIM(RTRIM(REPLACE(Fwys.Data,',','.')))) --END
 	,[dimension_w] = CONVERT(decimal(7,3),LTRIM(RTRIM(REPLACE(Fszer.Data,',','.')))) --END
-	,[dimension_l] = CONVERT(decimal(7,3),LTRIM(RTRIM(REPLACE(Fd≥.Data,',','.')))) --END
+	,[dimension_l] = CONVERT(decimal(7,3),LTRIM(RTRIM(REPLACE(Fd≈Ç.Data,',','.')))) --END
 	,[pallete_capacity] = CONVERT(int,LTRIM(RTRIM(FMAX.Data)))
 	,[box_dimension_h] = CONVERT(decimal(7,3),LTRIM(RTRIM(REPLACE(FKwys.Data,',','.'))))
 	,[box_dimension_w] = CONVERT(decimal(7,3),LTRIM(RTRIM(REPLACE(FKszer.Data,',','.'))))
-	,[box_dimension_l] = CONVERT(decimal(7,3),LTRIM(RTRIM(REPLACE(FKd≥.Data,',','.'))))
+	,[box_dimension_l] = CONVERT(decimal(7,3),LTRIM(RTRIM(REPLACE(FKd≈Ç.Data,',','.'))))
 	,[rep_state] = CONVERT(bit,LTRIM(RTRIM(FRS.Data)))
 	,[rep_state_www] = CONVERT(bit,LTRIM(RTRIM(FRSWWW.Data)))
-	,[kgo] = (CONVERT(decimal(7,3),LTRIM(RTRIM(FKGO.Data))) * 0.09) -- kgo wartosc jest wyliczana jako wartosc KGO WAGA * 0,09 zgadza sie dla wszystkich produktÛw
+	,[kgo] = (CONVERT(decimal(7,3),LTRIM(RTRIM(FKGO.Data))) * 0.09) -- kgo wartosc jest wyliczana jako wartosc KGO WAGA * 0,09 zgadza sie dla wszystkich produkt√≥w
 	,[LastUpdate] = GETDATE()
 	,[LastUser] = CURRENT_USER
 FROM TEAM.dbo.Towary T
@@ -42,15 +42,15 @@ LEFT JOIN TEAM.dbo.Features Fbrand ON Fbrand.Parent = T.ID
 LEFT JOIN TEAM.dbo.Features FMAX ON FMAX.Parent = T.ID
 	AND FMAX.ParentType = N'Towary' AND FMAX.Name = N'max na palecie'
 LEFT JOIN TEAM.dbo.Features FPojOp ON FPojOp.Parent = T.ID
-	AND FPojOp.ParentType = N'Towary' AND FPojOp.Name = N'PojemnoúÊ opakowania'
+	AND FPojOp.ParentType = N'Towary' AND FPojOp.Name = N'Pojemno≈õƒá opakowania'
 LEFT JOIN TEAM.dbo.Features Fwys ON Fwys.Parent = T.ID
 	AND Fwys.ParentType = N'Towary' AND Fwys.Name = N'wys'
 LEFT JOIN TEAM.dbo.Features Fszer ON Fszer.Parent = T.ID
 	AND Fszer.ParentType = N'Towary' AND Fszer.Name = N'szer'
-LEFT JOIN TEAM.dbo.Features Fd≥ ON Fd≥.Parent = T.ID
-	AND Fd≥.ParentType = N'Towary' AND Fd≥.Name = N'd≥'
-LEFT JOIN TEAM.dbo.Features FKd≥ ON FKd≥.Parent = T.ID
-	AND FKd≥.ParentType = N'Towary' AND FKd≥.Name = N'karton d≥'
+LEFT JOIN TEAM.dbo.Features Fd≈Ç ON Fd≈Ç.Parent = T.ID
+	AND Fd≈Ç.ParentType = N'Towary' AND Fd≈Ç.Name = N'd≈Ç'
+LEFT JOIN TEAM.dbo.Features FKd≈Ç ON FKd≈Ç.Parent = T.ID
+	AND FKd≈Ç.ParentType = N'Towary' AND FKd≈Ç.Name = N'karton d≈Ç'
 LEFT JOIN TEAM.dbo.Features FKszer ON FKszer.Parent = T.ID
 	AND FKszer.ParentType = N'Towary' AND FKszer.Name = N'karton szer'
 LEFT JOIN TEAM.dbo.Features FKwys ON FKwys.Parent = T.ID

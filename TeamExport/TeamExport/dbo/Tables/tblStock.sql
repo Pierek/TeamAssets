@@ -1,4 +1,4 @@
-CREATE TABLE dbo.tblStock
+﻿CREATE TABLE dbo.tblStock
 (
 	 [product_id]     int NOT NULL
 	,[client_id]      int NOT NULL

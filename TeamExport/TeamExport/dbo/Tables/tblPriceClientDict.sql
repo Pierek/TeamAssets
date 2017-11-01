@@ -1,4 +1,4 @@
-CREATE TABLE dbo.tblPriceClientDict
+﻿CREATE TABLE dbo.tblPriceClientDict
 (
 	 [price_client_id]   int NULL
 	,[price_client_code] varchar(100) NOT NULL

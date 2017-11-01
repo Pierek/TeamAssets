@@ -1,4 +1,4 @@
-CREATE TABLE [dbo].[tblEventType]
+﻿CREATE TABLE [dbo].[tblEventType]
 (
      [EventTypeId]   int            NOT NULL
     ,[EventTypeCode] nvarchar(3)     NOT NULL

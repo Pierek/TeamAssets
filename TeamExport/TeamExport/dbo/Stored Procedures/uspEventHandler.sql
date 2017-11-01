@@ -1,4 +1,4 @@
---- <summary>Default Event Handler for ECAT DM Process</summary>
+﻿--- <summary>Default Event Handler for ECAT DM Process</summary>
 --- <concept>Error Handling</concept>
 --- <link>http://www.sommarskog.se/error_handling_2005.html</link>
 --- <link>http://sqlfool.com/2008/12/error-handling-in-t-sql</link>
