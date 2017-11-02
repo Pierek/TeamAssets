@@ -1,10 +1,10 @@
 ﻿CREATE TABLE dbo.tblClientDict
 (
 	 [client_id]          int NOT NULL
-	,[client_code]        varchar(100) NOT NULL
-	,[client_description] varchar(100) NOT NULL
+	,[client_code]        varchar(30) NOT NULL
+	,[client_description] nvarchar(200) NOT NULL
 	,[LastUpdate]         datetime NOT NULL
 	,[LastUser]           varchar(100) NOT NULL
-	--,CONSTRAINT PK_tblProduct PRIMARY KEY CLUSTERED([Id])
-	--,CONSTRAINT NX1_tblProduct UNIQUE NONCLUSTERED([product_code])
+	,CONSTRAINT [PK_tblClientDict] PRIMARY KEY CLUSTERED([client_id])
+	,CONSTRAINT [NX1_tblClientDict] UNIQUE NONCLUSTERED([client_code])
 );

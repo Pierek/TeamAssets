@@ -83,6 +83,10 @@
     <Build Include="dbo\Stored Procedures\uspPopulateProduct.sql" />
     <Build Include="dbo\Stored Procedures\uspEventHandler.sql" />
     <None Include="Profile\Global\tblEventType.StaticData.sql" />
+    <Build Include="dbo\Stored Procedures\uspPopulatePriceClientDict.sql" />
+    <Build Include="dbo\Views\vwPriceClientDict.sql" />
+    <Build Include="dbo\Views\vwClientDict.sql" />
+    <Build Include="dbo\Stored Procedures\uspPopulateClientDict.sql" />
   </ItemGroup>
   <ItemGroup>
     <SqlCmdVariable Include="TEAM">
