@@ -1,0 +1,133 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Operations Version="1.0" xmlns="http://schemas.microsoft.com/sqlserver/dac/Serialization/2012/02">
+  <Operation Name="Move Schema" Key="1f313924-462d-480d-97df-c44b94abe12d" ChangeDateTime="11/06/2017 14:34:26">
+    <Property Name="ElementName" Value="[dbo].[tblClientDict]" />
+    <Property Name="ElementType" Value="SqlTable" />
+    <Property Name="NewSchema" Value="data" />
+    <Property Name="IsNewSchemaExternal" Value="False" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="76e3a941-b65e-4f9b-8a92-79402a68f47c" ChangeDateTime="11/06/2017 14:34:38">
+    <Property Name="ElementName" Value="[data].[tblClientDict]" />
+    <Property Name="ElementType" Value="SqlTable" />
+    <Property Name="ParentElementName" Value="[data]" />
+    <Property Name="ParentElementType" Value="SqlSchema" />
+    <Property Name="NewName" Value="client_dict" />
+  </Operation>
+  <Operation Name="Move Schema" Key="e7a05376-622f-433e-bbcb-d1c6ad101e39" ChangeDateTime="11/06/2017 14:35:19">
+    <Property Name="ElementName" Value="[dbo].[tblPrice]" />
+    <Property Name="ElementType" Value="SqlTable" />
+    <Property Name="NewSchema" Value="data" />
+    <Property Name="IsNewSchemaExternal" Value="False" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="98f941d4-18be-4cb9-9580-982c5b869fcd" ChangeDateTime="11/06/2017 14:35:25">
+    <Property Name="ElementName" Value="[data].[tblPrice]" />
+    <Property Name="ElementType" Value="SqlTable" />
+    <Property Name="ParentElementName" Value="[data]" />
+    <Property Name="ParentElementType" Value="SqlSchema" />
+    <Property Name="NewName" Value="price" />
+  </Operation>
+  <Operation Name="Move Schema" Key="7917f69e-f4f9-4c03-ac13-74f5d3fa2e0c" ChangeDateTime="11/06/2017 14:35:49">
+    <Property Name="ElementName" Value="[dbo].[tblPriceClientDict]" />
+    <Property Name="ElementType" Value="SqlTable" />
+    <Property Name="NewSchema" Value="data" />
+    <Property Name="IsNewSchemaExternal" Value="False" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="74055c46-cd7c-41fe-a0ac-5163d8c8aff6" ChangeDateTime="11/06/2017 14:37:04">
+    <Property Name="ElementName" Value="[data].[tblPriceClientDict]" />
+    <Property Name="ElementType" Value="SqlTable" />
+    <Property Name="ParentElementName" Value="[data]" />
+    <Property Name="ParentElementType" Value="SqlSchema" />
+    <Property Name="NewName" Value="price_client_dict" />
+  </Operation>
+  <Operation Name="Move Schema" Key="f6343f81-6b93-4211-965b-11fdd1becaa1" ChangeDateTime="11/06/2017 14:37:23">
+    <Property Name="ElementName" Value="[dbo].[tblStock]" />
+    <Property Name="ElementType" Value="SqlTable" />
+    <Property Name="NewSchema" Value="data" />
+    <Property Name="IsNewSchemaExternal" Value="False" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="b43df920-d6b3-4d79-be0d-986d56a24a88" ChangeDateTime="11/06/2017 14:37:28">
+    <Property Name="ElementName" Value="[data].[tblStock]" />
+    <Property Name="ElementType" Value="SqlTable" />
+    <Property Name="ParentElementName" Value="[data]" />
+    <Property Name="ParentElementType" Value="SqlSchema" />
+    <Property Name="NewName" Value="stock" />
+  </Operation>
+  <Operation Name="Move Schema" Key="79322903-5b1b-458a-bf44-bd9275e3fcea" ChangeDateTime="11/06/2017 14:39:01">
+    <Property Name="ElementName" Value="[dbo].[vwProduct]" />
+    <Property Name="ElementType" Value="SqlView" />
+    <Property Name="NewSchema" Value="import" />
+    <Property Name="IsNewSchemaExternal" Value="False" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="29092862-4de3-4ca5-9d6e-ddbe47586fd4" ChangeDateTime="11/06/2017 14:39:19">
+    <Property Name="ElementName" Value="[import].[vwProduct]" />
+    <Property Name="ElementType" Value="SqlView" />
+    <Property Name="ParentElementName" Value="[import]" />
+    <Property Name="ParentElementType" Value="SqlSchema" />
+    <Property Name="NewName" Value="product" />
+  </Operation>
+  <Operation Name="Move Schema" Key="8dfe64e9-f3af-436f-9557-1d7ad95ee778" ChangeDateTime="11/06/2017 14:40:38">
+    <Property Name="ElementName" Value="[dbo].[vwPriceClientDict]" />
+    <Property Name="ElementType" Value="SqlView" />
+    <Property Name="NewSchema" Value="import" />
+    <Property Name="IsNewSchemaExternal" Value="False" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="5d10c85c-ed96-45dd-b3be-6055c37632bc" ChangeDateTime="11/06/2017 14:40:48">
+    <Property Name="ElementName" Value="[import].[vwPriceClientDict]" />
+    <Property Name="ElementType" Value="SqlView" />
+    <Property Name="ParentElementName" Value="[import]" />
+    <Property Name="ParentElementType" Value="SqlSchema" />
+    <Property Name="NewName" Value="price_client_dict" />
+  </Operation>
+  <Operation Name="Move Schema" Key="11dae0b5-561a-4ca2-aff2-0ca9e166f444" ChangeDateTime="11/06/2017 14:41:03">
+    <Property Name="ElementName" Value="[dbo].[vwClientDict]" />
+    <Property Name="ElementType" Value="SqlView" />
+    <Property Name="NewSchema" Value="import" />
+    <Property Name="IsNewSchemaExternal" Value="False" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="0bfcf0c3-1d27-433e-af77-f55313a6817f" ChangeDateTime="11/06/2017 14:41:17">
+    <Property Name="ElementName" Value="[import].[vwClientDict]" />
+    <Property Name="ElementType" Value="SqlView" />
+    <Property Name="ParentElementName" Value="[import]" />
+    <Property Name="ParentElementType" Value="SqlSchema" />
+    <Property Name="NewName" Value="client_dict" />
+  </Operation>
+  <Operation Name="Move Schema" Key="fd28bee4-5763-4442-b934-2011967caca3" ChangeDateTime="11/06/2017 14:42:48">
+    <Property Name="ElementName" Value="[dbo].[uspPopulateProduct]" />
+    <Property Name="ElementType" Value="SqlProcedure" />
+    <Property Name="NewSchema" Value="import" />
+    <Property Name="IsNewSchemaExternal" Value="False" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="53b41f27-1347-4157-be80-13743292e244" ChangeDateTime="11/06/2017 14:42:56">
+    <Property Name="ElementName" Value="[import].[uspPopulateProduct]" />
+    <Property Name="ElementType" Value="SqlProcedure" />
+    <Property Name="ParentElementName" Value="[import]" />
+    <Property Name="ParentElementType" Value="SqlSchema" />
+    <Property Name="NewName" Value="populate_product" />
+  </Operation>
+  <Operation Name="Move Schema" Key="a0503fba-9048-40ed-87c1-5f60e16d0b3f" ChangeDateTime="11/06/2017 14:43:32">
+    <Property Name="ElementName" Value="[dbo].[uspPopulatePriceClientDict]" />
+    <Property Name="ElementType" Value="SqlProcedure" />
+    <Property Name="NewSchema" Value="import" />
+    <Property Name="IsNewSchemaExternal" Value="False" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="775e85f7-1b9b-4811-aa0c-6240c9d923e4" ChangeDateTime="11/06/2017 14:43:46">
+    <Property Name="ElementName" Value="[import].[uspPopulatePriceClientDict]" />
+    <Property Name="ElementType" Value="SqlProcedure" />
+    <Property Name="ParentElementName" Value="[import]" />
+    <Property Name="ParentElementType" Value="SqlSchema" />
+    <Property Name="NewName" Value="populate_price_client_dict" />
+  </Operation>
+  <Operation Name="Move Schema" Key="e3aff8bf-4e17-4262-9380-29848b255f29" ChangeDateTime="11/06/2017 14:44:11">
+    <Property Name="ElementName" Value="[dbo].[uspPopulateClientDict]" />
+    <Property Name="ElementType" Value="SqlProcedure" />
+    <Property Name="NewSchema" Value="import" />
+    <Property Name="IsNewSchemaExternal" Value="False" />
+  </Operation>
+  <Operation Name="Rename Refactor" Key="28b68cd1-bdbd-4ed5-b7b4-4d21d4e75f46" ChangeDateTime="11/06/2017 14:44:21">
+    <Property Name="ElementName" Value="[import].[uspPopulateClientDict]" />
+    <Property Name="ElementType" Value="SqlProcedure" />
+    <Property Name="ParentElementName" Value="[import]" />
+    <Property Name="ParentElementType" Value="SqlSchema" />
+    <Property Name="NewName" Value="populate_client_dict" />
+  </Operation>
+</Operations>

@@ -1,26 +1,26 @@
 ﻿--- <summary>Move product data from enova to TeamExport</summary>
 --- <event author="Piotr Purwin" date="2017-10-16" project="TEAM">View created</event>
-CREATE VIEW dbo.vwProduct
+CREATE VIEW [import].product
 
 AS
 
 SELECT 
 	 [product_id] = T.ID
-	,[product_code] = LTRIM(RTRIM(T.Kod)) /* COLLATE Latin1_General_100_BIN2 */
-	,[product_description] = LTRIM(RTRIM(T.Nazwa)) /* COLLATE Latin1_General_100_BIN2 */
+	,[product_code] = LTRIM(RTRIM(T.Kod))
+	,[product_description] = LTRIM(RTRIM(T.Nazwa))
 	,[promo] = CASE WHEN LTRIM(RTRIM(FPROM.Data)) = '' THEN NULL ELSE LTRIM(RTRIM(FPROM.Data)) END
-	,[ean] =  CASE WHEN LTRIM(RTRIM(ean)) /* COLLATE Latin1_General_100_BIN2 */ = '' THEN NULL ELSE LTRIM(RTRIM(T.EAN)) /* COLLATE Latin1_General_100_BIN2 */ END
-	,[integral_code] = CASE WHEN LTRIM(RTRIM(FIntref.Data)) /* COLLATE Latin1_General_100_BIN2 */ = '' THEN NULL ELSE LTRIM(RTRIM(FIntref.Data)) /* COLLATE Latin1_General_100_BIN2 */ END
-	,[series] = CASE WHEN LTRIM(RTRIM(FSerie.Data)) /* COLLATE Latin1_General_100_BIN2 */ = '' THEN NULL ELSE LTRIM(RTRIM(FSerie.Data)) /* COLLATE Latin1_General_100_BIN2 */ END 
-	,[category] = CASE WHEN LTRIM(RTRIM(FPOD.Data)) /* COLLATE Latin1_General_100_BIN2 */ = '' THEN NULL ELSE LTRIM(RTRIM(FPOD.Data)) /* COLLATE Latin1_General_100_BIN2 */ END
-	,[brand] = LTRIM(RTRIM(Fbrand.Data)) /* COLLATE Latin1_General_100_BIN2 */
-	,[range] = CONVERT(bit,LTRIM(RTRIM(Frange.Data))) /* COLLATE Latin1_General_100_BIN2 */
-	,[product_description_en] = CASE WHEN LTRIM(RTRIM(Fdesc.Data)) /* COLLATE Latin1_General_100_BIN2 */ = '' THEN NULL ELSE LTRIM(RTRIM(Fdesc.Data)) /* COLLATE Latin1_General_100_BIN2 */ END
-	,[category_en] = CASE WHEN LTRIM(RTRIM(FPODen.Data)) /* COLLATE Latin1_General_100_BIN2 */ = '' THEN NULL ELSE LTRIM(RTRIM(FPODen.Data)) /* COLLATE Latin1_General_100_BIN2 */ END
+	,[ean] =  CASE WHEN LTRIM(RTRIM(ean)) = '' THEN NULL ELSE LTRIM(RTRIM(T.EAN)) END
+	,[integral_code] = CASE WHEN LTRIM(RTRIM(FIntref.Data)) = '' THEN NULL ELSE LTRIM(RTRIM(FIntref.Data)) END
+	,[series] = CASE WHEN LTRIM(RTRIM(FSerie.Data)) = '' THEN NULL ELSE LTRIM(RTRIM(FSerie.Data)) END 
+	,[category] = CASE WHEN LTRIM(RTRIM(FPOD.Data)) = '' THEN NULL ELSE LTRIM(RTRIM(FPOD.Data)) END
+	,[brand] = LTRIM(RTRIM(Fbrand.Data))
+	,[range] = CONVERT(bit,LTRIM(RTRIM(Frange.Data)))
+	,[product_description_en] = CASE WHEN LTRIM(RTRIM(Fdesc.Data)) = '' THEN NULL ELSE LTRIM(RTRIM(Fdesc.Data)) END
+	,[category_en] = CASE WHEN LTRIM(RTRIM(FPODen.Data)) = '' THEN NULL ELSE LTRIM(RTRIM(FPODen.Data)) END
 	,[box_capacity] = CONVERT(smallint,LTRIM(RTRIM(FPojOp.Data)))
-	,[dimension_h] = CONVERT(decimal(7,3),LTRIM(RTRIM(REPLACE(Fwys.Data,',','.')))) --END
-	,[dimension_w] = CONVERT(decimal(7,3),LTRIM(RTRIM(REPLACE(Fszer.Data,',','.')))) --END
-	,[dimension_l] = CONVERT(decimal(7,3),LTRIM(RTRIM(REPLACE(Fdł.Data,',','.')))) --END
+	,[dimension_h] = CONVERT(decimal(7,3),LTRIM(RTRIM(REPLACE(Fwys.Data,',','.'))))
+	,[dimension_w] = CONVERT(decimal(7,3),LTRIM(RTRIM(REPLACE(Fszer.Data,',','.'))))
+	,[dimension_l] = CONVERT(decimal(7,3),LTRIM(RTRIM(REPLACE(Fdł.Data,',','.'))))
 	,[pallete_capacity] = CONVERT(int,LTRIM(RTRIM(FMAX.Data)))
 	,[box_dimension_h] = CONVERT(decimal(7,3),LTRIM(RTRIM(REPLACE(FKwys.Data,',','.'))))
 	,[box_dimension_w] = CONVERT(decimal(7,3),LTRIM(RTRIM(REPLACE(FKszer.Data,',','.'))))

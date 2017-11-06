@@ -69,24 +69,37 @@
     <Folder Include="dbo\Views" />
     <Folder Include="Profile" />
     <Folder Include="Profile\Global" />
+    <Folder Include="export" />
+    <Folder Include="export\Views" />
+    <Folder Include="import" />
+    <Folder Include="data" />
+    <Folder Include="import\Views" />
+    <Folder Include="import\Stored Procedures" />
+    <Folder Include="data\Tables" />
+    <Folder Include="config" />
+    <Folder Include="config\Tables" />
+    <Folder Include="log" />
+    <Folder Include="log\Tables" />
   </ItemGroup>
   <ItemGroup>
-    <Build Include="dbo\Views\vwProduct.sql" />
-    <Build Include="dbo\Tables\tblProduct.sql" />
-    <Build Include="dbo\Tables\tblStock.sql" />
-    <Build Include="dbo\Tables\tblClient.sql" />
-    <Build Include="dbo\Tables\tblPrice.sql" />
-    <Build Include="dbo\Tables\tblPriceClientDict.sql" />
-    <Build Include="dbo\Tables\tblClientDict.sql" />
-    <Build Include="dbo\Tables\tblEventLog.sql" />
-    <Build Include="dbo\Tables\tblEventType.sql" />
-    <Build Include="dbo\Stored Procedures\uspPopulateProduct.sql" />
-    <Build Include="dbo\Stored Procedures\uspEventHandler.sql" />
-    <None Include="Profile\Global\tblEventType.StaticData.sql" />
-    <Build Include="dbo\Stored Procedures\uspPopulatePriceClientDict.sql" />
-    <Build Include="dbo\Views\vwPriceClientDict.sql" />
-    <Build Include="dbo\Views\vwClientDict.sql" />
-    <Build Include="dbo\Stored Procedures\uspPopulateClientDict.sql" />
+    <Build Include="dbo\Stored Procedures\EventHandler.sql" />
+    <None Include="Profile\Global\EventType.StaticData.sql" />
+    <Build Include="Security\export.sql" />
+    <Build Include="Security\import.sql" />
+    <Build Include="Security\data.sql" />
+    <Build Include="Security\config.sql" />
+    <Build Include="Security\log.sql" />
+    <Build Include="log\Tables\EventLog.sql" />
+    <Build Include="config\Tables\EventType.sql" />
+    <Build Include="data\Tables\stock.sql" />
+    <Build Include="data\Tables\client.sql" />
+    <Build Include="data\Tables\client_dict.sql" />
+    <Build Include="data\Tables\price.sql" />
+    <Build Include="data\Tables\price_client_dict.sql" />
+    <Build Include="data\Tables\product.sql" />
+    <Build Include="import\Views\client_dict.sql" />
+    <Build Include="import\Views\product.sql" />
+    <Build Include="import\Stored Procedures\populate_product.sql" />
   </ItemGroup>
   <ItemGroup>
     <SqlCmdVariable Include="TEAM">
@@ -103,5 +116,13 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="TeamExport.publish.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Build Include="import\Views\price_client_dict.sql" />
+    <Build Include="import\Stored Procedures\populate_price_client_dict.sql" />
+    <Build Include="import\Stored Procedures\populate_client_dict.sql" />
+  </ItemGroup>
+  <ItemGroup>
+    <RefactorLog Include="TeamExport.refactorlog" />
   </ItemGroup>
 </Project>

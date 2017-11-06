@@ -1,6 +1,6 @@
-﻿--- <summary>Move PriceClientDict data from enova to TeamExport</summary>
+﻿--- <summary>Move ClientDict data from enova to TeamExport</summary>
 --- <event author="Piotr Purwin" date="2017-11-02" project="TEAM">Procedure created</event>
-CREATE PROCEDURE [dbo].[uspPopulatePriceClientDict]
+CREATE PROCEDURE [import].populate_client_dict
 
 AS
 
@@ -25,38 +25,42 @@ BEGIN
 
 
 		/* log start */
-		EXEC dbo.uspEventHandler
+		EXEC dbo.EventHandler
 			 @ProcedureName = @PROCEDURE_NAME,@SchemaName = @SCHEMA_NAME
 			,@EventMessage = 'Started'
 
 		/* merge data */
 
-		MERGE dbo.tblPriceClientDict T
-		USING dbo.vwPriceClientDict S
-		ON (T.price_client_code = S.price_client_code) 
+		MERGE [data].client_dict T
+		USING [import].client_dict S
+		ON (T.client_code = S.client_code) 
 		WHEN MATCHED AND ( 
 
-			 T.price_client_id <> S.price_client_id OR (T.price_client_id IS NULL AND S.price_client_id IS NOT NULL) OR (T.price_client_id IS NOT NULL AND S.price_client_id IS NULL)
+			T.client_id <> S.client_id OR (T.client_id IS NULL AND S.client_id IS NOT NULL) OR (T.client_id IS NOT NULL AND S.client_id IS NULL)
+		OR	T.client_description <> S.client_description OR (T.client_description IS NULL AND S.client_description IS NOT NULL) OR (T.client_description IS NOT NULL AND S.client_description IS NULL)
 		)
 
 
 		THEN UPDATE
-		SET  T.price_client_id = S.price_client_id
+		SET  T.client_id = S.client_id
+			,T.client_description = S.client_description
 			,T.LastUpdate = S.LastUpdate 
 			,T.LastUser = S.LastUser 
 				
 		WHEN NOT MATCHED
 		THEN INSERT
 		(
-			 price_client_id
-			,price_client_code
+			 client_id
+			,client_code
+			,client_description
 			,LastUpdate
 			,LastUser
 		)
 		VALUES
 		(
-			 S.price_client_id
-			,S.price_client_code
+			 S.client_id
+			,S.client_code
+			,S.client_description
 			,S.LastUpdate
 			,S.LastUser
 		);
@@ -64,23 +68,23 @@ BEGIN
 
 		SET @EventRowcount = @@ROWCOUNT
 
-		EXEC dbo.uspEventHandler
+		EXEC dbo.EventHandler
 			 @ProcedureName = @PROCEDURE_NAME,@SchemaName = @SCHEMA_NAME
 			,@EventRowcount = @EventRowcount
 			,@EventMessage = 'Rowcount'
-			,@EventParams = 'PriceClientDict'
+			,@EventParams = 'client_dict'
 
 		/* log complete */
-		EXEC dbo.uspEventHandler
+		EXEC dbo.EventHandler
 			 @ProcedureName = @PROCEDURE_NAME,@SchemaName = @SCHEMA_NAME
 			,@EventMessage = 'Completed'
 
 	END TRY
 	BEGIN CATCH
 		IF @@TRANCOUNT > 0 ROLLBACK TRAN
-		EXEC dbo.uspEventHandler /* this will reraise error and cause to bomb out in global try/catch */
+		EXEC dbo.EventHandler /* this will reraise error and cause to bomb out in global try/catch */
 			 @ProcedureName = @PROCEDURE_NAME,@SchemaName = @SCHEMA_NAME
-			,@EventMessage = 'Unable to populate table dbo.tblPriceClientDict'
+			,@EventMessage = 'Unable to populate table data.populate_client_dict'
 	END CATCH
 
 END

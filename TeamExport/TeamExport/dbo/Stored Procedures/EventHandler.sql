@@ -4,7 +4,7 @@
 --- <link>http://sqlfool.com/2008/12/error-handling-in-t-sql</link>
 --- <link>http://www.sommarskog.se/error_handling/Part3.html</link>
 --- <event author="Piotr Purwin" date="2017-10-15" project="TEAM">Procedure Created.</event>
-CREATE PROCEDURE [dbo].[uspEventHandler]
+CREATE PROCEDURE [dbo].[EventHandler]
 (
 	@EventTypeId	tinyint			= 1,	--- <param name="@EventType">Dummy parameter</param>
 	@ProcedureName	sysname			= NULL,	--- <param name="@ProcedureName">Name of the calling Procedure.</param>
@@ -56,7 +56,7 @@ BEGIN
 
 		SET	@ProcedureName = COALESCE(@ProcedureName, '<dynamic SQL>')
 
-		INSERT INTO [dbo].[tblEventLog]
+		INSERT INTO [log].[EventLog]
 		(
 			 [EventTypeId]
 			,[EventDate]

@@ -1,6 +1,6 @@
 ﻿--- <summary>Move Product data from enova to TeamExport</summary>
 --- <event author="Piotr Purwin" date="2017-10-16" project="TEAM">Procedure created</event>
-CREATE PROCEDURE [dbo].[uspPopulateProduct]
+CREATE PROCEDURE [import].populate_product
 
 AS
 
@@ -25,14 +25,14 @@ BEGIN
 
 
 		/* log start */
-		EXEC dbo.uspEventHandler
+		EXEC dbo.EventHandler
 			 @ProcedureName = @PROCEDURE_NAME,@SchemaName = @SCHEMA_NAME
 			,@EventMessage = 'Started'
 
 		/* merge data */
 
-		MERGE dbo.tblProduct T
-		USING dbo.vwProduct S
+		MERGE [data].product T
+		USING [import].product S
 		ON (T.product_code = S.product_code) 
 		WHEN MATCHED AND ( 
 
@@ -148,23 +148,23 @@ BEGIN
 
 		SET @EventRowcount = @@ROWCOUNT
 
-		EXEC dbo.uspEventHandler
+		EXEC dbo.EventHandler
 			 @ProcedureName = @PROCEDURE_NAME,@SchemaName = @SCHEMA_NAME
 			,@EventRowcount = @EventRowcount
 			,@EventMessage = 'Rowcount'
-			,@EventParams = 'Products'
+			,@EventParams = 'product'
 
 		/* log complete */
-		EXEC dbo.uspEventHandler
+		EXEC dbo.EventHandler
 			 @ProcedureName = @PROCEDURE_NAME,@SchemaName = @SCHEMA_NAME
 			,@EventMessage = 'Completed'
 
 	END TRY
 	BEGIN CATCH
 		IF @@TRANCOUNT > 0 ROLLBACK TRAN
-		EXEC dbo.uspEventHandler /* this will reraise error and cause to bomb out in global try/catch */
+		EXEC dbo.EventHandler /* this will reraise error and cause to bomb out in global try/catch */
 			 @ProcedureName = @PROCEDURE_NAME,@SchemaName = @SCHEMA_NAME
-			,@EventMessage = 'Unable to populate table dbo.tblProduct'
+			,@EventMessage = 'Unable to populate table data.product'
 	END CATCH
 
 END

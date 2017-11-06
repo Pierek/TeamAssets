@@ -1,6 +1,6 @@
 ﻿--- <summary>Move ClientDict data from enova to TeamExport</summary>
 --- <event author="Piotr Purwin" date="2017-11-02" project="TEAM">View created</event>
-CREATE VIEW dbo.vwClientDict
+CREATE VIEW [import].client_dict
 
 AS
 

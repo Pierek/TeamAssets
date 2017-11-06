@@ -11,6 +11,9 @@ import json
 # for row in rows:
 #     print (row)
 
+def datatofile(server, database, user, password, query):
+
+
 server = 'PIEREK-PC'
 database = 'TeamExport_pl'
 user = 'test'

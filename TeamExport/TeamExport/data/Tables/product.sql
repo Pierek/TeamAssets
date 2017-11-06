@@ -1,4 +1,4 @@
-﻿CREATE TABLE dbo.tblProduct
+﻿CREATE TABLE [data].[product]
 (
 	 [product_id]             int NOT NULL
 	,[product_code]           varchar(100) NOT NULL
@@ -25,6 +25,6 @@
 	,[kgo]                    decimal(6,4) NULL
 	,[LastUpdate]             datetime NOT NULL
 	,[LastUser]               varchar(100) NOT NULL
-	,CONSTRAINT PK_tblProduct PRIMARY KEY CLUSTERED([product_id])
-	,CONSTRAINT NX1_tblProduct UNIQUE NONCLUSTERED([product_code])
+	,CONSTRAINT [PK_product] PRIMARY KEY CLUSTERED([product_id])
+	,CONSTRAINT [NX1_product] UNIQUE NONCLUSTERED([product_code])
 );
