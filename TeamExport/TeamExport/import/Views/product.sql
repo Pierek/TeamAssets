@@ -1,6 +1,6 @@
 ﻿--- <summary>Move product data from enova to TeamExport</summary>
 --- <event author="Piotr Purwin" date="2017-10-16" project="TEAM">View created</event>
-CREATE VIEW [import].product
+CREATE VIEW import.product
 
 AS
 

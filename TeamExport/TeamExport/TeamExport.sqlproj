@@ -100,6 +100,7 @@
     <Build Include="import\Views\client_dict.sql" />
     <Build Include="import\Views\product.sql" />
     <Build Include="import\Stored Procedures\populate_product.sql" />
+    <Build Include="export\Views\product.sql" />
   </ItemGroup>
   <ItemGroup>
     <SqlCmdVariable Include="TEAM">
