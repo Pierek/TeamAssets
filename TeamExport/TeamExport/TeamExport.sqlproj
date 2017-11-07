@@ -89,7 +89,6 @@
     <Build Include="Security\data.sql" />
     <Build Include="Security\config.sql" />
     <Build Include="Security\log.sql" />
-    <Build Include="log\Tables\EventLog.sql" />
     <Build Include="config\Tables\EventType.sql" />
     <Build Include="data\Tables\stock.sql" />
     <Build Include="data\Tables\client.sql" />
@@ -101,6 +100,9 @@
     <Build Include="import\Views\product.sql" />
     <Build Include="import\Stored Procedures\populate_product.sql" />
     <Build Include="export\Views\product.sql" />
+    <Build Include="export\Views\client_dict.sql" />
+    <Build Include="dbo\Stored Procedures\FullRefresh.sql" />
+    <Build Include="log\Tables\EventLog.sql" />
   </ItemGroup>
   <ItemGroup>
     <SqlCmdVariable Include="TEAM">
