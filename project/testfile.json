@@ -1,0 +1,114 @@
+{
+    "items": [
+        {
+            "EFFIOP_EFF_IN_C": "XS4P6AU",
+            "ENGP_ENGNRG_PART_R": "4H231A188AA",
+            "EVA_PER_USAGE_Q": "1.00",
+            "EVL_VEHICLE_LINE_C": "LT",
+            "FUNC_KEY": "UEC1040404000",
+            "MFTRC_COMBINATIN_C": 563539,
+            "N_USAGE_C": 296312,
+            "PFTRC_COMBINATN_C": 1,
+            "VEHTYPE_CODE": "T"
+        },
+        {
+            "EFFIOP_EFF_IN_C": "S4PAAZ",
+            "ENGP_ENGNRG_PART_R": "8W936L073AB",
+            "EVA_PER_USAGE_Q": "1.00",
+            "EVL_VEHICLE_LINE_C": "LJ",
+            "FUNC_KEY": "UEP3031004000",
+            "MFTRC_COMBINATIN_C": 0,
+            "N_USAGE_C": 803013,
+            "PFTRC_COMBINATN_C": 24325,
+            "VEHTYPE_CODE": "T"
+        },
+        {
+            "EFFIOP_EFF_IN_C": "S4P8EK",
+            "ENGP_ENGNRG_PART_R": "5H22000K51NA",
+            "EVA_PER_USAGE_Q": "1.00",
+            "EVL_VEHICLE_LINE_C": "LS",
+            "FUNC_KEY": "UEB2010101000",
+            "MFTRC_COMBINATIN_C": 42380,
+            "N_USAGE_C": 240243,
+            "PFTRC_COMBINATN_C": 10432,
+            "VEHTYPE_CODE": "T"
+        },
+        {
+            "EFFIOP_EFF_IN_C": "XS4P6AU",
+            "ENGP_ENGNRG_PART_R": "6H2221812FB",
+            "EVA_PER_USAGE_Q": "1.00",
+            "EVL_VEHICLE_LINE_C": "LS",
+            "FUNC_KEY": "UEB2011403000",
+            "MFTRC_COMBINATIN_C": 405038,
+            "N_USAGE_C": 486607,
+            "PFTRC_COMBINATN_C": 1,
+            "VEHTYPE_CODE": "T"
+        },
+        {
+            "EFFIOP_EFF_IN_C": "S4PAAZ",
+            "ENGP_ENGNRG_PART_R": "W500827S437",
+            "EVA_PER_USAGE_Q": "1.00",
+            "EVL_VEHICLE_LINE_C": "LJ",
+            "FUNC_KEY": "UEP3030101000",
+            "MFTRC_COMBINATIN_C": 0,
+            "N_USAGE_C": 811390,
+            "PFTRC_COMBINATN_C": 24325,
+            "VEHTYPE_CODE": "T"
+        },
+        {
+            "EFFIOP_EFF_IN_C": "S4PAAZ",
+            "ENGP_ENGNRG_PART_R": "8W936A877AA",
+            "EVA_PER_USAGE_Q": "1.00",
+            "EVL_VEHICLE_LINE_C": "LJ",
+            "FUNC_KEY": "UEP3030201000",
+            "MFTRC_COMBINATIN_C": 0,
+            "N_USAGE_C": 773280,
+            "PFTRC_COMBINATN_C": 24325,
+            "VEHTYPE_CODE": "T"
+        },
+        {
+            "EFFIOP_EFF_IN_C": "S4PAAZ",
+            "ENGP_ENGNRG_PART_R": "7H4219K512AA0PEJ",
+            "EVA_PER_USAGE_Q": "1.00",
+            "EVL_VEHICLE_LINE_C": "LJ",
+            "FUNC_KEY": "UNP1000301000",
+            "MFTRC_COMBINATIN_C": 0,
+            "N_USAGE_C": 982654,
+            "PFTRC_COMBINATN_C": 1,
+            "VEHTYPE_CODE": "T"
+        },
+        {
+            "EFFIOP_EFF_IN_C": "S4P8EL",
+            "ENGP_ENGNRG_PART_R": "7H4219K512AA8NCL",
+            "EVA_PER_USAGE_Q": "1.00",
+            "EVL_VEHICLE_LINE_C": "LS",
+            "FUNC_KEY": "UNP1000301000",
+            "MFTRC_COMBINATIN_C": 0,
+            "N_USAGE_C": 599086,
+            "PFTRC_COMBINATN_C": 1,
+            "VEHTYPE_CODE": "T"
+        },
+        {
+            "EFFIOP_EFF_IN_C": "S4P8EL",
+            "ENGP_ENGNRG_PART_R": "7H4219500AA8NCL",
+            "EVA_PER_USAGE_Q": "1.00",
+            "EVL_VEHICLE_LINE_C": "LS",
+            "FUNC_KEY": "UNP1000301000",
+            "MFTRC_COMBINATIN_C": 0,
+            "N_USAGE_C": 880794,
+            "PFTRC_COMBINATN_C": 1,
+            "VEHTYPE_CODE": "T"
+        },
+        {
+            "EFFIOP_EFF_IN_C": "XS4P6AU",
+            "ENGP_ENGNRG_PART_R": "7H4219K512AA8JEU",
+            "EVA_PER_USAGE_Q": "1.00",
+            "EVL_VEHICLE_LINE_C": "LT",
+            "FUNC_KEY": "UNP1000301000",
+            "MFTRC_COMBINATIN_C": 0,
+            "N_USAGE_C": 614301,
+            "PFTRC_COMBINATN_C": 1,
+            "VEHTYPE_CODE": "T"
+        }
+    ]
+}
