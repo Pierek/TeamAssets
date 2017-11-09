@@ -36,6 +36,8 @@ BEGIN
 
 		EXEC import.populate_price_client_dict
 
+		EXEC import.populate_currency
+
 		/* log complete */
 		EXEC dbo.EventHandler
 			 @ProcedureName = @PROCEDURE_NAME,@SchemaName = @SCHEMA_NAME

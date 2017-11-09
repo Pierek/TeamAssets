@@ -103,6 +103,12 @@
     <Build Include="export\Views\client_dict.sql" />
     <Build Include="dbo\Stored Procedures\FullRefresh.sql" />
     <Build Include="log\Tables\EventLog.sql" />
+    <Build Include="data\Tables\currency.sql" />
+    <Build Include="import\Views\currency.sql" />
+    <Build Include="import\Stored Procedures\populate_currency.sql" />
+    <Build Include="import\Views\stock.sql" />
+    <Build Include="import\Stored Procedures\populate_stock.sql" />
+    <Build Include="export\Views\stock.sql" />
   </ItemGroup>
   <ItemGroup>
     <SqlCmdVariable Include="TEAM">

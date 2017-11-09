@@ -22,7 +22,7 @@
 	,[box_dimension_l]        decimal(7,3) NULL
 	,[rep_state]              bit NULL
 	,[rep_state_www]          bit NULL
-	,[kgo]                    decimal(6,4) NULL
+	,[kgo]                    float NULL
 	,[LastUpdate]             datetime NOT NULL
 	,[LastUser]               varchar(100) NOT NULL
 	,CONSTRAINT [PK_product] PRIMARY KEY CLUSTERED([product_id])

@@ -27,7 +27,7 @@ SELECT
 	,[box_dimension_l] = CONVERT(nvarchar(8),dimension_l)
 	,[rep_state]
 	,[rep_state_www]
-	,[kgo] = CONVERT(nvarchar(7),kgo)
+	,[kgo] = CONVERT(nvarchar(10),kgo)
 	,[LastUpdate]
 	,[LastUser]
 FROM data.product
