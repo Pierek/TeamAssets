@@ -59,7 +59,11 @@ BEGIN
 			,S.price_client_code
 			,S.LastUpdate
 			,S.LastUser
-		);
+		)
+
+		WHEN NOT MATCHED BY SOURCE AND T.DeletedOn IS NULL
+		THEN UPDATE
+		SET  T.DeletedOn = GETDATE();
 
 
 		SET @EventRowcount = @@ROWCOUNT

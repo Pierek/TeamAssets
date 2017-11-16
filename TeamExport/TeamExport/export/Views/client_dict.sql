@@ -10,4 +10,5 @@ SELECT
 	,[client_description]
 	,[LastUpdate]
 	,[LastUser]
+	,[DeletedOn]
 FROM data.client_dict

@@ -30,4 +30,5 @@ SELECT
 	,[kgo] = CONVERT(nvarchar(10),kgo)
 	,[LastUpdate]
 	,[LastUser]
+	,[DeletedOn]
 FROM data.product

@@ -2,16 +2,16 @@ import connection as con
 import json
 
 # declare variables for connection
-team_server = '.'
-team_database = 'test'
+team_server = 'PIEREK-PC'
+team_database = 'TeamExport'
 team_user = 'test'
 team_password = 'test'
 
 # declare query
 team_query = """
 SELECT 
-	 Id
-	,product_code
+	 Id = 1,
+	 product_code
 	,product_description
 	,promo
 	,ean
@@ -72,7 +72,7 @@ for row in con.datatofile(database=team_database, server=team_server, user=team_
 
 file['items'] = pr
 
-jfile = json.dumps(obj=file, ensure_ascii=False)
+jfile = json.dumps(obj=file, ensure_ascii=False, indent=4, sort_keys=True)
 
 print(jfile)
 

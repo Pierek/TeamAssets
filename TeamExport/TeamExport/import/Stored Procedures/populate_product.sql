@@ -88,7 +88,7 @@ BEGIN
 			,T.LastUpdate = S.LastUpdate 
 			,T.LastUser = S.LastUser 
 				
-		WHEN NOT MATCHED
+		WHEN NOT MATCHED BY TARGET
 		THEN INSERT
 		(
 			 product_id
@@ -144,7 +144,11 @@ BEGIN
 			,S.kgo
 			,S.LastUpdate
 			,S.LastUser
-		);
+		)
+
+		WHEN NOT MATCHED BY SOURCE AND T.DeletedOn IS NULL
+		THEN UPDATE
+		SET  T.DeletedOn = GETDATE();
 
 		SET @EventRowcount = @@ROWCOUNT
 

@@ -67,7 +67,11 @@ BEGIN
 			,S.stock_dict
 			,S.LastUpdate
 			,S.LastUser
-		);
+		)
+
+		WHEN NOT MATCHED BY SOURCE AND T.DeletedOn IS NULL
+		THEN UPDATE
+		SET  T.DeletedOn = GETDATE();
 
 
 		SET @EventRowcount = @@ROWCOUNT

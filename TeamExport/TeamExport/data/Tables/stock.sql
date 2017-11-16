@@ -6,4 +6,5 @@
 	,[stock_dict] nvarchar(40) NOT NULL
 	,[LastUpdate] datetime NOT NULL
 	,[LastUser]   varchar(100) NOT NULL
+	,[DeletedOn]  datetime NULL
 );

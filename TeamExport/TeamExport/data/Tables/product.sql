@@ -25,6 +25,7 @@
 	,[kgo]                    float NULL
 	,[LastUpdate]             datetime NOT NULL
 	,[LastUser]               varchar(100) NOT NULL
+	,[DeletedOn]              datetime NULL
 	,CONSTRAINT [PK_product] PRIMARY KEY CLUSTERED([product_id])
 	,CONSTRAINT [NX1_product] UNIQUE NONCLUSTERED([product_code])
 );

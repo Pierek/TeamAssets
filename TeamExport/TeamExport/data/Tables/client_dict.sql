@@ -5,6 +5,7 @@
 	,[client_description] nvarchar(200) NOT NULL
 	,[LastUpdate]         datetime NOT NULL
 	,[LastUser]           varchar(100) NOT NULL
+	,[DeletedOn]          datetime NULL
 	,CONSTRAINT [PK_client_dict] PRIMARY KEY CLUSTERED([client_id])
 	,CONSTRAINT [NX1_client_dict] UNIQUE NONCLUSTERED([client_code])
 );
