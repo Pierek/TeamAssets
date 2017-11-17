@@ -45,7 +45,6 @@ BEGIN
 		SET  T.client_id = S.client_id
 			,T.client_description = S.client_description
 			,T.LastUpdate = S.LastUpdate 
-			,T.LastUser = S.LastUser 
 				
 		WHEN NOT MATCHED
 		THEN INSERT
@@ -54,7 +53,6 @@ BEGIN
 			,client_code
 			,client_description
 			,LastUpdate
-			,LastUser
 		)
 		VALUES
 		(
@@ -62,7 +60,6 @@ BEGIN
 			,S.client_code
 			,S.client_description
 			,S.LastUpdate
-			,S.LastUser
 		)
 		
 		WHEN NOT MATCHED BY SOURCE AND T.DeletedOn IS NULL

@@ -45,7 +45,6 @@ BEGIN
 		SET  T.currency_id = S.currency_id
 			,T.currency_description = S.currency_description
 			,T.LastUpdate = S.LastUpdate 
-			,T.LastUser = S.LastUser 
 				
 		WHEN NOT MATCHED
 		THEN INSERT
@@ -54,7 +53,6 @@ BEGIN
 			,currency_code
 			,currency_description
 			,LastUpdate
-			,LastUser
 		)
 		VALUES
 		(
@@ -62,7 +60,6 @@ BEGIN
 			,S.currency_code
 			,S.currency_description
 			,S.LastUpdate
-			,S.LastUser
 		)
 
 		WHEN NOT MATCHED BY SOURCE AND T.DeletedOn IS NULL

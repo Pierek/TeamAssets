@@ -14,7 +14,7 @@ SELECT
 	,[series] = CASE WHEN LTRIM(RTRIM(FSerie.Data)) = '' THEN NULL ELSE LTRIM(RTRIM(FSerie.Data)) END 
 	,[category] = CASE WHEN LTRIM(RTRIM(FPOD.Data)) = '' THEN NULL ELSE LTRIM(RTRIM(FPOD.Data)) END
 	,[brand] = LTRIM(RTRIM(Fbrand.Data))
-	,[range] = CONVERT(bit,LTRIM(RTRIM(Frange.Data)))
+	,[range] = CASE WHEN Frange.Data IS NULL THEN 0 ELSE CONVERT(bit,LTRIM(RTRIM(Frange.Data))) END
 	,[product_description_en] = CASE WHEN LTRIM(RTRIM(Fdesc.Data)) = '' THEN NULL ELSE LTRIM(RTRIM(Fdesc.Data)) END
 	,[category_en] = CASE WHEN LTRIM(RTRIM(FPODen.Data)) = '' THEN NULL ELSE LTRIM(RTRIM(FPODen.Data)) END
 	,[box_capacity] = CONVERT(smallint,LTRIM(RTRIM(FPojOp.Data)))
@@ -25,11 +25,10 @@ SELECT
 	,[box_dimension_h] = CONVERT(decimal(7,3),LTRIM(RTRIM(REPLACE(FKwys.Data,',','.'))))
 	,[box_dimension_w] = CONVERT(decimal(7,3),LTRIM(RTRIM(REPLACE(FKszer.Data,',','.'))))
 	,[box_dimension_l] = CONVERT(decimal(7,3),LTRIM(RTRIM(REPLACE(FKdł.Data,',','.'))))
-	,[rep_state] = CONVERT(bit,LTRIM(RTRIM(FRS.Data)))
+	,[rep_state] = CASE WHEN FRS.Data IS NULL THEN 0 ELSE CONVERT(bit,LTRIM(RTRIM(FRS.Data))) END
 	,[rep_state_www] = CONVERT(bit,LTRIM(RTRIM(FRSWWW.Data)))
 	,[kgo] = (CONVERT(float,LTRIM(RTRIM(FKGO.Data))) * 0.09) -- kgo wartosc jest wyliczana jako wartosc KGO WAGA * 0,09 zgadza sie dla wszystkich produktów
 	,[LastUpdate] = GETDATE()
-	,[LastUser] = CURRENT_USER
 FROM TEAM.dbo.Towary T
 LEFT JOIN TEAM.dbo.Features FSerie ON FSerie.Parent = T.ID
 	AND FSerie.ParentType = N'Towary' AND FSerie.Name = N'Serie'

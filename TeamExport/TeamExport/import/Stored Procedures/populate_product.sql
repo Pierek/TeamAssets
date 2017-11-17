@@ -86,7 +86,6 @@ BEGIN
 			,T.rep_state_www = S.rep_state_www
 			,T.kgo = S.kgo
 			,T.LastUpdate = S.LastUpdate 
-			,T.LastUser = S.LastUser 
 				
 		WHEN NOT MATCHED BY TARGET
 		THEN INSERT
@@ -115,7 +114,6 @@ BEGIN
 			,rep_state_www
 			,kgo
 			,LastUpdate
-			,LastUser
 		)
 		VALUES
 		(
@@ -143,7 +141,6 @@ BEGIN
 			,S.rep_state_www
 			,S.kgo
 			,S.LastUpdate
-			,S.LastUser
 		)
 
 		WHEN NOT MATCHED BY SOURCE AND T.DeletedOn IS NULL

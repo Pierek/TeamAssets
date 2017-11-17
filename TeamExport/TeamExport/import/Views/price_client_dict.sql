@@ -8,5 +8,4 @@ SELECT
 	 [price_client_id] = ID
 	,[price_client_code] = LTRIM(RTRIM(Nazwa))
 	,[LastUpdate] = GETDATE()
-	,[LastUser] = CURRENT_USER
 FROM TEAM.dbo.DefinicjeCen

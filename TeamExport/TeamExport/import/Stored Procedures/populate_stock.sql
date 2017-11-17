@@ -47,7 +47,6 @@ BEGIN
 		THEN UPDATE
 		SET  T.quantity = S.quantity
 			,T.LastUpdate = S.LastUpdate 
-			,T.LastUser = S.LastUser 
 				
 		WHEN NOT MATCHED
 		THEN INSERT
@@ -56,8 +55,6 @@ BEGIN
 			,client_id
 			,quantity
 			,stock_dict
-			,LastUpdate
-			,LastUser
 		)
 		VALUES
 		(
@@ -65,8 +62,6 @@ BEGIN
 			,S.client_id
 			,S.quantity
 			,S.stock_dict
-			,S.LastUpdate
-			,S.LastUser
 		)
 
 		WHEN NOT MATCHED BY SOURCE AND T.DeletedOn IS NULL

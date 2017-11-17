@@ -10,7 +10,6 @@ SELECT
 	,S.quantity
 	,S.stock_dict
 	,S.LastUpdate
-	,S.LastUser
 	,S.DeletedOn
 FROM data.stock S
 INNER JOIN data.product P

@@ -9,5 +9,4 @@ SELECT
 	,[client_code] = LTRIM(RTRIM(Kod))
 	,[client_description] = LTRIM(RTRIM(Nazwa))
 	,[LastUpdate] = GETDATE()
-	,[LastUser] = CURRENT_USER
 FROM TEAM.dbo.Kontrahenci

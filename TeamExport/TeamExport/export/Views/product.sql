@@ -5,8 +5,8 @@ CREATE VIEW export.product
 AS
 
 SELECT 
-	 [product_id]
-	,[product_code]
+	-- [product_id]
+	 [product_code]
 	,[product_description]
 	,[promo]
 	,[ean]
@@ -28,7 +28,6 @@ SELECT
 	,[rep_state]
 	,[rep_state_www]
 	,[kgo] = CONVERT(nvarchar(10),kgo)
-	,[LastUpdate]
-	,[LastUser]
-	,[DeletedOn]
+	--,[LastUpdate]
+	--,[DeletedOn]
 FROM data.product

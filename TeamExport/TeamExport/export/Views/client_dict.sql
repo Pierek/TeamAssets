@@ -9,6 +9,5 @@ SELECT
 	,[client_code]
 	,[client_description]
 	,[LastUpdate]
-	,[LastUser]
 	,[DeletedOn]
 FROM data.client_dict

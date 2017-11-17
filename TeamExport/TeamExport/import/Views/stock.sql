@@ -10,7 +10,6 @@ SELECT
 	,[quantity] = SUM(Z.IloscValue)
 	,[stock_dict] = N'Stan magazynowy'
 	,[LastUpdate] = GETDATE()
-	,[LastUser] = CURRENT_USER
 FROM TEAM.dbo.Zasoby Z
 INNER JOIN data.product P
 	ON P.product_id = Z.Towar
@@ -27,7 +26,6 @@ SELECT
 	,[quantity] = Z.IloscValue
 	,[stock_dict] = N'Rezerwacja klienta'
 	,[LastUpdate] = GETDATE()
-	,[LastUser] = CURRENT_USER
 FROM TEAM.dbo.Zasoby Z
 INNER JOIN data.product P
 	ON P.product_id = Z.Towar
@@ -50,7 +48,6 @@ SELECT
 	,[quantity] = Z.IloscValue
 	,[stock_dict] = N'Zamówienie klienta'
 	,[LastUpdate] = GETDATE()
-	,[LastUser] = CURRENT_USER
 FROM TEAM.dbo.Zasoby Z
 INNER JOIN data.product P
 	ON P.product_id = Z.Towar
@@ -73,7 +70,6 @@ SELECT
 	,[quantity] = SUM(Z.IloscValue)
 	,[stock_dict] = N'Stan fizyczny'
 	,[LastUpdate] = GETDATE()
-	,[LastUser] = CURRENT_USER
 FROM TEAM.dbo.Zasoby Z
 INNER JOIN data.product P
 	ON P.product_id = Z.Towar

@@ -43,7 +43,6 @@ BEGIN
 		THEN UPDATE
 		SET  T.price_client_id = S.price_client_id
 			,T.LastUpdate = S.LastUpdate 
-			,T.LastUser = S.LastUser 
 				
 		WHEN NOT MATCHED
 		THEN INSERT
@@ -51,14 +50,12 @@ BEGIN
 			 price_client_id
 			,price_client_code
 			,LastUpdate
-			,LastUser
 		)
 		VALUES
 		(
 			 S.price_client_id
 			,S.price_client_code
 			,S.LastUpdate
-			,S.LastUser
 		)
 
 		WHEN NOT MATCHED BY SOURCE AND T.DeletedOn IS NULL

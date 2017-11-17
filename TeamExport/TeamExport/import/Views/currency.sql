@@ -9,5 +9,4 @@ SELECT
 	,[currency_code] = LTRIM(RTRIM(Symbol))
 	,[currency_description] = LTRIM(RTRIM(Nazwa))
 	,[LastUpdate] = GETDATE()
-	,[LastUser] = CURRENT_USER
 FROM TEAM.dbo.Waluty
