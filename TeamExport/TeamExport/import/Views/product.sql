@@ -26,7 +26,7 @@ SELECT
 	,[box_dimension_w] = CONVERT(decimal(7,3),LTRIM(RTRIM(REPLACE(FKszer.Data,',','.'))))
 	,[box_dimension_l] = CONVERT(decimal(7,3),LTRIM(RTRIM(REPLACE(FKdł.Data,',','.'))))
 	,[rep_state] = CASE WHEN FRS.Data IS NULL THEN 0 ELSE CONVERT(bit,LTRIM(RTRIM(FRS.Data))) END
-	,[rep_state_www] = CONVERT(bit,LTRIM(RTRIM(FRSWWW.Data)))
+	,[rep_state_www] = CASE WHEN FRSWWW.Data IS NULL THEN 0 ELSE CONVERT(bit,LTRIM(RTRIM(FRSWWW.Data))) END
 	,[kgo] = (CONVERT(float,LTRIM(RTRIM(FKGO.Data))) * 0.09) -- kgo wartosc jest wyliczana jako wartosc KGO WAGA * 0,09 zgadza sie dla wszystkich produktów
 	,[LastUpdate] = GETDATE()
 FROM TEAM.dbo.Towary T

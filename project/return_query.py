@@ -1,6 +1,7 @@
 import qry
 import json
 import requests
+import pyodbc
 
 
 team_server = 'PIEREK-PC'
@@ -47,10 +48,40 @@ print(jsondata)
 # print(newpr)
 
 
-headers = {
-     "Token": "eyJleHAiOjE1MTA5NTkwNTMsImFsZyI6IkhTMjU2IiwiaWF0IjoxNTEwOTU1NDUzfQ.eyJjb25maXJtIjoyfQ.ehohBbaPcwofarFNRC95nbhjor8aatTt0taHoeCF5Hs"
-    ,"Content-Type": "application/json"
-            }
 
-response = requests.post("http://54.187.225.165:8080/api/products/", headers=headers, json=jsondata)
-print(response)
+headers = {"Token": "eyJhbGciOiJIUzI1NiIsImlhdCI6MTUxMTQ2ODM2OCwiZXhwIjoxNTExNDcxOTY4fQ.eyJjb25maXJtIjoyfQ.5D7dBFgbw0wzcfC8dAIoZoA-Egtn3zZG2JTj7sIHLYo"
+    ,"Content-Type": "application/json"}
+
+response = requests.put("http://54.187.225.165:8080/api/products/", headers=headers, json=jsondata)
+print(response.status_code)
+
+print(response.content)
+
+# returnjson = json.dumps(obj=newpr, ensure_ascii=False, indent=4, sort_keys=True)
+#
+# # print(returnjson)
+#
+#
+# listjson = json.loads(returnjson)
+# # print(listjson[0])
+#
+# data ={"product_code":"2-OC13/01 WORKI", 'kgo':300}
+#
+#
+# print(data)
+# server = 'PIEREK-PC'
+# database = 'TeamExport'
+# user = 'test'
+# password = 'test'
+#
+#
+# cnxn = pyodbc.connect('DRIVER={SQL Server};SERVER=' + server + ';DATABASE=' + database + ';UID=' + user + ';PWD=' + password)
+# cursor = cnxn.cursor()
+#
+# cursor.execute("""
+# UPDATE export.product
+#     SET kgo = (?)
+# WHERE product_code = (?)
+# """, data['kgo'], data['product_code'])
+# # cursor.commit()
+
