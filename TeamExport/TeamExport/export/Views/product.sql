@@ -31,3 +31,4 @@ SELECT
 	--,[LastUpdate]
 	--,[DeletedOn]
 FROM data.product
+WHERE DeletedOn IS NULL

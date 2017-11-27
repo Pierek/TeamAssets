@@ -4,6 +4,8 @@
 	,[currency_code]        varchar(10) NOT NULL
 	,[currency_description] nvarchar(20) NOT NULL
 	,[LastUpdate]           datetime NOT NULL
+	,[ResponseCode]         varchar(3) NULL
+	,[ResponseDate]         datetime NULL
 	,[DeletedOn]            datetime NULL
 	,CONSTRAINT [PK_currency] PRIMARY KEY CLUSTERED([currency_id])
 	,CONSTRAINT [NX1_currency] UNIQUE NONCLUSTERED([currency_code])
