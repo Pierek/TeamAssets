@@ -1,13 +1,15 @@
-import qry
 import json
 import requests
 import pyodbc
 
+from service.config import DevelopmentConfig
+from api.request import ApiRequest
+from service import qry
 
-team_server = 'PIEREK-PC'
-team_database = 'TeamExport'
-team_user = 'test'
-team_password = 'test'
+team_server = DevelopmentConfig.TEAM_SERVER
+team_database = DevelopmentConfig.TEAM_DATABASE
+team_user = DevelopmentConfig.TEAM_USER
+team_password = DevelopmentConfig.TEAM_PWD
 tablename = 'export.product'
 
 columns = """
@@ -24,7 +26,7 @@ ORDER BY c.column_id
 
 # create variables for json file
 products = {}
-file = {}
+data = {}
 pr = []
 newpr = []
 
@@ -41,21 +43,21 @@ for row in qry.queryresult(database=team_database, server=team_server, user=team
         products[pr[number]] = row[number]
     newpr.append(products.copy())
 
-file['items'] = newpr
+data['items'] = newpr
 
-jsondata = json.dumps(obj=file, ensure_ascii=False, indent=4, sort_keys=True)
+jsondata = json.dumps(obj=data, ensure_ascii=False, indent=4, sort_keys=True)
 print(jsondata)
+print(data)
 # print(newpr)
 
+# call API Server #
+api_username = DevelopmentConfig.API_USERNAME
+api_pwd = DevelopmentConfig.API_PWD
+api_url = DevelopmentConfig.API_URL
 
-
-headers = {"Token": "eyJhbGciOiJIUzI1NiIsImlhdCI6MTUxMTQ2ODM2OCwiZXhwIjoxNTExNDcxOTY4fQ.eyJjb25maXJtIjoyfQ.5D7dBFgbw0wzcfC8dAIoZoA-Egtn3zZG2JTj7sIHLYo"
-    ,"Content-Type": "application/json"}
-
-response = requests.put("http://54.187.225.165:8080/api/products/", headers=headers, json=jsondata)
-print(response.status_code)
-
-print(response.content)
+api = ApiRequest(api_username, api_pwd, api_url)
+response_jsondata = api.put_product(data)
+print(response_jsondata)
 
 # returnjson = json.dumps(obj=newpr, ensure_ascii=False, indent=4, sort_keys=True)
 #
