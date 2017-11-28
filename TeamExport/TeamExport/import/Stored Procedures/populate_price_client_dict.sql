@@ -37,11 +37,13 @@ BEGIN
 		WHEN MATCHED AND ( 
 
 			 T.price_client_id <> S.price_client_id OR (T.price_client_id IS NULL AND S.price_client_id IS NOT NULL) OR (T.price_client_id IS NOT NULL AND S.price_client_id IS NULL)
+		OR	 T.price_client_description <> S.price_client_description OR (T.price_client_description IS NULL AND S.price_client_description IS NOT NULL) OR (T.price_client_description IS NOT NULL AND S.price_client_description IS NULL)
 		)
 
 
 		THEN UPDATE
 		SET  T.price_client_id = S.price_client_id
+			,T.price_client_description = S.price_client_description
 			,T.LastUpdate = S.LastUpdate 
 				
 		WHEN NOT MATCHED
@@ -49,12 +51,14 @@ BEGIN
 		(
 			 price_client_id
 			,price_client_code
+			,price_client_description
 			,LastUpdate
 		)
 		VALUES
 		(
 			 S.price_client_id
 			,S.price_client_code
+			,S.price_client_description
 			,S.LastUpdate
 		)
 
