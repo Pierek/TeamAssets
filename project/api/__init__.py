@@ -1,1 +1,1 @@
-# project/api/__iniut__.py
+# project/api/__init__.py
