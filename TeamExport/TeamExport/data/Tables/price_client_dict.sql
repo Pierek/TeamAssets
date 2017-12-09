@@ -7,7 +7,7 @@
 	,[ResponseCode]             varchar(3) NULL
 	,[ResponseDate]             datetime NULL
 	,[DeletedOn]                datetime NULL
-	,[Action]                   nvarchar(10) NULL
+	,[Action]                   varchar(10) NULL
 	,CONSTRAINT [PK_price_client_dict] PRIMARY KEY CLUSTERED([price_client_id])
 	,CONSTRAINT [NX1_price_client_dict] UNIQUE NONCLUSTERED([price_client_code])
 );

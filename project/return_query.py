@@ -1,6 +1,4 @@
 import json
-import requests
-import pyodbc
 
 from service.config import DevelopmentConfig
 from api.request import ApiRequest
@@ -43,12 +41,14 @@ for row in qry.queryresult(database=team_database, server=team_server, user=team
         products[pr[number]] = row[number]
     newpr.append(products.copy())
 
+print(newpr)
 data['items'] = newpr
 
 jsondata = json.dumps(obj=data, ensure_ascii=False, indent=4, sort_keys=True)
 print(jsondata)
 print(data)
 # print(newpr)
+# data = {'items':[{'product_code': 'WK22-SCHOTT'}]}
 
 # call API Server #
 api_username = DevelopmentConfig.API_USERNAME

@@ -27,7 +27,7 @@
 	,[ResponseCode]           varchar(3) NULL
 	,[ResponseDate]           datetime NULL
 	,[DeletedOn]              datetime NULL
-	,[Action]                 nvarchar(10) NULL
+	,[Action]                 varchar(10) NULL
 	,CONSTRAINT [PK_product] PRIMARY KEY CLUSTERED([product_id])
 	,CONSTRAINT [NX1_product] UNIQUE NONCLUSTERED([product_code])
 );

@@ -33,16 +33,16 @@ BEGIN
 
 		MERGE [data].price_client_dict T
 		USING [import].price_client_dict S
-		ON (T.price_client_code = S.price_client_code) 
+		ON (T.price_client_id = S.price_client_id) 
 		WHEN MATCHED AND ( 
 
-			 T.price_client_id <> S.price_client_id OR (T.price_client_id IS NULL AND S.price_client_id IS NOT NULL) OR (T.price_client_id IS NOT NULL AND S.price_client_id IS NULL)
+			 T.price_client_code <> S.price_client_code OR (T.price_client_code IS NULL AND S.price_client_code IS NOT NULL) OR (T.price_client_code IS NOT NULL AND S.price_client_code IS NULL)
 		OR	 T.price_client_description <> S.price_client_description OR (T.price_client_description IS NULL AND S.price_client_description IS NOT NULL) OR (T.price_client_description IS NOT NULL AND S.price_client_description IS NULL)
 		)
 
 
 		THEN UPDATE
-		SET  T.price_client_id = S.price_client_id
+		SET  T.price_client_code = S.price_client_code
 			,T.price_client_description = S.price_client_description
 			,T.LastUpdate = S.LastUpdate
 			,T.Action = 'PUT' -- when there is a change, next request should be PUT
