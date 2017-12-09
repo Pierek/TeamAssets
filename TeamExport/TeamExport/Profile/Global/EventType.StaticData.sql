@@ -1,4 +1,4 @@
-﻿TRUNCATE TABLE config.tblEventType;
+﻿TRUNCATE TABLE config.EventType;
 
 INSERT INTO config.EventType
     (EventTypeId, EventTypeCode, Description, AddDate, AddUser, ModDate, ModUser)

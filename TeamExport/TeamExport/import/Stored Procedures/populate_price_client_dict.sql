@@ -44,7 +44,8 @@ BEGIN
 		THEN UPDATE
 		SET  T.price_client_id = S.price_client_id
 			,T.price_client_description = S.price_client_description
-			,T.LastUpdate = S.LastUpdate 
+			,T.LastUpdate = S.LastUpdate
+			,T.Action = 'PUT' -- when there is a change, next request should be PUT
 				
 		WHEN NOT MATCHED
 		THEN INSERT
@@ -53,6 +54,7 @@ BEGIN
 			,price_client_code
 			,price_client_description
 			,LastUpdate
+			,Action
 		)
 		VALUES
 		(
@@ -60,11 +62,13 @@ BEGIN
 			,S.price_client_code
 			,S.price_client_description
 			,S.LastUpdate
+			,'POST' -- when there is a new object, next request should be POST
 		)
 
 		WHEN NOT MATCHED BY SOURCE AND T.DeletedOn IS NULL
 		THEN UPDATE
-		SET  T.DeletedOn = GETDATE();
+		SET  T.DeletedOn = GETDATE()
+			,T.Action = 'DEL'; -- when object does not exist anymore, next request should be DEL
 
 
 		SET @EventRowcount = @@ROWCOUNT

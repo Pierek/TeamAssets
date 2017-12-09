@@ -109,6 +109,7 @@
     <Build Include="import\Views\stock.sql" />
     <Build Include="import\Stored Procedures\populate_stock.sql" />
     <Build Include="export\Views\stock.sql" />
+    <Build Include="export\Views\price_client_dict.sql" />
   </ItemGroup>
   <ItemGroup>
     <SqlCmdVariable Include="TEAM">
@@ -126,6 +127,7 @@
   <ItemGroup>
     <None Include="TeamExport.publish.xml" />
     <None Include="TeamExport_1.publish.xml" />
+    <PostDeploy Include="Profile\postdeploy.sql" />
   </ItemGroup>
   <ItemGroup>
     <Build Include="import\Views\price_client_dict.sql" />

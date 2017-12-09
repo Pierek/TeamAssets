@@ -85,7 +85,8 @@ BEGIN
 			,T.rep_state = S.rep_state
 			,T.rep_state_www = S.rep_state_www
 			,T.kgo = S.kgo
-			,T.LastUpdate = S.LastUpdate 
+			,T.LastUpdate = S.LastUpdate
+			,T.Action = 'PUT' -- when there is a change, next request should be PUT
 				
 		WHEN NOT MATCHED BY TARGET
 		THEN INSERT
@@ -114,6 +115,7 @@ BEGIN
 			,rep_state_www
 			,kgo
 			,LastUpdate
+			,Action
 		)
 		VALUES
 		(
@@ -141,11 +143,13 @@ BEGIN
 			,S.rep_state_www
 			,S.kgo
 			,S.LastUpdate
+			,'POST' -- when there is a new object, next request should be POST
 		)
 
 		WHEN NOT MATCHED BY SOURCE AND T.DeletedOn IS NULL
 		THEN UPDATE
-		SET  T.DeletedOn = GETDATE();
+		SET  T.DeletedOn = GETDATE()
+			,T.Action = 'DEL'; -- when object does not exist anymore, next request should be DEL
 
 		SET @EventRowcount = @@ROWCOUNT
 

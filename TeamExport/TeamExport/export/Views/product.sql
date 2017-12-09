@@ -1,11 +1,10 @@
-﻿--- <summary>Move product data from TeamExport to json</summary>
+﻿--- <summary>Move product data from TeamExport to TeamAssets</summary>
 --- <event author="Piotr Purwin" date="2017-11-07" project="TEAM">View created</event>
 CREATE VIEW export.product
 
 AS
 
 SELECT 
-	-- [product_id]
 	 [product_code]
 	,[product_description]
 	,[promo]
@@ -28,7 +27,6 @@ SELECT
 	,[rep_state]
 	,[rep_state_www]
 	,[kgo] = CONVERT(nvarchar(10),kgo)
-	--,[LastUpdate]
-	--,[DeletedOn]
+	,[Action]
 FROM data.product
-WHERE DeletedOn IS NULL
+WHERE Action IS NOT NULL

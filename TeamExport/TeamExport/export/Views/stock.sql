@@ -1,4 +1,4 @@
-﻿--- <summary>Move stock data from TeamExport to json</summary>
+﻿--- <summary>Move stock data from TeamExport to TeamAssets</summary>
 --- <event author="Piotr Purwin" date="2017-11-07" project="TEAM">View created</event>
 CREATE VIEW export.stock
 
