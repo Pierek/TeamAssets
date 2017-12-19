@@ -28,5 +28,8 @@ SELECT
 	,[rep_state_www]
 	,[kgo] = CONVERT(nvarchar(10),kgo)
 	,[Action]
+	,[ResponseCode]
+	,[ResponseDate]
+	,[DeletedOn]
 FROM data.product
 WHERE Action IS NOT NULL

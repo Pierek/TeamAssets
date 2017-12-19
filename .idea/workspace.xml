@@ -2,10 +2,15 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="780819d2-212f-4b3b-8df0-50086fbfed92" name="Default" comment="">
+      <change beforePath="" afterPath="$PROJECT_DIR$/project/testscripts/test1.py" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change beforePath="$PROJECT_DIR$/TeamExport/TeamExport/export/Views/product.sql" afterPath="$PROJECT_DIR$/TeamExport/TeamExport/export/Views/product.sql" />
-      <change beforePath="$PROJECT_DIR$/project/return_query.py" afterPath="$PROJECT_DIR$/project/return_query.py" />
-      <change beforePath="$PROJECT_DIR$/project/service/config.py" afterPath="$PROJECT_DIR$/project/service/config.py" />
+      <change beforePath="$PROJECT_DIR$/project/api/model.py" afterPath="$PROJECT_DIR$/project/api/model.py" />
+      <change beforePath="$PROJECT_DIR$/project/columns.py" afterPath="$PROJECT_DIR$/project/testscripts/columns.py" />
+      <change beforePath="$PROJECT_DIR$/project/product_json.py" afterPath="$PROJECT_DIR$/project/testscripts/product_json.py" />
+      <change beforePath="$PROJECT_DIR$/project/return_query.py" afterPath="$PROJECT_DIR$/project/testscripts/return_query.py" />
+      <change beforePath="$PROJECT_DIR$/project/service/qry.py" afterPath="$PROJECT_DIR$/project/service/qry.py" />
+      <change beforePath="$PROJECT_DIR$/project/testest.py" afterPath="$PROJECT_DIR$/project/testscripts/testest.py" />
+      <change beforePath="$PROJECT_DIR$/project/testfile.json" afterPath="$PROJECT_DIR$/project/testscripts/testfile.json" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -16,25 +21,25 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="list_separation.py" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/project/testscripts/list_separation.py">
+      <file leaf-file-name="test1.py" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/project/testscripts/test1.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="170">
-              <caret line="10" column="24" lean-forward="true" selection-start-line="10" selection-start-column="24" selection-end-line="10" selection-end-column="24" />
+            <state relative-caret-position="434">
+              <caret line="58" column="0" lean-forward="true" selection-start-line="58" selection-start-column="0" selection-end-line="58" selection-end-column="0" />
               <folding>
-                <element signature="e#0#52#0" expanded="true" />
+                <marker date="1513030142254" expanded="true" signature="1039:1542" ph="..." />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="request.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/project/api/request.py">
+      <file leaf-file-name="model.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/project/api/model.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="493">
-              <caret line="29" column="84" lean-forward="false" selection-start-line="29" selection-start-column="76" selection-end-line="29" selection-end-column="84" />
+            <state relative-caret-position="298">
+              <caret line="93" column="36" lean-forward="false" selection-start-line="93" selection-start-column="36" selection-end-line="93" selection-end-column="36" />
               <folding>
-                <element signature="e#19#34#0" expanded="true" />
+                <element signature="e#23#59#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -43,18 +48,42 @@
       <file leaf-file-name="qry.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/project/service/qry.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="0">
-              <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="6" selection-end-column="28" />
+            <state relative-caret-position="425">
+              <caret line="25" column="18" lean-forward="false" selection-start-line="25" selection-start-column="18" selection-end-line="25" selection-end-column="18" />
+              <folding>
+                <element signature="e#0#13#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="config.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/project/service/config.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="238">
+              <caret line="14" column="36" lean-forward="false" selection-start-line="14" selection-start-column="36" selection-end-line="14" selection-end-column="36" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="model.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/project/api/model.py">
+      <file leaf-file-name="request.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/project/api/request.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="397">
-              <caret line="29" column="20" lean-forward="true" selection-start-line="29" selection-start-column="20" selection-end-line="29" selection-end-column="20" />
+            <state relative-caret-position="422">
+              <caret line="26" column="36" lean-forward="false" selection-start-line="26" selection-start-column="36" selection-end-line="26" selection-end-column="36" />
+              <folding>
+                <element signature="e#19#34#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="return_query.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/project/testscripts/return_query.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="629">
+              <caret line="41" column="25" lean-forward="false" selection-start-line="41" selection-start-column="17" selection-end-line="41" selection-end-column="25" />
               <folding />
             </state>
           </provider>
@@ -75,6 +104,8 @@
       <find>a[</find>
       <find>a[0]</find>
       <find>token</find>
+      <find>def exec</find>
+      <find>jsondata</find>
     </findStrings>
     <replaceStrings>
       <replace>a[0][</replace>
@@ -101,12 +132,15 @@
         <option value="$PROJECT_DIR$/project/qry.py" />
         <option value="$PROJECT_DIR$/project/request_test.py" />
         <option value="$PROJECT_DIR$/project/api/__init__.py" />
-        <option value="$PROJECT_DIR$/project/api/request.py" />
         <option value="$PROJECT_DIR$/project/service/config.py" />
         <option value="$PROJECT_DIR$/project/return_query.py" />
         <option value="$PROJECT_DIR$/project/testest.py" />
-        <option value="$PROJECT_DIR$/project/api/model.py" />
         <option value="$PROJECT_DIR$/project/testscripts/list_separation.py" />
+        <option value="$PROJECT_DIR$/../../../team_server/myproject.py" />
+        <option value="$PROJECT_DIR$/project/api/request.py" />
+        <option value="$PROJECT_DIR$/project/service/qry.py" />
+        <option value="$PROJECT_DIR$/project/testscripts/test1.py" />
+        <option value="$PROJECT_DIR$/project/api/model.py" />
       </list>
     </option>
   </component>
@@ -131,7 +165,6 @@
     </navigator>
     <panes>
       <pane id="Scope" />
-      <pane id="Scratches" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -172,11 +205,17 @@
           <select />
         </subPane>
       </pane>
+      <pane id="Scratches" />
     </panes>
   </component>
   <component name="PropertiesComponent">
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/../TeamServices" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/../../../team_server/myproject.py" />
     <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
+  </component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="D:\WORK\TeamPolska\git\TeamAssets\project\testscripts" />
+    </key>
   </component>
   <component name="RunDashboard">
     <option name="ruleStates">
@@ -190,12 +229,67 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Python.list_separation">
-    <configuration name="list_separation" type="PythonConfigurationType" factoryName="Python" temporary="true">
+  <component name="RunManager" selected="Python.test1">
+    <configuration name="model" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
       <envs>
         <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/project/api" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="TeamAssets" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/project/api/model.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+    </configuration>
+    <configuration name="myproject" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/../../../team_server" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="TeamAssets" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/../../../team_server/myproject.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+    </configuration>
+    <configuration name="request" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/project/api" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="TeamAssets" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/project/api/request.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+    </configuration>
+    <configuration name="test1" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+        <env name="PYDEVD_LOAD_VALUES_ASYNC" value="True" />
       </envs>
       <option name="SDK_HOME" value="" />
       <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/project/testscripts" />
@@ -203,63 +297,9 @@
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <module name="TeamAssets" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/project/testscripts/list_separation.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/project/testscripts/test1.py" />
       <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-    </configuration>
-    <configuration name="request_test" type="PythonConfigurationType" factoryName="Python" temporary="true">
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/project" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <module name="TeamAssets" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/project/request_test.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-    </configuration>
-    <configuration name="return_query" type="PythonConfigurationType" factoryName="Python" temporary="true">
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/project" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <module name="TeamAssets" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/project/return_query.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-    </configuration>
-    <configuration name="test_connection" type="PythonConfigurationType" factoryName="Python" temporary="true">
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/project" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <module name="TeamAssets" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/project/test_connection.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="SHOW_COMMAND_LINE" value="true" />
       <option name="EMULATE_TERMINAL" value="false" />
       <option name="MODULE_MODE" value="false" />
     </configuration>
@@ -282,19 +322,19 @@
       <option name="MODULE_MODE" value="false" />
     </configuration>
     <list size="5">
-      <item index="0" class="java.lang.String" itemvalue="Python.request_test" />
-      <item index="1" class="java.lang.String" itemvalue="Python.test_connection" />
-      <item index="2" class="java.lang.String" itemvalue="Python.return_query" />
-      <item index="3" class="java.lang.String" itemvalue="Python.list_separation" />
-      <item index="4" class="java.lang.String" itemvalue="Python.testest" />
+      <item index="0" class="java.lang.String" itemvalue="Python.testest" />
+      <item index="1" class="java.lang.String" itemvalue="Python.test1" />
+      <item index="2" class="java.lang.String" itemvalue="Python.request" />
+      <item index="3" class="java.lang.String" itemvalue="Python.myproject" />
+      <item index="4" class="java.lang.String" itemvalue="Python.model" />
     </list>
     <recent_temporary>
       <list size="5">
-        <item index="0" class="java.lang.String" itemvalue="Python.list_separation" />
-        <item index="1" class="java.lang.String" itemvalue="Python.return_query" />
-        <item index="2" class="java.lang.String" itemvalue="Python.testest" />
-        <item index="3" class="java.lang.String" itemvalue="Python.request_test" />
-        <item index="4" class="java.lang.String" itemvalue="Python.test_connection" />
+        <item index="0" class="java.lang.String" itemvalue="Python.test1" />
+        <item index="1" class="java.lang.String" itemvalue="Python.model" />
+        <item index="2" class="java.lang.String" itemvalue="Python.myproject" />
+        <item index="3" class="java.lang.String" itemvalue="Python.request" />
+        <item index="4" class="java.lang.String" itemvalue="Python.test1" />
       </list>
     </recent_temporary>
   </component>
@@ -324,14 +364,15 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="1936" height="1056" extended-state="6" />
+    <editor active="true" />
     <layout>
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.18958333" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32979852" sideWeight="0.50208336" order="7" side_tool="true" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32979852" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32979852" sideWeight="0.49791667" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32979852" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32661718" sideWeight="0.49791667" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
@@ -367,40 +408,15 @@
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/project/testest.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="493">
-          <caret line="30" column="8" lean-forward="true" selection-start-line="30" selection-start-column="8" selection-end-line="30" selection-end-column="8" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/project/return_query.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="85">
-          <caret line="11" column="19" lean-forward="false" selection-start-line="11" selection-start-column="19" selection-end-line="11" selection-end-column="19" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/project/api/request.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="391">
-          <caret line="24" column="36" lean-forward="true" selection-start-line="24" selection-start-column="36" selection-end-line="24" selection-end-column="36" />
-          <folding>
-            <element signature="e#19#34#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/project/service/config.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="374">
           <caret line="22" column="28" lean-forward="true" selection-start-line="22" selection-start-column="28" selection-end-line="22" selection-end-column="28" />
-          <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/project/request_test.py" />
-    <entry file="file://$PROJECT_DIR$/project/return_query.py">
+    <entry file="file://$PROJECT_DIR$/project/testscripts/return_query.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="1139">
           <caret line="67" column="53" lean-forward="true" selection-start-line="67" selection-start-column="53" selection-end-line="67" selection-end-column="53" />
@@ -408,14 +424,14 @@
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/project/request_test.py" />
-    <entry file="file://$PROJECT_DIR$/project/product_json.py">
+    <entry file="file://$PROJECT_DIR$/project/testscripts/product_json.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="850">
           <caret line="50" column="28" lean-forward="true" selection-start-line="50" selection-start-column="28" selection-end-line="50" selection-end-column="28" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/project/columns.py">
+    <entry file="file://$PROJECT_DIR$/project/testscripts/columns.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="374">
           <caret line="23" column="32" lean-forward="true" selection-start-line="23" selection-start-column="32" selection-end-line="23" selection-end-column="32" />
@@ -426,7 +442,7 @@
     <entry file="file://$PROJECT_DIR$/project/connection.py" />
     <entry file="file://$PROJECT_DIR$/project/generate_json.py" />
     <entry file="file://$PROJECT_DIR$/project/request_test.py" />
-    <entry file="file://$PROJECT_DIR$/project/product_json.py">
+    <entry file="file://$PROJECT_DIR$/project/testscripts/product_json.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="1037">
           <caret line="62" column="32" lean-forward="false" selection-start-line="62" selection-start-column="32" selection-end-line="62" selection-end-column="32" />
@@ -434,7 +450,7 @@
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/project/generate_json.py" />
-    <entry file="file://$PROJECT_DIR$/project/columns.py">
+    <entry file="file://$PROJECT_DIR$/project/testscripts/columns.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="476">
           <caret line="29" column="20" lean-forward="true" selection-start-line="29" selection-start-column="20" selection-end-line="29" selection-end-column="20" />
@@ -452,7 +468,7 @@
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/project/generate_json.py" />
-    <entry file="file://$PROJECT_DIR$/project/product_json.py">
+    <entry file="file://$PROJECT_DIR$/project/testscripts/product_json.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="1156">
           <caret line="69" column="0" lean-forward="false" selection-start-line="69" selection-start-column="0" selection-end-line="69" selection-end-column="0" />
@@ -462,7 +478,7 @@
     <entry file="file://$PROJECT_DIR$/project/connection.py" />
     <entry file="file://$PROJECT_DIR$/project/request_test.py" />
     <entry file="file://$PROJECT_DIR$/project/generate_json.py" />
-    <entry file="file://$PROJECT_DIR$/project/testfile.json">
+    <entry file="file://$PROJECT_DIR$/project/testscripts/testfile.json">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="1887">
           <caret line="111" column="9" lean-forward="true" selection-start-line="111" selection-start-column="9" selection-end-line="111" selection-end-column="9" />
@@ -476,7 +492,7 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/project/product_json.py">
+    <entry file="file://$PROJECT_DIR$/project/testscripts/product_json.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="697">
           <caret line="42" column="0" lean-forward="true" selection-start-line="42" selection-start-column="0" selection-end-line="42" selection-end-column="0" />
@@ -485,13 +501,6 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/project/connection.py" />
     <entry file="file://$PROJECT_DIR$/project/test.py" />
-    <entry file="file://$PROJECT_DIR$/project/testfile.json">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="295">
-          <caret line="96" column="46" lean-forward="true" selection-start-line="96" selection-start-column="46" selection-end-line="96" selection-end-column="46" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/project/test_connection.py" />
     <entry file="file://$PROJECT_DIR$/project/generate_json.py" />
     <entry file="file://$PROJECT_DIR$/project/connection.py" />
@@ -525,31 +534,38 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/project/columns.py">
+    <entry file="file://$PROJECT_DIR$/project/api/__init__.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="357">
-          <caret line="21" column="3" lean-forward="true" selection-start-line="21" selection-start-column="3" selection-end-line="21" selection-end-column="3" />
+        <state relative-caret-position="0">
+          <caret line="0" column="25" lean-forward="true" selection-start-line="0" selection-start-column="25" selection-end-line="0" selection-end-column="25" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/project/product_json.py">
+    <entry file="file://$PROJECT_DIR$/project/testscripts/testfile.json">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="295">
+          <caret line="96" column="46" lean-forward="false" selection-start-line="96" selection-start-column="46" selection-end-line="96" selection-end-column="46" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/project/testscripts/product_json.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="442">
           <caret line="27" column="16" lean-forward="false" selection-start-line="27" selection-start-column="16" selection-end-line="27" selection-end-column="16" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/project/testest.py">
+    <entry file="file://$PROJECT_DIR$/project/testscripts/columns.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="493">
-          <caret line="30" column="8" lean-forward="false" selection-start-line="30" selection-start-column="8" selection-end-line="30" selection-end-column="8" />
+        <state relative-caret-position="340">
+          <caret line="21" column="3" lean-forward="true" selection-start-line="21" selection-start-column="3" selection-end-line="21" selection-end-column="3" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/project/return_query.py">
+    <entry file="file://$PROJECT_DIR$/../../../team_server/myproject.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="17">
-          <caret line="39" column="33" lean-forward="false" selection-start-line="39" selection-start-column="33" selection-end-line="39" selection-end-column="33" />
+        <state relative-caret-position="136">
+          <caret line="8" column="27" lean-forward="true" selection-start-line="8" selection-start-column="27" selection-end-line="8" selection-end-column="27" />
         </state>
       </provider>
     </entry>
@@ -557,57 +573,88 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/project/api/__init__.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="25" lean-forward="true" selection-start-line="0" selection-start-column="25" selection-end-line="0" selection-end-column="25" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/project/service/config.py">
+    <entry file="file://$PROJECT_DIR$/project/testscripts/list_separation.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="442">
-          <caret line="26" column="0" lean-forward="false" selection-start-line="26" selection-start-column="0" selection-end-line="26" selection-end-column="0" />
+        <state relative-caret-position="162">
+          <caret line="19" column="0" lean-forward="true" selection-start-line="19" selection-start-column="0" selection-end-line="19" selection-end-column="0" />
+          <folding>
+            <element signature="e#0#52#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/project/testscripts/testest.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="493">
+          <caret line="30" column="8" lean-forward="false" selection-start-line="30" selection-start-column="8" selection-end-line="30" selection-end-column="8" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/project/api/model.py">
+    <entry file="file://$PROJECT_DIR$/project/testscripts/return_query.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="397">
-          <caret line="29" column="20" lean-forward="true" selection-start-line="29" selection-start-column="20" selection-end-line="29" selection-end-column="20" />
+        <state relative-caret-position="629">
+          <caret line="41" column="25" lean-forward="false" selection-start-line="41" selection-start-column="17" selection-end-line="41" selection-end-column="25" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/.PyCharmCE2017.3/system/python_stubs/2145566988/pyodbc.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="424">
+          <caret line="1212" column="39" lean-forward="false" selection-start-line="1212" selection-start-column="39" selection-end-line="1212" selection-end-column="39" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/project/service/qry.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="6" selection-end-column="28" />
+        <state relative-caret-position="425">
+          <caret line="25" column="18" lean-forward="false" selection-start-line="25" selection-start-column="18" selection-end-line="25" selection-end-column="18" />
+          <folding>
+            <element signature="e#0#13#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/project/service/config.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="238">
+          <caret line="14" column="36" lean-forward="false" selection-start-line="14" selection-start-column="36" selection-end-line="14" selection-end-column="36" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/project/api/request.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="493">
-          <caret line="29" column="84" lean-forward="false" selection-start-line="29" selection-start-column="76" selection-end-line="29" selection-end-column="84" />
+        <state relative-caret-position="422">
+          <caret line="26" column="36" lean-forward="false" selection-start-line="26" selection-start-column="36" selection-end-line="26" selection-end-column="36" />
           <folding>
             <element signature="e#19#34#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/project/testscripts/list_separation.py">
+    <entry file="file://$PROJECT_DIR$/project/api/model.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="170">
-          <caret line="10" column="24" lean-forward="true" selection-start-line="10" selection-start-column="24" selection-end-line="10" selection-end-column="24" />
+        <state relative-caret-position="298">
+          <caret line="93" column="36" lean-forward="false" selection-start-line="93" selection-start-column="36" selection-end-line="93" selection-end-column="36" />
           <folding>
-            <element signature="e#0#52#0" expanded="true" />
+            <element signature="e#23#59#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/project/testscripts/test1.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="434">
+          <caret line="58" column="0" lean-forward="true" selection-start-line="58" selection-start-column="0" selection-end-line="58" selection-end-column="0" />
+          <folding>
+            <marker date="1513030142254" expanded="true" signature="1039:1542" ph="..." />
           </folding>
         </state>
       </provider>

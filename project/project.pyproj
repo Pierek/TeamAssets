@@ -1,0 +1,63 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Build">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{5aa092d0-9da8-47b0-a0e5-34e9a3d62cb4}</ProjectGuid>
+    <ProjectHome />
+    <StartupFile />
+    <SearchPath />
+    <WorkingDirectory>.</WorkingDirectory>
+    <OutputPath>.</OutputPath>
+    <ProjectTypeGuids>{888888a0-9f3d-457c-b088-3a5042f75d52}</ProjectTypeGuids>
+    <LaunchProvider>Standard Python launcher</LaunchProvider>
+    <InterpreterId>Global|ContinuumAnalytics|Anaconda36-64</InterpreterId>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)' == 'Debug'" />
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'" />
+  <PropertyGroup>
+    <VisualStudioVersion Condition=" '$(VisualStudioVersion)' == '' ">10.0</VisualStudioVersion>
+  </PropertyGroup>
+  <ItemGroup>
+    <Content Include="requirements.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="api\model.py" />
+    <Compile Include="api\request.py" />
+    <Compile Include="api\__init__.py" />
+    <Compile Include="entity\product_del.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="entity\product_put.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="service\config.py" />
+    <Compile Include="service\qry.py" />
+    <Compile Include="service\__init__.py" />
+    <Compile Include="testscripts\columns.py" />
+    <Compile Include="testscripts\list_separation.py" />
+    <Compile Include="testscripts\product_del.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="testscripts\product_json.py" />
+    <Compile Include="entity\product_load.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="testscripts\product_put.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="testscripts\return_query.py" />
+    <Compile Include="testscripts\test1.py" />
+    <Compile Include="testscripts\testest.py" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="api" />
+    <Folder Include="entity\" />
+    <Folder Include="service" />
+    <Folder Include="testscripts" />
+  </ItemGroup>
+  <ItemGroup>
+    <InterpreterReference Include="Global|ContinuumAnalytics|Anaconda36-64" />
+  </ItemGroup>
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
+</Project>

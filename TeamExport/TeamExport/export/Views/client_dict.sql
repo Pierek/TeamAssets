@@ -8,5 +8,8 @@ SELECT
 	 [client_code]
 	,[client_description]
 	,[Action]
+	,[ResponseCode]
+	,[ResponseDate]
+	,[DeletedOn]
 FROM data.client_dict
 WHERE Action IS NOT NULL

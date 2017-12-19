@@ -9,7 +9,9 @@ SELECT
 	,CD.client_code
 	,S.quantity
 	,S.stock_dict
-	,S.LastUpdate
+	,S.Action
+	,S.ResponseCode
+	,S.ResponseDate
 	,S.DeletedOn
 FROM data.stock S
 INNER JOIN data.product P
