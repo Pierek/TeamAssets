@@ -73,6 +73,7 @@ cnxn = pyodbc.connect('DRIVER={SQL Server};SERVER='+DevelopmentConfig.TEAM_SERVE
                       ';UID='+DevelopmentConfig.TEAM_USER +
                       ';PWD='+DevelopmentConfig.TEAM_PWD)
 cursor = cnxn.cursor()
+
 for row in server_response:
     update_item = """
     UPDATE export.product
