@@ -1,26 +1,20 @@
 import pyodbc
-from project.service.config import DevelopmentConfig
+from service.config import DevelopmentConfig
 
 
-class Query:
+class Cursor:
 
-    def __init__(self, query):
-        self.query = query
+    def __init__(self):
+        cnxn = pyodbc.connect('DRIVER={SQL Server};SERVER=' + DevelopmentConfig.TEAM_SERVER +
+                              ';DATABASE=' + DevelopmentConfig.TEAM_DATABASE +
+                              ';UID=' + DevelopmentConfig.TEAM_USER +
+                              ';PWD=' + DevelopmentConfig.TEAM_PWD)
+        self.cursor = cnxn.cursor()
 
-    def queryresult(self):
-        cnxn = pyodbc.connect('DRIVER={SQL Server};SERVER='+DevelopmentConfig.TEAM_SERVER +
-                              ';DATABASE='+DevelopmentConfig.TEAM_DATABASE +
-                              ';UID='+DevelopmentConfig.TEAM_USER +
-                              ';PWD='+DevelopmentConfig.TEAM_PWD)
-        cursor = cnxn.cursor()
-        cursor.execute(self.query)
-        return cursor.fetchall()
+    def queryresult(self, query):
+        self.cursor.execute(query)
+        return self.cursor.fetchall()
 
-    def querycommit(self):
-        cnxn = pyodbc.connect('DRIVER={SQL Server};SERVER='+DevelopmentConfig.TEAM_SERVER +
-                              ';DATABASE='+DevelopmentConfig.TEAM_DATABASE +
-                              ';UID='+DevelopmentConfig.TEAM_USER +
-                              ';PWD='+DevelopmentConfig.TEAM_PWD)
-        cursor = cnxn.cursor()
-        cursor.execute(self.query)
-        cursor.commit()
+    def querycommit(self, query):
+        self.cursor.execute(query)
+        self.cursor.commit()
