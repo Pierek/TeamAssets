@@ -58,7 +58,7 @@ def product(token, action):
             # send request
             headers = {"Token": token, "Content-Type": "application/json"}
             action_method = getattr(requests, action)
-            response = action_method(DC.URL + '/api/products/', headers=headers, json=items)
+            response = action_method(DC.URL + 'api/products/', headers=headers, json=items)
 
             # print response from the server
             print(response.text)
@@ -67,14 +67,27 @@ def product(token, action):
             # create a connection to db
             update_commit = qry.Cursor()
 
-            for row in server_response:
-                update_item = """
-                UPDATE export.product
-                SET  ResponseCode = """+str(row['status'])+"""
-                    ,ResponseDate = GETDATE()
-                    ,Action = CASE WHEN """+str(row['status'])+""" = 200 THEN NULL ELSE Action END
-                WHERE product_code = '"""+row['product_code']+"'"
+            if action in ('post', 'put'):
+                for row in server_response:
+                    update_item = """
+                    UPDATE export.product
+                    SET  ResponseCode = """+str(row['status'])+"""
+                        ,ResponseDate = GETDATE()
+                        ,Action = CASE WHEN """+str(row['status'])+""" = 200 THEN NULL ELSE Action END
+                    WHERE product_code = '"""+row['product_code']+"'"
 
-                print(update_item)
-                update_commit.querycommit(update_item)
+                    print(update_item)
+                    update_commit.querycommit(update_item)
+            elif action == 'delete':
+                for row in server_response:
+                    update_item = """
+                    UPDATE export.product
+                    SET  ResponseCode = """+str(row['status'])+"""
+                        ,ResponseDate = GETDATE()
+                        ,Action = CASE WHEN """+str(row['status'])+""" = 200 THEN NULL ELSE Action END
+                        ,DeletedOn = CASE WHEN """+str(row['status'])+""" = 200 THEN GETDATE() ELSE NULL END 
+                    WHERE product_code = '"""+row['product_code']+"'"
+
+                    print(update_item)
+                    update_commit.querycommit(update_item)
 
