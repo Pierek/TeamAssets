@@ -3,15 +3,9 @@ import requests
 import json
 from service.config import DevelopmentConfig
 
-# create connection to db and fetch all data from export
-cnxn = pyodbc.connect('DRIVER={SQL Server};SERVER='+DevelopmentConfig.TEAM_SERVER +
-                      ';DATABASE='+DevelopmentConfig.TEAM_DATABASE +
-                      ';UID='+DevelopmentConfig.TEAM_USER +
-                      ';PWD='+DevelopmentConfig.TEAM_PWD)
-cursor = cnxn.cursor()
-cursor.execute("SELECT * FROM export.product WHERE Action = 'POST'")
-all_items = cursor.fetchall()
-post_items = [all_items[i:i+100] for i in range(0,len(all_items),100)]
+
+all_items = qry.queryresult("SELECT * FROM export.product WHERE Action = 'POST'")
+post_items = [all_items[i:i+100] for i in range(0, len(all_items), 100)]
 
 items = {}
 list_of_items = []
@@ -70,11 +64,13 @@ if post_items:  # check if list is not empty
 
 
         # update table in db
-        cnxn = pyodbc.connect('DRIVER={SQL Server};SERVER='+DevelopmentConfig.TEAM_SERVER +
-                              ';DATABASE='+DevelopmentConfig.TEAM_DATABASE +
-                              ';UID='+DevelopmentConfig.TEAM_USER +
-                              ';PWD='+DevelopmentConfig.TEAM_PWD)
-        cursor = cnxn.cursor()
+        # cnxn = pyodbc.connect('DRIVER={SQL Server};SERVER='+DevelopmentConfig.TEAM_SERVER +
+        #                       ';DATABASE='+DevelopmentConfig.TEAM_DATABASE +
+        #                       ';UID='+DevelopmentConfig.TEAM_USER +
+        #                       ';PWD='+DevelopmentConfig.TEAM_PWD)
+        # cursor = cnxn.cursor()
+
+        update_commit = qry.Cursor()
 
         for row in server_response:
             update_item = """
@@ -85,6 +81,8 @@ if post_items:  # check if list is not empty
             WHERE product_code = '"""+row['product_code']+"'"
 
             print(update_item)
-            cursor.execute(update_item)
-            cursor.commit()
+            update_commit.querycommit(update_item)
+
+            # cursor.execute(update_item)
+            # cursor.commit()
 
