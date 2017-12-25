@@ -17,7 +17,7 @@ class DevelopmentConfig(BaseConfig):
     SQLALCHEMY_DATABASE_URI = 'sqlite:///' + os.path.join(basedir, 'dev.sqlite')
     API_USERNAME = 'a@pi.com'
     API_PWD = 'api123'
-    API_URL = 'http://54.187.225.165:8080/api/'
+    URL = 'http://127.0.0.1:5000/'
     TEAM_SERVER = 'PIEREK-PC'
     TEAM_DATABASE = 'TeamExport'
     TEAM_USER = 'test'

@@ -2,6 +2,7 @@
 
 import requests
 import json
+from service.config import DevelopmentConfig as DC
 
 class ApiRequest():
     '''Class to handle token authentication'''
@@ -30,4 +31,13 @@ class ApiRequest():
         response = requests.put(self.url+"products/", headers=headers, json=jsondata)
         return json.loads(response.text)
 
+
+def token_refresh():
+    headers = {"Username": DC.API_USERNAME, "Password": DC.API_PWD}
+    response = requests.post(DC.URL + "api/auth/", headers=headers)
+    json_data = json.loads(response.text)
+    if json_data['token']:
+        return json_data['token']
+    else:
+        raise ValueError('missing token')
 
