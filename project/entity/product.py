@@ -19,7 +19,7 @@ def product(token, action):
 
     # create json-like dictionary
     if chunk_items:  # check if list is not empty
-        for chunk in chunk_items:
+        for chunk in chunk_items:  # for each chunk (100 rows) send post/pu/delete request and update back the table
             if action in ('post', 'put'):
                 for row in chunk:
                     each_item['product_code'] = row[0]
@@ -51,6 +51,7 @@ def product(token, action):
                     each_item['product_code'] = row[0]
                     list_of_items.append(each_item.copy())
 
+            # items is a final dictionary with a chunk data
             items['items'] = list_of_items
 
             print(items)
@@ -77,7 +78,7 @@ def product(token, action):
                     WHERE product_code = '"""+row['product_code']+"'"
 
                     print(update_item)
-                    update_commit.querycommit(update_item)
+                    update_commit.querycommit(update_item)  # commit every transaction
             elif action == 'delete':
                 for row in server_response:
                     update_item = """
@@ -89,5 +90,5 @@ def product(token, action):
                     WHERE product_code = '"""+row['product_code']+"'"
 
                     print(update_item)
-                    update_commit.querycommit(update_item)
+                    update_commit.querycommit(update_item)  # commit every transaction
 
