@@ -2,19 +2,16 @@ import pyodbc
 import requests
 import json
 from service.config import DevelopmentConfig
-import service.qry as qry
 
 # create connection to db and fetch all data from export
-# cnxn = pyodbc.connect('DRIVER={SQL Server};SERVER='+DevelopmentConfig.TEAM_SERVER +
-#                       ';DATABASE='+DevelopmentConfig.TEAM_DATABASE +
-#                       ';UID='+DevelopmentConfig.TEAM_USER +
-#                       ';PWD='+DevelopmentConfig.TEAM_PWD)
-# cursor = cnxn.cursor()
-# cursor.execute("SELECT * FROM export.product WHERE Action = 'POST'")
-# all_items = cursor.fetchall()
-
-all_items = qry.queryresult("SELECT * FROM export.product WHERE Action = 'POST'")
-post_items = [all_items[i:i+100] for i in range(0, len(all_items), 100)]
+cnxn = pyodbc.connect('DRIVER={SQL Server};SERVER='+DevelopmentConfig.TEAM_SERVER +
+                      ';DATABASE='+DevelopmentConfig.TEAM_DATABASE +
+                      ';UID='+DevelopmentConfig.TEAM_USER +
+                      ';PWD='+DevelopmentConfig.TEAM_PWD)
+cursor = cnxn.cursor()
+cursor.execute("SELECT * FROM export.product WHERE Action = 'POST'")
+all_items = cursor.fetchall()
+post_items = [all_items[i:i+100] for i in range(0,len(all_items),100)]
 
 items = {}
 list_of_items = []
