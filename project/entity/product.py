@@ -1,7 +1,5 @@
 import service.qry as qry
-from service.config import DevelopmentConfig as DC
-import requests
-import json
+from api.request import api_request
 
 
 def product(token, action):
@@ -56,15 +54,10 @@ def product(token, action):
 
             print(items)
 
-            # send request
-            headers = {"Token": token, "Content-Type": "application/json"}
-            action_method = getattr(requests, action)
-            response = action_method(DC.URL + 'api/products/', headers=headers, json=items)
+            # send request and receive response
+            server_response = api_request(token=token, jsondata=items, action=action, api_entity='api/products/')
 
-            # print response from the server
-            print(response.text)
-            server_response = json.loads(response.text)
-
+            print(server_response)
             # create a connection to db
             update_commit = qry.Cursor()
 
