@@ -47,7 +47,7 @@ BEGIN
 			,T.LastUpdate = S.LastUpdate
 			,T.Action = 'PUT' -- when there is a change, next request should be PUT
 				
-		WHEN NOT MATCHED
+		WHEN NOT MATCHED BY TARGET
 		THEN INSERT
 		(
 			 price_client_id

@@ -46,7 +46,7 @@ BEGIN
 			,T.currency_description = S.currency_description
 			,T.LastUpdate = S.LastUpdate 
 				
-		WHEN NOT MATCHED
+		WHEN NOT MATCHED BY TARGET
 		THEN INSERT
 		(
 			 currency_id

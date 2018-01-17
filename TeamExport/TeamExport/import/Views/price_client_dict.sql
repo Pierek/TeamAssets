@@ -6,7 +6,7 @@ AS
 
 SELECT 
 	 [price_client_id] = ID
-	,[price_client_code] = UPPER(REPLACE(Nazwa,' ',''))
+	,[price_client_code] = 'PC_' + CONVERT(nvarchar(4), ID)
 	,[price_client_description] = LTRIM(RTRIM(Nazwa))
 	,[LastUpdate] = GETDATE()
 FROM TEAM.dbo.DefinicjeCen

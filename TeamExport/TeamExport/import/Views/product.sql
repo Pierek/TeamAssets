@@ -6,6 +6,7 @@ AS
 
 SELECT 
 	 [product_id] = T.ID
+	--,[product_code] = REPLACE(REPLACE(T.Kod,' ',''),'\','-')
 	,[product_code] = LTRIM(RTRIM(T.Kod))
 	,[product_description] = LTRIM(RTRIM(T.Nazwa))
 	,[promo] = CASE WHEN LTRIM(RTRIM(FPROM.Data)) = '' THEN NULL ELSE LTRIM(RTRIM(FPROM.Data)) END

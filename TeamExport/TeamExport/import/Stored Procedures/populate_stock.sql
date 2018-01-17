@@ -36,7 +36,8 @@ BEGIN
 		ON (
 			T.product_id = S.product_id
 			AND ISNULL(T.client_id,'') = ISNULL(S.client_id,'')
-			AND T.stock_dict = S.stock_dict
+			AND T.stock_type_code = S.stock_type_code
+			AND T.DeletedOn IS NULL -- to do zastanowienia
 			)
 		WHEN MATCHED AND ( 
 
@@ -46,27 +47,33 @@ BEGIN
 
 		THEN UPDATE
 		SET  T.quantity = S.quantity
-			,T.LastUpdate = S.LastUpdate 
+			,T.LastUpdate = S.LastUpdate
+			,T.Action = 'PUT' -- when there is a change, next request should be PUT
 				
-		WHEN NOT MATCHED
+		WHEN NOT MATCHED BY TARGET
 		THEN INSERT
 		(
 			 product_id
 			,client_id
 			,quantity
-			,stock_dict
+			,stock_type_code
+			,LastUpdate
+			,Action
 		)
 		VALUES
 		(
 			 S.product_id
 			,S.client_id
 			,S.quantity
-			,S.stock_dict
+			,S.stock_type_code
+			,S.LastUpdate
+			,'POST' -- when there is a new object, next request should be POST
 		)
 
 		WHEN NOT MATCHED BY SOURCE AND T.DeletedOn IS NULL
 		THEN UPDATE
-		SET  T.DeletedOn = GETDATE();
+		SET  T.DeletedOn = GETDATE()
+			,T.Action = 'DELETE'; -- when object does not exist anymore, next request should be DELETE
 
 
 		SET @EventRowcount = @@ROWCOUNT

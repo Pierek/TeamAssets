@@ -38,6 +38,8 @@ BEGIN
 
 		EXEC import.populate_currency
 
+		EXEC import.populate_stock
+
 		/* log complete */
 		EXEC dbo.EventHandler
 			 @ProcedureName = @PROCEDURE_NAME,@SchemaName = @SCHEMA_NAME

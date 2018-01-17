@@ -1,30 +1,30 @@
 ﻿--- <summary>Move stock data from enova to TeamExport</summary>
 --- <event author="Piotr Purwin" date="2017-11-02" project="TEAM">View created</event>
-CREATE VIEW [import].stock
+CREATE VIEW [import].[stock]
 
 AS
 
-SELECT
-	 P.product_id
-	,[client_id] = NULL
-	,[quantity] = SUM(Z.IloscValue)
-	,[stock_dict] = N'Stan magazynowy'
-	,[LastUpdate] = GETDATE()
-FROM TEAM.dbo.Zasoby Z
-INNER JOIN data.product P
-	ON P.product_id = Z.Towar
-WHERE Z.Magazyn = 1 -- czy tylko 1?
-	AND Z.Okres = 1 -- ??
-	-- brak kierunku bo brane sa i 1 i -1
-GROUP BY P.product_id
+--SELECT
+--	 P.product_id
+--	,[client_id] = NULL
+--	,[quantity] = SUM(Z.IloscValue)
+--	,[stock_type_code] = N'Stan magazynowy'
+--	,[LastUpdate] = GETDATE()
+--FROM TEAM.dbo.Zasoby Z
+--INNER JOIN data.product P
+--	ON P.product_id = Z.Towar
+--WHERE Z.Magazyn = 1 -- czy tylko 1?
+--	AND Z.Okres = 1 -- ??
+--	-- brak kierunku bo brane sa i 1 i -1
+--GROUP BY P.product_id
 
-UNION ALL
+--UNION ALL
 
 SELECT
 	 P.product_id
 	,C.client_id
-	,[quantity] = Z.IloscValue
-	,[stock_dict] = N'Rezerwacja klienta'
+	,[quantity] = SUM(Z.IloscValue)
+	,[stock_type_code] = N'RSVD'
 	,[LastUpdate] = GETDATE()
 FROM TEAM.dbo.Zasoby Z
 INNER JOIN data.product P
@@ -39,14 +39,15 @@ INNER JOIN TEAM.dbo.DefDokHandlowych DF
 WHERE Z.Magazyn = 1 -- czy tylko 1?
 	AND Z.Okres = 1 -- ??
 	AND Z.Kierunek = -1
+GROUP BY P.product_id, C.client_id -- grupowanie zeby zlaczyc w jeden wiersz wszystkie rezewacje tego samego produktu dla tego samego klienta
 
 UNION ALL
 
 SELECT
 	 P.product_id
 	,C.client_id
-	,[quantity] = Z.IloscValue
-	,[stock_dict] = N'Zamówienie klienta'
+	,[quantity] = SUM(Z.IloscValue)
+	,[stock_type_code] = N'ORDR'
 	,[LastUpdate] = GETDATE()
 FROM TEAM.dbo.Zasoby Z
 INNER JOIN data.product P
@@ -61,6 +62,7 @@ INNER JOIN TEAM.dbo.DefDokHandlowych DF
 WHERE Z.Magazyn = 1 -- czy tylko 1?
 	AND Z.Okres = 1 -- ??
 	AND Z.Kierunek = -1
+GROUP BY P.product_id, C.client_id
 
 UNION ALL
 
@@ -68,7 +70,7 @@ SELECT
 	 P.product_id
 	,[client_id] = NULL
 	,[quantity] = SUM(Z.IloscValue)
-	,[stock_dict] = N'Stan fizyczny'
+	,[stock_type_code] = N'AVLB'
 	,[LastUpdate] = GETDATE()
 FROM TEAM.dbo.Zasoby Z
 INNER JOIN data.product P

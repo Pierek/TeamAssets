@@ -25,7 +25,7 @@
     <Compile Include="api\model.py" />
     <Compile Include="api\request.py" />
     <Compile Include="api\__init__.py" />
-    <Compile Include="entity\product.py" />
+    <Compile Include="entity\model.py" />
     <Compile Include="entity\product_del.py">
       <SubType>Code</SubType>
     </Compile>
