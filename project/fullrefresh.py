@@ -24,7 +24,7 @@ price_client_dict(token=token, action='post')
 
 
 # run stock data
-stock(token=token, action='delete')
+####stock(token=token, action='delete')
 stock(token=token, action='put')
 stock(token=token, action='post')
 

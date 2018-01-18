@@ -26,12 +26,6 @@
     <Compile Include="api\request.py" />
     <Compile Include="api\__init__.py" />
     <Compile Include="entity\model.py" />
-    <Compile Include="entity\product_del.py">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="entity\product_put.py">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="entity\__init__.py">
       <SubType>Code</SubType>
     </Compile>
@@ -45,9 +39,6 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="testscripts\product_json.py" />
-    <Compile Include="entity\product_load.py">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="testscripts\product_put.py">
       <SubType>Code</SubType>
     </Compile>

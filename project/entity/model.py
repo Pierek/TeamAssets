@@ -237,12 +237,12 @@ def stock(token, action):
                     each_item['stock_type_code'] = row[3]
                     list_of_items.append(each_item.copy())
 
-            elif action == 'delete':
-                for row in chunk:
-                    each_item['product_code'] = row[0]
-                    each_item['client_code'] = row[1]
-                    each_item['stock_type_code'] = row[3]
-                    list_of_items.append(each_item.copy())
+            ####elif action == 'delete':
+            ####    for row in chunk:
+            ####        each_item['product_code'] = row[0]
+            ####        each_item['client_code'] = row[1]
+            ####        each_item['stock_type_code'] = row[3]
+            ####        list_of_items.append(each_item.copy())
 
             # items is a final dictionary with a chunk data
             items['items'] = list_of_items
@@ -271,16 +271,17 @@ def stock(token, action):
                     print(update_item)
 
                     update_commit.querycommit(update_item)  # commit every transaction
-            elif action == 'delete':
-                for row in server_response:
-                    update_item = """
-                    UPDATE export.stock
-                    SET  ResponseCode = """+str(row['status'])+"""
-                        ,ResponseDate = GETDATE()
-                        ,Action = CASE WHEN """+str(row['status'])+""" = 200 THEN NULL ELSE Action END
-                        ,DeletedOn = CASE WHEN """+str(row['status'])+""" = 200 THEN GETDATE() ELSE NULL END 
-                    WHERE product_code = '"""+row['product_code']+"'"+"""
-                        AND ISNULL(client_code,'') = '"""+(row['client_code'] if row['client_code'] is not None else '')+"'"+"""
-                        AND stock_type_code = '"""+row['stock_type_code']+"'"
 
-                    update_commit.querycommit(update_item)  # commit every transaction
+            ####elif action == 'delete':
+            ####    for row in server_response:
+            ####        update_item = """
+            ####        UPDATE export.stock
+            ####        SET  ResponseCode = """+str(row['status'])+"""
+            ####            ,ResponseDate = GETDATE()
+            ####            ,Action = CASE WHEN """+str(row['status'])+""" = 200 THEN NULL ELSE Action END
+            ####            ,DeletedOn = CASE WHEN """+str(row['status'])+""" = 200 THEN GETDATE() ELSE NULL END 
+            ####        WHERE product_code = '"""+row['product_code']+"'"+"""
+            ####            AND ISNULL(client_code,'') = '"""+(row['client_code'] if row['client_code'] is not None else '')+"'"+"""
+            ####            AND stock_type_code = '"""+row['stock_type_code']+"'"
+
+            ####        update_commit.querycommit(update_item)  # commit every transaction

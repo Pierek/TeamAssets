@@ -37,7 +37,6 @@ BEGIN
 			T.product_id = S.product_id
 			AND ISNULL(T.client_id,'') = ISNULL(S.client_id,'')
 			AND T.stock_type_code = S.stock_type_code
-			AND T.DeletedOn IS NULL -- to do zastanowienia
 			)
 		WHEN MATCHED AND ( 
 
@@ -70,10 +69,10 @@ BEGIN
 			,'POST' -- when there is a new object, next request should be POST
 		)
 
-		WHEN NOT MATCHED BY SOURCE AND T.DeletedOn IS NULL
+		WHEN NOT MATCHED BY SOURCE AND T.quantity <> 0 -- only update if quantity <> 0
 		THEN UPDATE
-		SET  T.DeletedOn = GETDATE()
-			,T.Action = 'DELETE'; -- when object does not exist anymore, next request should be DELETE
+		SET  T.quantity = 0 -- if reservation for some product for some client doesnt exist then dont delete it but set quantity to  0
+			,T.Action = 'PUT'; -- when object does not exist anymore, next request should be PUT
 
 
 		SET @EventRowcount = @@ROWCOUNT

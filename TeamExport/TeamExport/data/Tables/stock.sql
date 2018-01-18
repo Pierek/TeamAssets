@@ -7,6 +7,5 @@
 	,[LastUpdate]      datetime NOT NULL
 	,[ResponseCode]    varchar(3) NULL
 	,[ResponseDate]    datetime NULL
-	,[DeletedOn]       datetime NULL
 	,[Action]          varchar(10) NULL
 );

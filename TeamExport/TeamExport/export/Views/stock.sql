@@ -12,7 +12,6 @@ SELECT
 	,S.Action
 	,S.ResponseCode
 	,S.ResponseDate
-	,S.DeletedOn
 FROM data.stock S
 INNER JOIN data.product P
 	ON P.product_id = S.product_id
