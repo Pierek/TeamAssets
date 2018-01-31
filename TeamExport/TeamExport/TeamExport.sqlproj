@@ -91,7 +91,6 @@
     <Build Include="Security\log.sql" />
     <Build Include="config\Tables\EventType.sql" />
     <Build Include="data\Tables\stock.sql" />
-    <Build Include="data\Tables\client.sql" />
     <Build Include="data\Tables\client_dict.sql" />
     <Build Include="data\Tables\price.sql" />
     <Build Include="data\Tables\price_client_dict.sql" />
@@ -110,6 +109,10 @@
     <Build Include="import\Stored Procedures\populate_stock.sql" />
     <Build Include="export\Views\stock.sql" />
     <Build Include="export\Views\price_client_dict.sql" />
+    <Build Include="import\Views\price.sql" />
+    <Build Include="import\Stored Procedures\populate_price.sql" />
+    <Build Include="export\Views\price.sql" />
+    <Build Include="log\Tables\job_log.sql" />
   </ItemGroup>
   <ItemGroup>
     <SqlCmdVariable Include="TEAM">

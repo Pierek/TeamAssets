@@ -3,6 +3,7 @@ from api.request import api_request
 
 
 def product(token, action):
+    """send product data request from database to the server"""
 
     # retrieve all data from the table
     all_items = qry.Cursor().queryresult("SELECT * FROM export.product WHERE Action = '" + action.upper() + "'")
@@ -52,12 +53,9 @@ def product(token, action):
             # items is a final dictionary with a chunk data
             items['items'] = list_of_items
 
-            print(items)
-
             # send request and receive response
             server_response = api_request(token=token, jsondata=items, action=action, api_entity='api/product/')
 
-            print(server_response)
             # create a connection to db
             update_commit = qry.Cursor()
 
@@ -79,7 +77,7 @@ def product(token, action):
                     SET  ResponseCode = """+str(row['status'])+"""
                         ,ResponseDate = GETDATE()
                         ,Action = CASE WHEN """+str(row['status'])+""" = 200 THEN NULL ELSE Action END
-                        ,DeletedOn = CASE WHEN """+str(row['status'])+""" = 200 THEN GETDATE() ELSE NULL END 
+                        ,DeletedOn = CASE WHEN """+str(row['status'])+""" = 200 THEN GETDATE() ELSE NULL END
                     WHERE product_code = '"""+row['product_code']+"'"
 
                     print(update_item)
@@ -88,6 +86,7 @@ def product(token, action):
 
 
 def client_dict(token, action):
+    """send client_dict data request from database to the server"""
 
     # retrieve all data from the table
     all_items = qry.Cursor().queryresult("SELECT * FROM export.client_dict WHERE Action = '" + action.upper() + "'")
@@ -117,12 +116,9 @@ def client_dict(token, action):
             # items is a final dictionary with a chunk data
             items['items'] = list_of_items
 
-            # print(items)
-
             # send request and receive response
             server_response = api_request(token=token, jsondata=items, action=action, api_entity='api/client/')
 
-            # print(server_response)
             # create a connection to db
             update_commit = qry.Cursor()
 
@@ -144,7 +140,7 @@ def client_dict(token, action):
                     SET  ResponseCode = """+str(row['status'])+"""
                         ,ResponseDate = GETDATE()
                         ,Action = CASE WHEN """+str(row['status'])+""" = 200 THEN NULL ELSE Action END
-                        ,DeletedOn = CASE WHEN """+str(row['status'])+""" = 200 THEN GETDATE() ELSE NULL END 
+                        ,DeletedOn = CASE WHEN """+str(row['status'])+""" = 200 THEN GETDATE() ELSE NULL END
                     WHERE client_code = '"""+row['client_code'].replace("'", "''")+"'"
 
                     # print(update_item)
@@ -154,6 +150,7 @@ def client_dict(token, action):
 
 #### price_client_code and client_price_code are mismatched!!!!! has to set only one name (db is price_client, apiserver is client_price)
 def price_client_dict(token, action):
+    """send price_client_dict data request from database to the server"""
 
     # retrieve all data from the table
     all_items = qry.Cursor().queryresult("SELECT * FROM export.price_client_dict WHERE Action = '" + action.upper() + "'")
@@ -206,7 +203,7 @@ def price_client_dict(token, action):
                     SET  ResponseCode = """+str(row['status'])+"""
                         ,ResponseDate = GETDATE()
                         ,Action = CASE WHEN """+str(row['status'])+""" = 200 THEN NULL ELSE Action END
-                        ,DeletedOn = CASE WHEN """+str(row['status'])+""" = 200 THEN GETDATE() ELSE NULL END 
+                        ,DeletedOn = CASE WHEN """+str(row['status'])+""" = 200 THEN GETDATE() ELSE NULL END
                     WHERE price_client_code = '"""+row['client_price_code']+"'"
 
                     update_commit.querycommit(update_item)  # commit every transaction
@@ -214,6 +211,7 @@ def price_client_dict(token, action):
 
 
 def stock(token, action):
+    """send stock data request from database to the server"""
 
     # retrieve all data from the table
     all_items = qry.Cursor().queryresult("SELECT * FROM export.stock WHERE Action = '" + action.upper() + "'")
@@ -247,11 +245,8 @@ def stock(token, action):
             # items is a final dictionary with a chunk data
             items['items'] = list_of_items
 
-            print(items)
             # send request and receive response
             server_response = api_request(token=token, jsondata=items, action=action, api_entity='api/product/stock/')
-
-            print(server_response)
 
             # create a connection to db
             update_commit = qry.Cursor()
@@ -267,8 +262,6 @@ def stock(token, action):
                     WHERE product_code = '"""+row['product_code']+"'"+"""
                         AND ISNULL(client_code,'') = '"""+(row['client_code'] if row['client_code'] is not None else '')+"'"+"""
                         AND stock_type_code = '"""+row['stock_type_code']+"'"
-                    
-                    print(update_item)
 
                     update_commit.querycommit(update_item)  # commit every transaction
 
@@ -285,3 +278,49 @@ def stock(token, action):
             ####            AND stock_type_code = '"""+row['stock_type_code']+"'"
 
             ####        update_commit.querycommit(update_item)  # commit every transaction
+
+def price(token, action):
+    """send price data request from database to the server"""
+
+    # retrieve all data from the table
+    all_items = qry.Cursor().queryresult("SELECT * FROM export.price WHERE Action = '" + action.upper() + "'")
+
+    # divide all rows into 10000 row chunks (10000 for price)
+    chunk_items = [all_items[i:i+10000] for i in range(0, len(all_items), 10000)]
+
+    # create empty objects
+    items = {}
+    list_of_items = []
+    each_item = {}
+
+    # create json-like dictionary
+    if chunk_items:  # check if list is not empty
+        for chunk in chunk_items:  # for each chunk (10000 rows) send post/put request and update back the table
+            if action in ('post', 'put'):
+                for row in chunk:
+                    each_item['product_code'] = row[0]
+                    each_item['client_price_code'] = row[1]
+                    each_item['price'] = row[2]
+                    each_item['currency_code'] = row[3]
+                    list_of_items.append(each_item.copy())
+
+            # items is a final dictionary with a chunk data
+            items['items'] = list_of_items
+
+            # send request and receive response
+            server_response = api_request(token=token, jsondata=items, action=action, api_entity='api/product/price/')
+
+            # create a connection to db
+            update_commit = qry.Cursor()
+
+            if action in ('post', 'put'):
+                for row in server_response:
+                    update_item = """
+                    UPDATE export.price
+                    SET  ResponseCode = """+str(row['status'])+"""
+                        ,ResponseDate = GETDATE()
+                        ,Action = CASE WHEN """+str(row['status'])+""" = 200 THEN NULL ELSE Action END
+                    WHERE product_code = '"""+row['product_code']+"'"+"""
+                        AND price_client_code = '"""+row['client_price_code']+"'"
+
+                    update_commit.querycommit(update_item)  # commit every transaction
