@@ -16,6 +16,6 @@ SELECT
 FROM data.price S
 INNER JOIN data.product P
 	ON P.product_id = S.product_id
-LEFT JOIN data.price_client_dict PCD
+INNER JOIN data.price_client_dict PCD
 	ON PCD.price_client_id = S.price_client_id
 WHERE S.Action IS NOT NULL
