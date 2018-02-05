@@ -1,6 +1,37 @@
 import service.qry as qry
 from api.request import api_request
 
+def job_log(token):
+    """send job_log data request from database to the server"""      
+     
+    # retrieve all data from the table
+    log_row = qry.Cursor().queryresult(
+                                        """ SELECT TOP 1
+                                                 job_id
+                                                ,CONVERT(varchar(24),start_datetime,120)
+                                                ,CONVERT(varchar(24),finish_datetime,120)
+                                                ,status
+                                            FROM log.job_log ORDER BY job_id DESC """)
+
+    items = {}
+    list_of_items = []
+    each_item = {}
+
+    # create json-like dictionary
+    if log_row:  # check if list is not empty
+        each_item['id'] = log_row[0][0]
+        each_item['start_datetime'] = log_row[0][1]
+        each_item['finish_datetime'] = log_row[0][2]
+        each_item['status'] = log_row[0][3]
+        list_of_items.append(each_item.copy())
+
+        # items is a final dictionary with a chunk data
+        items['items'] = list_of_items
+
+        # send request
+        api_request(token=token, jsondata=items, action='post', api_entity='api/job/')
+
+
 
 def product(token, action):
     """send product data request from database to the server"""

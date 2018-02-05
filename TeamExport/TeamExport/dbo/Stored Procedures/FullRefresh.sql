@@ -45,10 +45,11 @@ BEGIN
 
 		EXEC import.populate_price
 
+		/* check if some data. table is empty */
 		EXEC sp_MSforeachtable 'IF NOT EXISTS (SELECT 1 FROM ?) AND LEFT(''?'',6) = ''[data]'' RAISERROR (''Some tables are empty'',16,1)'
 
 		/* if everything went ok, insert start and end time with OK status to the log table */
-		INSERT INTO log.job_log (start_time, end_time, status) SELECT @start_time, GETDATE(), 'OK'
+		INSERT INTO log.job_log (start_datetime, finish_datetime, status) SELECT @start_time, GETDATE(), 'Success'
 
 		/* log complete */
 		EXEC dbo.EventHandler
@@ -64,7 +65,7 @@ BEGIN
 				,@EventMessage = 'Unable to run procedure dbo.FullRefresh'
 
 			/* if job fails, insert start and end time with ERROR status to the log table */
-			INSERT INTO log.job_log (start_time, end_time, status) SELECT @start_time, GETDATE(), 'ERROR'
+			INSERT INTO log.job_log (start_datetime, finish_datetime, status) SELECT @start_time, GETDATE(), 'ERROR'
 		END
 	END CATCH
 

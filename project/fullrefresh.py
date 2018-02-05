@@ -1,11 +1,12 @@
 # project/fullrefresh.py
 
 from api.request import token_refresh
-from entity.model import product, client_dict, price_client_dict, stock, price
+from entity.model import product, client_dict, price_client_dict, stock, price, job_log
 
 # get new token here
 token = token_refresh()
 
+job_log(token=token)
 
 # run product data
 product(token=token, action='delete')
