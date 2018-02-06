@@ -12,7 +12,9 @@
             "pythonPath": "${config:python.pythonPath}",
             "program": "${file}",
             "cwd": "${workspaceRoot}",
-            "env": {},
+            "env": {
+                "APP_SETTINGS": "DevelopmentSlawekConfig"
+            },
             "envFile": "${workspaceRoot}/.env",
             "debugOptions": [
                 "WaitOnAbnormalExit",

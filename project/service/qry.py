@@ -1,14 +1,16 @@
 import pyodbc
-from service.config import DevelopmentConfig
-
+import os
+import service.config
 
 class Cursor:
 
     def __init__(self):
-        cnxn = pyodbc.connect('DRIVER={SQL Server};SERVER=' + DevelopmentConfig.TEAM_SERVER +
-                              ';DATABASE=' + DevelopmentConfig.TEAM_DATABASE +
-                              ';UID=' + DevelopmentConfig.TEAM_USER +
-                              ';PWD=' + DevelopmentConfig.TEAM_PWD)
+        app_settings = os.getenv('APP_SETTINGS', 'DevelopmentConfig')
+        app_config = getattr(service.config, app_settings)
+        cnxn = pyodbc.connect('DRIVER={SQL Server};SERVER=' + app_config.TEAM_SERVER +
+                              ';DATABASE=' + app_config.TEAM_DATABASE +
+                              ';UID=' + app_config.TEAM_USER +
+                              ';PWD=' + app_config.TEAM_PWD)
         self.cursor = cnxn.cursor()
 
     def queryresult(self, query):
