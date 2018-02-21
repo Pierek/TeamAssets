@@ -3,21 +3,38 @@ import os
 import sys
 from math import floor
 import re
+import glob
 import requests
 import pyodbc
 from PIL import Image
 #import PIL.ExifTags
 import piexif
+import numpy as np
+import imutils
+import cv2
 
 DEFAULT_DPI = 96 #72
 STR_SEPARATOR = "; "
 LIST_SEPARATOR = "|"
 CSV_SEPARATOR = ","
-ALLOWED_EXTENSIONS = ['.jpg', '.jpeg', '.png', '.gif']
+ALLOWED_EXTENSIONS = ['.jpg', '.jpeg', '.png']#, '.gif'
 URL = 'http://192.168.0.51:5000/fileupload'
 EXIF_TAG_SEPARATOR = "|"
+IMAGE_FOLDER = r'C:\! D\jakubas.eu_team\ZDJECIA INTERNET\KALORIK'
+#IMAGE_FOLDER = r'C:\! D\jakubas.eu_team\ZDJECIA INTERNET\template_test'
+TEMPLATES = ['template_kalorik_h95_vertical.jpg', 'template_kalorik_w95_horizontal.jpg',
+             'template_efbe_h95_vertical.jpg', 'template_efbe_w95_horizontal.jpg',
+             'template_kitchen_h165_vertical.jpg', 'template_kitchen_w165_horizontal.jpg']
+VISUALIZE = False
+CORRELATION_TRESHOLD = 0.30
+SQL_CONNECTION = pyodbc.connect('Driver={SQL Server Native Client 11.0};'
+                                +'Server=localhost;Database=TEAM;Uid=team_reader;Pwd=team_reader;')
+#SQL_CONNECTION = pyodbc.connect('DSN=Team;Uid=team_reader;Pwd=team_reader;')
+UPLOAD_FILES = 0
+FILENAME_FILTER = '' #SP2#TO1008AG#A#Schott Typ 836
 
 def list_to_str(lst):
+    '''Creates string from string list separated using default separator'''
     list_as_string = ''
     if isinstance(lst, str) is False:
         for iterator in range(0, len(lst)):
@@ -50,7 +67,9 @@ class TeamImage:
         self.filename_is_box_back_offer = False
         self.filename_older_version = False
         self.filename_is_label = False
+        self.filename_arranged = False
         self.filename_dpi = -1
+        self.logo_removed = False
         self.product_code_from_db = ""
         self.exif_dpi = 0
         self.exif_image_description = ''
@@ -64,8 +83,18 @@ class TeamImage:
         self.parse_file_name()
         if self.find_product_code_in_db(self.possible_product_codes, 1) == 0:
             if self.find_product_code_in_db(self.possible_product_codes, 2) == 0:
-                self.find_product_code_in_db(self.possible_product_codes, 3)
-        
+                if self.find_product_code_in_db(self.possible_product_codes, 3) == 0:
+                    self.find_product_code_in_db(self.possible_product_codes, 4)
+
+        for template in TEMPLATES:
+            correlation = 0.0
+            correlation = self.image_has_template(self.file_path, template)
+            if correlation >= CORRELATION_TRESHOLD:
+                self.logo_removed = False
+                break
+            else:
+                self.logo_removed = True
+
         if len(self.product_code_from_db) > 0:
             if self.product_code_from_file_name.lower() != self.product_code_from_db.lower():
                 self.warnings.append('PCE: Product code from file does not match database product code')
@@ -88,13 +117,15 @@ class TeamImage:
             + str(self.filename_older_version) + STR_SEPARATOR\
             + str(self.filename_is_offer) + STR_SEPARATOR\
             + str(self.filename_is_label) + STR_SEPARATOR\
+            + str(self.filename_arranged) + STR_SEPARATOR\
             + str(self.filename_dpi) + STR_SEPARATOR\
+            + str(self.logo_removed) + STR_SEPARATOR\
             + str(self.filename_image_sequence) + STR_SEPARATOR\
             + self.product_code_from_db + STR_SEPARATOR\
             + list_to_str(self.products_from_db) + STR_SEPARATOR\
             + list_to_str(self.warnings) + STR_SEPARATOR\
             + list_to_str(self.errors)
-    
+
     def get_metadata_from_image_file(self, image_path):
         """Populate Image metadata from file"""
         try:
@@ -128,7 +159,8 @@ class TeamImage:
         """Get image attrubutes from file name"""
         self.temp_file_name_no_extension = self.file_name_no_extension
         if self.temp_file_name_no_extension.find('box_back_offer') > -1:
-            self.temp_file_name_no_extension = self.temp_file_name_no_extension.replace('box_back_offer', '_boxbackoffer_')
+            self.temp_file_name_no_extension = \
+                self.temp_file_name_no_extension.replace('box_back_offer', '_boxbackoffer_')
         elif self.temp_file_name_no_extension.find('box_front_offer') > -1:
             self.temp_file_name_no_extension = self.temp_file_name_no_extension.replace('box_front_offer', '_boxfrontoffer_')
         elif self.temp_file_name_no_extension.find('box_offer') > -1:
@@ -154,7 +186,7 @@ class TeamImage:
             part = part.strip()
             part = part.replace('copy', '')
             part = part.replace('app', '')
-            part = part.replace('arr', '')
+            #part = part.replace('arr', '')
             part = part.replace('ar', '')
             part = part.replace('kopia', '')
             part = part.replace(' - ', '')
@@ -189,6 +221,9 @@ class TeamImage:
                     processed_attribute = True
                 elif part == 'label':
                     self.filename_is_label = True
+                    processed_attribute = True
+                elif part =='arr':
+                    self.filename_arranged = True
                     processed_attribute = True
                 elif (len(part) == 1 and re.match(r'[0-9]', part)) \
                     or (len(part) == 2 and re.match(r'[0-9][0-9]', part)): #integer
@@ -276,6 +311,8 @@ class TeamImage:
                 sql = "SELECT [ID],[Guid],[Kod],[Nazwa],[NumerKatalogowy] FROM [TEAM].[dbo].[Towary] WHERE Kod LIKE '" + product_code_for_like + "%'"
             elif strict_level == 3:
                 sql = "SELECT [ID],[Guid],[Kod],[Nazwa],[NumerKatalogowy] FROM [TEAM].[dbo].[Towary] WHERE Kod LIKE '%" + product_code_for_like + "%'"
+            elif strict_level == 4:
+                sql = "SELECT [ID],[Guid],[Kod],[Nazwa],[NumerKatalogowy] FROM [TEAM].[dbo].[Towary] WHERE REPLACE(Kod,'/','-') LIKE '%" + product_code_for_like + "%'"
             
             cursor.execute(sql)
             row = cursor.fetchone()
@@ -303,6 +340,72 @@ class TeamImage:
                 self.products_from_db.clear()
                 self.errors.append('SQL: Too many records [' + str(rowcount) + '] returned for the code: [' + product_code + ']')
         return rowcount
+    
+    def image_has_template(self, image_path, template_path):
+        has_template = False
+
+        # load the image image, convert it to grayscale, and detect edges
+        template = cv2.imread(template_path)
+        template = cv2.cvtColor(template, cv2.COLOR_BGR2GRAY)
+        template = cv2.Canny(template, 50, 200)
+        (tH, tW) = template.shape[:2]
+        #cv2.imshow("Template", template)
+
+        # load the image, convert it to grayscale, and initialize the
+        # bookkeeping variable to keep track of the matched region
+        image = cv2.imread(image_path)
+        gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+        found = (0, (0, 0), 0)
+
+        # loop over the scales of the image
+        for scale in np.linspace(0.01, 1.0, 100)[::-1]:
+            # resize the image according to the scale, and keep track
+            # of the ratio of the resizing
+            resized = imutils.resize(gray, width=int(gray.shape[1] * scale))
+            r = gray.shape[1] / float(resized.shape[1])
+
+            # if the resized image is smaller than the template, then break
+            # from the loop
+            if resized.shape[0] < tH or resized.shape[1] < tW:
+                break
+
+            # detect edges in the resized, grayscale image and apply template
+            # matching to find the template in the image
+            edged = cv2.Canny(resized, 50, 200)
+            result = cv2.matchTemplate(edged, template, cv2.TM_CCOEFF_NORMED)
+            (_, maxVal, _, maxLoc) = cv2.minMaxLoc(result)
+
+            # check to see if the iteration should be visualized
+            if VISUALIZE:
+                # draw a bounding box around the detected region
+                clone = np.dstack([edged, edged, edged])
+                cv2.rectangle(clone, (maxLoc[0], maxLoc[1]),
+                            (maxLoc[0] + tW, maxLoc[1] + tH), (0, 0, 255), 2)
+                cv2.imshow("Visualize", clone)
+                cv2.waitKey(0)
+
+            # if we have found a new maximum correlation value, then ipdate
+            # the bookkeeping variable
+            if found is None or maxVal > found[0]:
+                found = (maxVal, maxLoc, r)
+            #print(found[0], maxVal)
+        # unpack the bookkeeping varaible and compute the (x, y) coordinates
+        # of the bounding box based on the resized ratio
+        if found is not None:
+            (_, maxLoc, r) = found
+            (startX, startY) = (int(maxLoc[0] * r), int(maxLoc[1] * r))
+            (endX, endY) = (int((maxLoc[0] + tW) * r), int((maxLoc[1] + tH) * r))
+
+            # draw a bounding box around the detected result and display the image
+            #cv2.rectangle(image, (startX, startY), (endX, endY), (0, 0, 255), 2)
+            #cv2.imshow("Image", image)
+            if found[0] >= CORRELATION_TRESHOLD:
+                has_template = True
+                #print(found[0])
+        #else:
+        #    print(found = [0])
+        #return has_template
+        return found[0]
 #End of TeamImage class
 
 def get_column_descriptions():
@@ -321,7 +424,9 @@ def get_column_descriptions():
         + 'filename_older_version' + STR_SEPARATOR\
         + 'filename_is_offer' + STR_SEPARATOR\
         + 'filename_is_label' + STR_SEPARATOR\
+        + 'filename_arranged' + STR_SEPARATOR\
         + 'filename_dpi' + STR_SEPARATOR\
+        + 'logo_removed' + STR_SEPARATOR\
         + 'filename_image_sequence' + STR_SEPARATOR\
         + 'product_code_from_db' + STR_SEPARATOR\
         + 'products' + STR_SEPARATOR\
@@ -385,29 +490,29 @@ def process_exif(image_path):
         if exif_dict.get('0th'):
             if exif_dict["0th"].get(piexif.ImageIFD.XResolution):
                 x_dpi, flag = exif_dict["0th"][piexif.ImageIFD.XResolution]
-                print('EXIF_XResolution: ' + str(x_dpi))
+                #print('EXIF_XResolution: ' + str(x_dpi))
             if exif_dict["0th"].get(piexif.ImageIFD.YResolution):
                 y_dpi, flag = exif_dict["0th"][piexif.ImageIFD.YResolution]
-                print('EXIF_YResolution: ' + str(y_dpi))
+                #print('EXIF_YResolution: ' + str(y_dpi))
             #ImageDescription and XPTitle are the same when saved on Windows explorer
             if exif_dict["0th"].get(piexif.ImageIFD.ImageDescription):
                 img_desc = exif_dict["0th"][piexif.ImageIFD.ImageDescription]
-                print('ImageDescription: ' + img_desc.decode('UTF-8'))
+                #print('ImageDescription: ' + img_desc.decode('UTF-8'))
             if exif_dict["0th"].get(piexif.ImageIFD.XPTitle):
                 XPTitle = exif_dict["0th"][piexif.ImageIFD.XPTitle]
-                print('XPTitle: ' + exif_tuple_2_str(XPTitle))
+                #print('XPTitle: ' + exif_tuple_2_str(XPTitle))
             if exif_dict["0th"].get(piexif.ImageIFD.XPSubject):
                 XPSubject = exif_dict["0th"][piexif.ImageIFD.XPSubject]
-                print('XPSubject: ' + exif_tuple_2_str(XPSubject))
+                #print('XPSubject: ' + exif_tuple_2_str(XPSubject))
             if exif_dict["0th"].get(piexif.ImageIFD.XPComment):
                 XPComment = exif_dict["0th"][piexif.ImageIFD.XPComment]
-                print('XPComment: ' + exif_tuple_2_str(XPComment))
+                #print('XPComment: ' + exif_tuple_2_str(XPComment))
             if exif_dict["0th"].get(piexif.ImageIFD.XPKeywords):
                 XPKeywords = exif_dict["0th"][piexif.ImageIFD.XPKeywords]
-                print('XPKeywords: ' + exif_tuple_2_str(XPKeywords))
+                #print('XPKeywords: ' + exif_tuple_2_str(XPKeywords))
             if exif_dict["0th"].get(piexif.ImageIFD.XPAuthor):
                 XPAuthor = exif_dict["0th"][piexif.ImageIFD.XPAuthor]
-                print('XPAuthor: ' + exif_tuple_2_str(XPAuthor))
+                #print('XPAuthor: ' + exif_tuple_2_str(XPAuthor))
 
     # process im and exif_dict...
     #exif_dict["0th"][piexif.ImageIFD.XResolution] = (width, 1)
@@ -429,41 +534,33 @@ def process_exif(image_path):
     #image_file.save()
     image_file.close()
 
-connection = pyodbc.connect('Driver={SQL Server Native Client 11.0};Server=localhost;Database=TEAM;Uid=team_reader;Pwd=team_reader;')
-#connection = pyodbc.connect('DSN=Team;Uid=team_reader;Pwd=team_reader;')
-cursor = connection.cursor()
-
-upload_files = 0
-folder = 'C:\\! D\\jakubas.eu_team\\ZDJECIA INTERNET\\KALORIK'
-#onlyfiles = [f for f in listdir(folder) if isfile(join(folder, f))]
-onlyfiles = os.listdir(folder)
-test_product = '1-SP2-KALORIK-01' #SP2#TO1008AG#A#Schott Typ 836
-
+cursor = SQL_CONNECTION.cursor()
 print(get_column_descriptions())
-
+#onlyfiles = [f for f in listdir(IMAGE_FOLDER) if isfile(join(IMAGE_FOLDER, f))]
+onlyfiles = os.listdir(IMAGE_FOLDER)
 for filename in onlyfiles:
-    if os.path.isfile(os.path.join(folder, filename)):
+    if os.path.isfile(os.path.join(IMAGE_FOLDER, filename)):
         if os.path.splitext(filename)[-1].lower() in ALLOWED_EXTENSIONS\
-            and (filename.find(test_product) >= 0 or len(filename.strip()) == 0):
+            and (filename.find(FILENAME_FILTER) >= 0 or len(FILENAME_FILTER.strip()) == 0):
             try:
-
-                team_image = TeamImage(os.path.join(folder, filename))
+                #print(filename)
+                team_image = TeamImage(os.path.join(IMAGE_FOLDER, filename))
                 print(team_image)
-                process_exif(os.path.join(folder, filename))
+                #process_exif(os.path.join(IMAGE_FOLDER, filename))
             except UnicodeEncodeError as ex:
                 exc_type = ex.__class__.__name__
                 print('FILE: ' + team_image.file_name + ' Exception Type: ' + exc_type)
 
-            #process_image(folder, filename)
-            if upload_files:
-                files = {'file': open(os.path.join(folder, filename), 'rb')}
+            #process_image(IMAGE_FOLDER, filename)
+            if UPLOAD_FILES:
+                files = {'file': open(os.path.join(IMAGE_FOLDER, filename), 'rb')}
                 r = requests.post(URL, files=files)
                 print(r.text)
-    if os.path.isdir(os.path.join(folder, filename)):
-        pass#print(folder + filename + '\\')
+    if os.path.isdir(os.path.join(IMAGE_FOLDER, filename)):
+        pass#print(IMAGE_FOLDER + filename + '\\')
 
 cursor.close()
-connection.close()
+SQL_CONNECTION.close()
 
 #Legacy functions
 def process_image(folder_name, file_name):
@@ -574,12 +671,12 @@ def process_image(folder_name, file_name):
             if not processed_attribute:
                 print('=== Attribute: "' + part + '" was not processed ===')
     
-    print('product_name: ' + product_name + '; logo_removed: ' + str(logo_removed) \
+    print('product_name: ' + product_name + '; filename_logo_removed: ' + str(logo_removed) \
         + '; is_box_offer: ' + str(is_box_offer) + '; is_box_front_offer: ' + str(is_box_front_offer) \
         + '; is_box_back_offer: ' + str(is_box_back_offer) + '; older_version: ' + str(older_version) \
         + '; is_offer: ' + str(is_offer) + '; is_label: ' + str(is_label) \
         + '; file_name_dpi: ' + str(file_name_dpi) + '; image_dpi: ' + str(image_dpi) \
-        + '; image_sequence: ' + str(image_sequence))
+        + '; logo_removed: ' + str(logo_removed) + '; image_sequence: ' + str(image_sequence))
     return
 def find_product_code_in_db(product_codes):
     for product_code in product_codes:
@@ -597,3 +694,18 @@ def find_product_code_in_db(product_codes):
             #title = title.encode('utf8').decode('utf8')
             break
     return
+def older_function_for_templates():
+    for imagePath in glob.glob(IMAGE_FOLDER + "/*.jpg"):
+        max_correlation = 0.0
+        max_correlation_template = ''
+        image_with_logo = False
+        for template in TEMPLATES:
+            correlation = 0.0
+            correlation = image_has_template(imagePath, template)
+            if correlation > max_correlation:
+                max_correlation = correlation
+                max_correlation_template = template
+            if correlation >= CORRELATION_TRESHOLD:
+                image_with_logo = True
+                break
+        print(os.path.basename(imagePath), image_with_logo, max_correlation, max_correlation_template)
