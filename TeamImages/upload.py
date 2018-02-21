@@ -153,7 +153,8 @@ class TeamImage:
             exc_type = ex.__class__.__name__
             self.errors.append("IMG: Unable to process image [" + self.file_name + "] Exception Type: " + str(exc_type) + " Error: " + str(ex))
         finally:
-            image_file.close()
+            if image_file is not None:
+                image_file.close()
 
     def parse_file_name(self):
         """Get image attrubutes from file name"""
@@ -541,7 +542,7 @@ onlyfiles = os.listdir(IMAGE_FOLDER)
 for filename in onlyfiles:
     if os.path.isfile(os.path.join(IMAGE_FOLDER, filename)):
         if os.path.splitext(filename)[-1].lower() in ALLOWED_EXTENSIONS\
-            and (filename.find(FILENAME_FILTER) >= 0 or len(FILENAME_FILTER.strip()) == 0):
+            and (filename.startswith(FILENAME_FILTER) or len(FILENAME_FILTER.strip()) == 0):#startswith<->find >= 0
             try:
                 #print(filename)
                 team_image = TeamImage(os.path.join(IMAGE_FOLDER, filename))
