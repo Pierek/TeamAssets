@@ -9,29 +9,38 @@ import pyodbc
 from PIL import Image
 #import PIL.ExifTags
 import piexif
-import numpy as np
+import numpy as np 
 import imutils
 import cv2
 
+VERSION = 0.12
 DEFAULT_DPI = 96 #72
+MIN_DPI = 72 #72
 STR_SEPARATOR = "; "
 LIST_SEPARATOR = "|"
 CSV_SEPARATOR = ","
 ALLOWED_EXTENSIONS = ['.jpg', '.jpeg', '.png']#, '.gif'
 URL = 'http://192.168.0.51:5000/fileupload'
 EXIF_TAG_SEPARATOR = "|"
-IMAGE_FOLDER = r'C:\! D\jakubas.eu_team\ZDJECIA INTERNET\KALORIK'
-#IMAGE_FOLDER = r'C:\! D\jakubas.eu_team\ZDJECIA INTERNET\template_test'
+#PARENT_FOLDER = r'C:\! D\jakubas.eu_team\ZDJECIA INTERNET'
+PARENT_FOLDER = r'C:\! D\jakubas.eu_team\ZDJECIA INTERNET\KALORIK'
+IMAGE_FOLDER = os.path.join(PARENT_FOLDER, 'unprocessed')
+IMAGES_PROCESSED_FOLDER = os.path.join(PARENT_FOLDER, 'processed')
+IMAGES_ERRORS_FOLDER = os.path.join(PARENT_FOLDER, 'errors')
+PROCESS_ERRORS = []
+PROCESS_TEMPLATES = False
 TEMPLATES = ['template_kalorik_h95_vertical.jpg', 'template_kalorik_w95_horizontal.jpg',
              'template_efbe_h95_vertical.jpg', 'template_efbe_w95_horizontal.jpg',
              'template_kitchen_h165_vertical.jpg', 'template_kitchen_w165_horizontal.jpg']
 VISUALIZE = False
-CORRELATION_TRESHOLD = 0.30
-SQL_CONNECTION = pyodbc.connect('Driver={SQL Server Native Client 11.0};'
-                                +'Server=localhost;Database=TEAM;Uid=team_reader;Pwd=team_reader;')
+CORRELATION_TRESHOLD = 0.330 #0.300 #0.275
 #SQL_CONNECTION = pyodbc.connect('DSN=Team;Uid=team_reader;Pwd=team_reader;')
 UPLOAD_FILES = 0
 FILENAME_FILTER = '' #SP2#TO1008AG#A#Schott Typ 836
+
+def rreplace(s, old, new, occurrence):
+    li = s.rsplit(old, occurrence)
+    return new.join(li)
 
 def list_to_str(lst):
     '''Creates string from string list separated using default separator'''
@@ -62,13 +71,11 @@ class TeamImage:
         self.filename_image_type = ''
         self.filename_logo_removed = False
         self.filename_is_offer = False
-        self.filename_is_box_offer = False
-        self.filename_is_box_front_offer = False
-        self.filename_is_box_back_offer = False
-        self.filename_older_version = False
+        self.filename_is_boxoffer = False
         self.filename_is_label = False
         self.filename_arranged = False
         self.filename_dpi = -1
+        self.filename_attributes = []
         self.logo_removed = False
         self.product_code_from_db = ""
         self.exif_dpi = 0
@@ -78,28 +85,99 @@ class TeamImage:
         self.exif_image_comment = ''
         self.exif_image_keywords = ''
         self.exif_image_author = ''
+        self.new_filename = ''
 
         self.get_metadata_from_image_file(self.file_path)
         self.parse_file_name()
-        if self.find_product_code_in_db(self.possible_product_codes, 1) == 0:
-            if self.find_product_code_in_db(self.possible_product_codes, 2) == 0:
-                if self.find_product_code_in_db(self.possible_product_codes, 3) == 0:
-                    self.find_product_code_in_db(self.possible_product_codes, 4)
 
-        for template in TEMPLATES:
-            correlation = 0.0
-            correlation = self.image_has_template(self.file_path, template)
-            if correlation >= CORRELATION_TRESHOLD:
-                self.logo_removed = False
-                break
-            else:
-                self.logo_removed = True
+        if len(self.metadata_image_format) > 0 and len(self.filename_image_type) > 0 and\
+                self.metadata_image_format != self.filename_image_type:
+            self.errors.append('FIL: File extension "{0}" and file type "{1}" do not match'.format(self.filename_image_type, self.metadata_image_format))
 
-        if len(self.product_code_from_db) > 0:
-            if self.product_code_from_file_name.lower() != self.product_code_from_db.lower():
-                self.warnings.append('PCE: Product code from file does not match database product code')
-        elif len(self.product_code_from_db) == 0:
-            self.errors.append('PCE: Product code was not determined')
+        products_count = self.find_product_code_in_db(self.possible_product_codes, 1)
+        if products_count == 1:
+            #product code was found
+            pass
+        elif products_count > 1:
+            if len(self.product_code_from_db) > 0:
+                if self.product_code_from_file_name.lower() != self.product_code_from_db.lower():
+                    self.errors.append('PCE: Product code from file does not match database product code')
+            #if self.find_product_code_in_db(self.possible_product_codes, 2) == 0:
+            #    if self.find_product_code_in_db(self.possible_product_codes, 3) == 0:
+            #        self.find_product_code_in_db(self.possible_product_codes, 4)
+        elif products_count == 0: #len(self.product_code_from_db) == 0:
+            self.errors.append('PCE: Product code was not found in database')
+
+        if PROCESS_TEMPLATES:
+            for template in TEMPLATES:
+                correlation = 0.0
+                correlation = self.image_has_template(self.file_path, template)
+                #print('Correlation: {0} for template: {1}'.format(correlation, template))
+                if correlation >= CORRELATION_TRESHOLD:
+                    #print('Correlation: {0} for template: {1}'.format(correlation, template))
+                    self.logo_removed = False
+                    break
+                else:
+                    self.logo_removed = True
+            if self.filename_logo_removed != self.logo_removed:
+                self.warnings.append('LOG: Filename logo information does not match recorded image logo value')
+        
+        
+        if self.filename_dpi > -1 and self.metadata_image_dpi != self.filename_dpi:
+            self.errors.append('DPI: Image DPI: {0} does not match filename DPI: {1}'.format(self.metadata_image_dpi, self.filename_dpi))
+        
+        if self.filename_is_offer == True and self.filename_is_boxoffer == True:
+            self.errors.append('FIL: There are "offer" and "boxoffer" attributes in filename which is not allowed')
+        elif self.filename_is_offer == True and self.filename_arranged == True:
+            self.errors.append('FIL: There are "offer" and "arr" attributes in filename which is not allowed')
+        elif self.filename_is_boxoffer == True and self.filename_arranged == True:
+            self.errors.append('FIL: There are "boxoffer" and "arr" attributes in filename which is not allowed')
+        
+        self.new_filename = self.create_filename()
+    
+    def create_filename(self):
+        """Create file name from attributes"""
+        new_filename = ''
+        new_filename += self.product_code_from_file_name.upper()
+        #self.product_code_from_db = ""
+        if self.filename_is_offer or self.filename_is_boxoffer or self.filename_arranged:
+            if self.filename_is_offer:
+                new_filename += '_offer'
+            if self.filename_is_boxoffer:
+                new_filename += '_boxoffer'
+            if self.filename_arranged:
+                new_filename += '_arranged'
+        if PROCESS_TEMPLATES:
+            if self.logo_removed:
+                new_filename += '_L'
+        else:
+            if self.filename_logo_removed:
+                new_filename += '_L'
+        if self.filename_is_label:
+            new_filename += '_label'
+        if self.filename_dpi > 0:
+            new_filename += '_DPI' + str(self.metadata_image_dpi)
+        if self.filename_image_sequence > -1:
+            if self.filename_image_sequence == 0:
+                self.filename_image_sequence += 1
+            new_filename += '_v' + str(self.filename_image_sequence).zfill(2)
+        if self.filename_attributes:
+            attributes = ''
+            for x in range(0, len(self.filename_attributes)):
+                if self.filename_attributes[x] is not None and len(self.filename_attributes[x]) > 0:
+                    if x == 0:
+                        attributes += self.filename_attributes[x]
+                    else:
+                        attributes += '-' + self.filename_attributes[x]
+            if len(attributes) > 0:
+                new_filename += '_' + attributes
+        if self.filename_image_type == 'JPEG':
+            new_filename += '.jpg'
+        elif self.filename_image_type == 'PNG':
+            new_filename += '.png'
+        else:
+            new_filename += self.file_extension
+        return new_filename
 
     def __str__(self):
         return self.file_name + STR_SEPARATOR\
@@ -111,10 +189,7 @@ class TeamImage:
             + self.product_code_from_file_name + STR_SEPARATOR\
             + list_to_str(self.possible_product_codes) + STR_SEPARATOR\
             + str(self.filename_logo_removed) + STR_SEPARATOR\
-            + str(self.filename_is_box_offer) + STR_SEPARATOR\
-            + str(self.filename_is_box_front_offer) + STR_SEPARATOR\
-            + str(self.filename_is_box_back_offer) + STR_SEPARATOR\
-            + str(self.filename_older_version) + STR_SEPARATOR\
+            + str(self.filename_is_boxoffer) + STR_SEPARATOR\
             + str(self.filename_is_offer) + STR_SEPARATOR\
             + str(self.filename_is_label) + STR_SEPARATOR\
             + str(self.filename_arranged) + STR_SEPARATOR\
@@ -122,6 +197,7 @@ class TeamImage:
             + str(self.logo_removed) + STR_SEPARATOR\
             + str(self.filename_image_sequence) + STR_SEPARATOR\
             + self.product_code_from_db + STR_SEPARATOR\
+            + self.new_filename + STR_SEPARATOR\
             + list_to_str(self.products_from_db) + STR_SEPARATOR\
             + list_to_str(self.warnings) + STR_SEPARATOR\
             + list_to_str(self.errors)
@@ -135,8 +211,10 @@ class TeamImage:
             self.metadata_image_dpi = DEFAULT_DPI
             if image_file.info.get('dpi'):
                 x_dpi, y_dpi = image_file.info['dpi']
-                if x_dpi == y_dpi and x_dpi > 0:
+                if x_dpi == y_dpi and x_dpi >= MIN_DPI:
                     self.metadata_image_dpi = x_dpi
+                elif x_dpi == y_dpi and x_dpi > 0 and x_dpi < MIN_DPI:
+                    self.errors.append('DPI: Image DPI is set to low: {0}'.format(x_dpi))
                 else:
                     self.warnings.append('DPI: Metadata DPI information is not consistent [x_dpi=' + str(x_dpi)
                         + ', y_dpi = ' + str(y_dpi) + ']. Default value will be used.')
@@ -161,26 +239,31 @@ class TeamImage:
         self.temp_file_name_no_extension = self.file_name_no_extension
         if self.temp_file_name_no_extension.find('box_back_offer') > -1:
             self.temp_file_name_no_extension = \
-                self.temp_file_name_no_extension.replace('box_back_offer', '_boxbackoffer_')
+                self.temp_file_name_no_extension.replace('box_back_offer', '_boxoffer_') #_boxbackoffer_
         elif self.temp_file_name_no_extension.find('box_front_offer') > -1:
-            self.temp_file_name_no_extension = self.temp_file_name_no_extension.replace('box_front_offer', '_boxfrontoffer_')
+            self.temp_file_name_no_extension = self.temp_file_name_no_extension.replace('box_front_offer', '_boxoffer_')#_boxfrontoffer_
         elif self.temp_file_name_no_extension.find('box_offer') > -1:
             self.temp_file_name_no_extension = self.temp_file_name_no_extension.replace('box_offer', '_boxoffer_')
         elif self.temp_file_name_no_extension.find('box') > -1:
-            self.temp_file_name_no_extension = self.temp_file_name_no_extension.replace('box', '_boxoffer_')
+            self.errors.append('FIL: File attribute "box" is not allowed.')
+            #self.temp_file_name_no_extension = self.temp_file_name_no_extension.replace('box', '_boxoffer_')
 
         if self.file_extension == '.png':
             self.filename_image_type = 'PNG'
         elif self.file_extension == '.jpg' or self.file_extension == '.jpeg':
             self.filename_image_type = 'JPEG'
-        elif self.file_extension == '.gif':
-            self.filename_image_type = 'GIF'
+        #elif self.file_extension == '.gif':
+        #    self.filename_image_type = 'GIF'
         else:
-            self.errors.append('EXT: File extension is not suported.')
+            self.errors.append('EXT: File extension "{0}" is not suported.'.format(self.file_extension))
 
         image_name_splitted = self.temp_file_name_no_extension.split('_')
         self.product_code_from_file_name = image_name_splitted[0].upper()
-        self.possible_product_codes = self.get_all_possible_product_codes(self.product_code_from_file_name)
+        
+        self.possible_product_codes.append(self.product_code_from_file_name)
+        if(self.product_code_from_file_name.find('-') > -1):
+            self.possible_product_codes.append(rreplace(self.product_code_from_file_name, '-', '/', 1))
+        #self.possible_product_codes = self.get_all_possible_product_codes(self.product_code_from_file_name)
 
         image_name_splitted.remove(image_name_splitted[0])
         for part in image_name_splitted:
@@ -188,13 +271,14 @@ class TeamImage:
             part = part.replace('copy', '')
             part = part.replace('app', '')
             #part = part.replace('arr', '')
-            part = part.replace('ar', '')
+            part = part.replace('ar', 'arr')
             part = part.replace('kopia', '')
             part = part.replace(' - ', '')
             part = part.replace('(1)', '')
             part = part.replace('(2)', '')
             part = part.replace('(3)', '')
-            part = part.replace('etap', '')
+            part = part.replace('old', '01')
+            #part = part.replace('etap', '')
             part = part.strip()
             if len(part) > 0:
                 processed_attribute = False
@@ -202,16 +286,7 @@ class TeamImage:
                     self.filename_logo_removed = True
                     processed_attribute = True
                 elif part == 'boxoffer':  #get info about box offer
-                    self.filename_is_box_offer = True
-                    processed_attribute = True
-                elif part == 'boxfrontoffer':
-                    self.filename_is_box_front_offer = True
-                    processed_attribute = True
-                elif part == 'boxbackoffer':
-                    self.filename_is_box_back_offer = True
-                    processed_attribute = True
-                elif part == 'old':
-                    self.filename_older_version = True
+                    self.filename_is_boxoffer = True
                     processed_attribute = True
                 elif part == 'offer':
                     self.filename_is_offer = True
@@ -248,9 +323,13 @@ class TeamImage:
                     or (len(part) == 3 and re.match(r'[0-9][0-9]a', part)):
                     self.filename_image_sequence = int(part.replace('a', ''))
                     processed_attribute = True
+                elif len(part) == 3 and re.match(r'v[0-9][0-9]', part):
+                    self.filename_image_sequence = int(part.replace('v', ''))
+                    processed_attribute = True
 
                 if not processed_attribute:
-                    self.warnings.append('ATR: Attribute ' + part + ' was not processed')
+                    self.filename_attributes.append(part)
+                    #self.warnings.append('ATR: Attribute ' + part + ' was not processed')
         return
 
     def get_all_possible_product_codes(self, product_code):
@@ -359,7 +438,7 @@ class TeamImage:
         found = (0, (0, 0), 0)
 
         # loop over the scales of the image
-        for scale in np.linspace(0.01, 1.0, 100)[::-1]:
+        for scale in np.linspace(0.01, 1.0, 200)[::-1]:
             # resize the image according to the scale, and keep track
             # of the ratio of the resizing
             resized = imutils.resize(gray, width=int(gray.shape[1] * scale))
@@ -420,9 +499,6 @@ def get_column_descriptions():
         + 'possible_product_codes' + STR_SEPARATOR\
         + 'filename_logo_removed' + STR_SEPARATOR\
         + 'filename_is_box_offer' + STR_SEPARATOR\
-        + 'filename_is_box_front_offer' + STR_SEPARATOR\
-        + 'filename_is_box_back_offer' + STR_SEPARATOR\
-        + 'filename_older_version' + STR_SEPARATOR\
         + 'filename_is_offer' + STR_SEPARATOR\
         + 'filename_is_label' + STR_SEPARATOR\
         + 'filename_arranged' + STR_SEPARATOR\
@@ -430,6 +506,7 @@ def get_column_descriptions():
         + 'logo_removed' + STR_SEPARATOR\
         + 'filename_image_sequence' + STR_SEPARATOR\
         + 'product_code_from_db' + STR_SEPARATOR\
+        + 'new_filename' + STR_SEPARATOR\
         + 'products' + STR_SEPARATOR\
         + 'warnings' + STR_SEPARATOR\
         + 'errors'
@@ -535,22 +612,61 @@ def process_exif(image_path):
     #image_file.save()
     image_file.close()
 
+def is_image_path_valid():
+    if not os.path.isdir(PARENT_FOLDER):
+        PROCESS_ERRORS.append('DIR: Parent folder: "{0}" does not exists'.format(PARENT_FOLDER))
+    if not os.path.isdir(IMAGE_FOLDER):
+        PROCESS_ERRORS.append('DIR: Unprocessed images folder: "{0}" does not exists'.format(IMAGE_FOLDER))
+    if not os.path.isdir(IMAGES_PROCESSED_FOLDER):
+        PROCESS_ERRORS.append('DIR: Processed images folder: "{0}" does not exists'.format(IMAGES_PROCESSED_FOLDER))
+    if not os.path.isdir(IMAGES_ERRORS_FOLDER):
+        PROCESS_ERRORS.append('DIR: Error images folder: "{0}" does not exists'.format(IMAGES_ERRORS_FOLDER))
+    if len(os.listdir(PARENT_FOLDER)) != 3:
+        PROCESS_ERRORS.append('DIR: Parent folder: "{0}" contains other files or folders'.format(PARENT_FOLDER))
+    if PROCESS_ERRORS:
+        return False
+    else:
+        return True
+
+#==========SCRIPT========
+#check paths are ok
+#is_image_path_valid()
+SQL_CONNECTION = None
+try:
+    SQL_CONNECTION = pyodbc.connect('Driver={SQL Server Native Client 11.0};'
+                                    + 'Server=localhost;Database=TEAM;Uid=team_reader;Pwd=team_reader;')
+except Exception as ex:
+    PROCESS_ERRORS.append('SQL: Unable to connect to database server. Error: {0}'.format(repr(ex)))
+
+if PROCESS_ERRORS:
+    for error in PROCESS_ERRORS:
+        print(error)
+    exit(1)
+
+#print('All good. We are ready to rumble')
+#exit(0)
+
 cursor = SQL_CONNECTION.cursor()
 print(get_column_descriptions())
 #onlyfiles = [f for f in listdir(IMAGE_FOLDER) if isfile(join(IMAGE_FOLDER, f))]
 onlyfiles = os.listdir(IMAGE_FOLDER)
 for filename in onlyfiles:
     if os.path.isfile(os.path.join(IMAGE_FOLDER, filename)):
-        if os.path.splitext(filename)[-1].lower() in ALLOWED_EXTENSIONS\
-            and (filename.startswith(FILENAME_FILTER) or len(FILENAME_FILTER.strip()) == 0):#startswith<->find >= 0
+        if 1 == 1: #os.path.splitext(filename)[-1].lower() in ALLOWED_EXTENSIONS\
+            #and (filename.startswith(FILENAME_FILTER)\
+            #or len(FILENAME_FILTER.strip()) == 0):#startswith<->find >= 0
             try:
-                #print(filename)
+                #print(filename, end=';')
                 team_image = TeamImage(os.path.join(IMAGE_FOLDER, filename))
                 print(team_image)
                 #process_exif(os.path.join(IMAGE_FOLDER, filename))
             except UnicodeEncodeError as ex:
                 exc_type = ex.__class__.__name__
                 print('FILE: ' + team_image.file_name + ' Exception Type: ' + exc_type)
+            except Exception as ex1:
+                exc_type = ex1.__class__.__name__
+                print('FILE: ' + team_image.file_name + ' Exception Type: '\
+                        + exc_type + ' Message: ' + repr(ex1))
 
             #process_image(IMAGE_FOLDER, filename)
             if UPLOAD_FILES:
@@ -562,151 +678,3 @@ for filename in onlyfiles:
 
 cursor.close()
 SQL_CONNECTION.close()
-
-#Legacy functions
-def process_image(folder_name, file_name):
-    "Get image data and attributes"
-    product_name = ''
-    image_sequence = -1
-    image_type = ''
-    logo_removed = False
-    is_offer = False
-    is_box_offer = False
-    is_box_front_offer = False
-    is_box_back_offer = False
-    older_version = False
-    is_label = False
-    file_name_dpi = -1
-    image_dpi = -1
-
-    file_name_no_ext = os.path.splitext(file_name)[0].lower()
-    
-    #if file_name_no_ext.find('box') > -1 and file_name_no_ext.find('box_offer') == -1:
-    #    print('we have box but not box_offer?')
-
-    if file_name_no_ext.find('box_back_offer') > -1:
-        file_name_no_ext = file_name_no_ext.replace('box_back_offer', 'boxbackoffer_')
-    elif file_name_no_ext.find('box_front_offer') > -1:
-        file_name_no_ext = file_name_no_ext.replace('box_front_offer', 'boxfrontoffer_')
-    elif file_name_no_ext.find('box_offer') > -1:
-        file_name_no_ext = file_name_no_ext.replace('box_offer', 'boxoffer_')
-    elif file_name_no_ext.find('box') > -1:
-        file_name_no_ext = file_name_no_ext.replace('box', 'boxoffer_')
-
-    image_name_splitted = file_name_no_ext.split('_')
-    #get product name
-    product_name = image_name_splitted[0].upper()
-    #if product_name.startswith('1-') or product_name.startswith('2-'):
-    #    product_name = product_name[2:]
-    print('=================== ' + file_name + ' ===================')
-    print('Filename: ' + file_name + '; Product code: ' + product_name)
-    find_product_in_db(product_name)
-    #find_product_code_in_db(get_all_possible_product_codes(product_name))
-
-    image_name_splitted.remove(image_name_splitted[0])
-    #print('SPLITTED:' + str(image_name_splitted))
-    for part in image_name_splitted:
-        part = part.strip()
-        part = part.replace('copy','')
-        part = part.replace('app','')
-        part = part.replace('arr','')
-        part = part.replace('ar','')
-        part = part.replace('kopia','')
-        part = part.replace(' - ','')
-        part = part.replace('(1)','')
-        part = part.replace('(2)','')
-        part = part.replace('(3)','')
-        part = part.replace('etap','')
-        part = part.strip()
-        if len(part) > 0:
-            processed_attribute = False
-            if part == 'l' or part == 'll':
-                logo_removed = True
-                processed_attribute = True
-            elif part == 'boxoffer':  #get info about box offer
-                is_box_offer = True
-                processed_attribute = True
-            elif part == 'boxfrontoffer':
-                is_box_front_offer = True
-                processed_attribute = True
-            elif part == 'boxbackoffer':
-                is_box_back_offer = True
-                processed_attribute = True
-            elif part == 'old':
-                older_version = True
-                processed_attribute = True
-            elif part == 'offer':
-                is_offer = True
-                processed_attribute = True
-            elif part == 'offerl':
-                is_offer = True
-                logo_removed = True
-                processed_attribute = True
-            elif part == 'label':
-                is_label = True
-                processed_attribute = True
-            elif (len(part) == 1 and re.match(r'[0-9]', part)) \
-                or (len(part) == 2 and re.match(r'[0-9][0-9]', part)): #integer
-                #print('FOUND INT:' + part)
-                image_sequence = int(part)
-                processed_attribute = True
-            elif (len(part) == 2 and re.match(r'[0-9]l', part)) \
-                or (len(part) == 3 and re.match(r'[0-9][0-9]l', part)) \
-                or (len(part) == 3 and re.match(r'[0-9]-l', part)) \
-                or (len(part) == 4 and re.match(r'[0-9][0-9]-l', part)):
-                logo_removed = True
-                image_sequence = int(part.replace('l', '').replace('-', ''))
-                processed_attribute = True
-            elif part.find('dpi') > -1:
-                dpi = part.replace('dpi', '')
-                if (len(dpi) == 2 and re.match(r'[0-9][0-9]', dpi)) \
-                    or (len(dpi) == 3 and re.match(r'[0-9][0-9][0-9]', dpi)) \
-                    or (len(dpi) == 4 and re.match(r'[0-9][0-9][0-9][0-9]', dpi)):
-                    file_name_dpi = int(dpi)
-                    processed_attribute = True
-            elif (len(part) == 2 and re.match(r'[0-9]a', part)) \
-                or (len(part) == 3 and re.match(r'[0-9][0-9]a', part)):
-                image_sequence = int(part.replace('a', ''))
-                processed_attribute = True
-
-            if not processed_attribute:
-                print('=== Attribute: "' + part + '" was not processed ===')
-    
-    print('product_name: ' + product_name + '; filename_logo_removed: ' + str(logo_removed) \
-        + '; is_box_offer: ' + str(is_box_offer) + '; is_box_front_offer: ' + str(is_box_front_offer) \
-        + '; is_box_back_offer: ' + str(is_box_back_offer) + '; older_version: ' + str(older_version) \
-        + '; is_offer: ' + str(is_offer) + '; is_label: ' + str(is_label) \
-        + '; file_name_dpi: ' + str(file_name_dpi) + '; image_dpi: ' + str(image_dpi) \
-        + '; logo_removed: ' + str(logo_removed) + '; image_sequence: ' + str(image_sequence))
-    return
-def find_product_code_in_db(product_codes):
-    for product_code in product_codes:
-        SQL = "SELECT [ID],[Guid],[Kod],[Nazwa],[NumerKatalogowy] FROM [TEAM].[dbo].[Towary] WHERE Kod LIKE '" + product_code.replace("'","") + "%'"   #
-        cursor.execute(SQL)
-        row = cursor.fetchone()
-        if row:
-            #print(row)
-            print(str(row[0])+'|"'\
-                +row[1]+'"|"'+row[2]+'"|"'\
-                +row[3].encode('utf-8', 'ignore').decode(sys.stdout.encoding).replace('"', '""')\
-                +'"|"'\
-                +row[4].replace('"', '""')+'"')
-            #title.encode('utf-8', 'ignore').decode(sys.stdout.encoding)
-            #title = title.encode('utf8').decode('utf8')
-            break
-    return
-def older_function_for_templates():
-    for imagePath in glob.glob(IMAGE_FOLDER + "/*.jpg"):
-        max_correlation = 0.0
-        max_correlation_template = ''
-        image_with_logo = False
-        for template in TEMPLATES:
-            correlation = 0.0
-            correlation = image_has_template(imagePath, template)
-            if correlation > max_correlation:
-                max_correlation = correlation
-                max_correlation_template = template
-            if correlation >= CORRELATION_TRESHOLD:
-                image_with_logo = True
-                break
-        print(os.path.basename(imagePath), image_with_logo, max_correlation, max_correlation_template)

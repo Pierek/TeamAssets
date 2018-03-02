@@ -1,6 +1,7 @@
 # USAGE
-# python match.py --template cod_logo.png --images images
 # python match.py -t "template_kalorik_w95_horizontal.jpg" -i "C:\! D\jakubas.eu_team\ZDJECIA INTERNET\template_test" -v True
+# python match.py -t "template_kalorik_h95_vertical.jpg" -i "C:\! D\jakubas.eu_team\ZDJECIA INTERNET\template_test"
+# python match.py -t "template_efbe_h95_vertical.jpg" -i "C:\! D\jakubas.eu_team\ZDJECIA INTERNET\template_test"
 
 # import the necessary packages
 import os
@@ -36,7 +37,7 @@ for imagePath in glob.glob(args["images"] + "/*.jpg"):
     found = [0]
 
     # loop over the scales of the image
-    for scale in np.linspace(0.01, 1.0, 100)[::-1]:
+    for scale in np.linspace(0.01, 1.0, 200)[::-1]:
         #print(scale)
         # resize the image according to the scale, and keep track
         # of the ratio of the resizing
@@ -59,7 +60,7 @@ for imagePath in glob.glob(args["images"] + "/*.jpg"):
         # the bookkeeping variable
         if found is None or maxVal > found[0]:
             found = (maxVal, maxLoc, r)
-        print(found[0], maxVal)
+        #print(found[0], maxVal)
         #print(maxVal)
         #print(maxLoc)
 
