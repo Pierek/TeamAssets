@@ -97,7 +97,10 @@ class TeamImage:
         products_count = self.find_product_code_in_db(self.possible_product_codes, 1)
         if products_count == 1:
             if self.product_code_from_file_name.lower() != self.product_code_from_db.lower():
-                    self.warnings.append('PCE: Product code from file does not match database product code')
+                self.warnings.append('PCE: Product code from file does not match database product code')
+            if self.product_code_from_db.find(' ') > -1:
+                self.warnings.append('PCE: Product code contain space character')
+            
         #elif products_count > 1:
         #    if len(self.product_code_from_db) > 0:
         #        if self.product_code_from_file_name.lower() != self.product_code_from_db.lower():
