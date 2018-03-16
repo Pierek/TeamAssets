@@ -9,11 +9,11 @@ import pyodbc
 from PIL import Image
 #import PIL.ExifTags
 import piexif
-import numpy as np 
+import numpy as np
 import imutils
 import cv2
 
-VERSION = 0.12
+VERSION = 0.13
 DEFAULT_DPI = 96 #72
 MIN_DPI = 72 #72
 STR_SEPARATOR = "; "
@@ -96,17 +96,17 @@ class TeamImage:
 
         products_count = self.find_product_code_in_db(self.possible_product_codes, 1)
         if products_count == 1:
-            #product code was found
-            pass
-        elif products_count > 1:
-            if len(self.product_code_from_db) > 0:
-                if self.product_code_from_file_name.lower() != self.product_code_from_db.lower():
-                    self.errors.append('PCE: Product code from file does not match database product code')
+            if self.product_code_from_file_name.lower() != self.product_code_from_db.lower():
+                    self.warnings.append('PCE: Product code from file does not match database product code')
+        #elif products_count > 1:
+        #    if len(self.product_code_from_db) > 0:
+        #        if self.product_code_from_file_name.lower() != self.product_code_from_db.lower():
+        #            self.errors.append('PCE: Product code from file does not match database product code')
             #if self.find_product_code_in_db(self.possible_product_codes, 2) == 0:
             #    if self.find_product_code_in_db(self.possible_product_codes, 3) == 0:
             #        self.find_product_code_in_db(self.possible_product_codes, 4)
         elif products_count == 0: #len(self.product_code_from_db) == 0:
-            self.errors.append('PCE: Product code was not found in database')
+            self.errors.append('PCE: Product code "{0}" was not found in database'.format(self.product_code_from_file_name))
 
         if PROCESS_TEMPLATES:
             for template in TEMPLATES:
@@ -138,8 +138,10 @@ class TeamImage:
     def create_filename(self):
         """Create file name from attributes"""
         new_filename = ''
-        new_filename += self.product_code_from_file_name.upper()
-        #self.product_code_from_db = ""
+        if len(self.product_code_from_db) > 0:
+            new_filename += self.product_code_from_db.upper().replace('/','-')
+        else:
+            new_filename += self.product_code_from_file_name.upper()
         if self.filename_is_offer or self.filename_is_boxoffer or self.filename_arranged:
             if self.filename_is_offer:
                 new_filename += '_offer'
@@ -214,7 +216,7 @@ class TeamImage:
                 if x_dpi == y_dpi and x_dpi >= MIN_DPI:
                     self.metadata_image_dpi = x_dpi
                 elif x_dpi == y_dpi and x_dpi > 0 and x_dpi < MIN_DPI:
-                    self.errors.append('DPI: Image DPI is set to low: {0}'.format(x_dpi))
+                    self.errors.append('DPI: Image DPI is set too low: {0}'.format(x_dpi))
                 else:
                     self.warnings.append('DPI: Metadata DPI information is not consistent [x_dpi=' + str(x_dpi)
                         + ', y_dpi = ' + str(y_dpi) + ']. Default value will be used.')
@@ -260,10 +262,10 @@ class TeamImage:
         image_name_splitted = self.temp_file_name_no_extension.split('_')
         self.product_code_from_file_name = image_name_splitted[0].upper()
         
-        self.possible_product_codes.append(self.product_code_from_file_name)
-        if(self.product_code_from_file_name.find('-') > -1):
-            self.possible_product_codes.append(rreplace(self.product_code_from_file_name, '-', '/', 1))
-        #self.possible_product_codes = self.get_all_possible_product_codes(self.product_code_from_file_name)
+        #self.possible_product_codes.append(self.product_code_from_file_name)
+        #if(self.product_code_from_file_name.find('-') > -1):
+        #    self.possible_product_codes.append(rreplace(self.product_code_from_file_name, '-', '/', 1))
+        self.possible_product_codes = self.get_all_possible_product_codes(self.product_code_from_file_name)
 
         image_name_splitted.remove(image_name_splitted[0])
         for part in image_name_splitted:
@@ -337,6 +339,9 @@ class TeamImage:
         split_char = '-'
         possible_product_codes = list()
         possible_product_codes.append(product_code)
+        if(product_code.find('-') > -1):
+            possible_product_codes.append(rreplace(product_code, '-', '/', 1))
+
         product_code_splitted = product_code.split(split_char)
         code_chunks = len(product_code_splitted)
         if code_chunks > 0:
@@ -357,7 +362,8 @@ class TeamImage:
                 possible_product_codes.append(new_code)
                 if len(new_code_short) > 0:
                     possible_product_codes.append(new_code_short)
-
+        
+        #KALORIK
         possible_product_codes_2 = list()
         for code in possible_product_codes:
             if code.find('-KALORIK') > -1:
@@ -376,8 +382,28 @@ class TeamImage:
             else:
                 possible_product_codes.append(code + '-KALORIK')
         
+        #SCHOTT
+        possible_product_schott1 = list()
+        for code_schott1 in possible_product_codes:
+            if code_schott1.find('-SCHOTT') > -1:
+                possible_product_schott1.append(code_schott1.replace('-SCHOTT', ''))
+            else:
+                possible_product_schott1.append(code_schott1 + '-SCHOTT')
+
+        for code_schott in possible_product_schott1:
+            possible_product_codes.append(code_schott)
+
+        product_code_splitted_space_shott = product_code.split(' ')
+        if len(product_code_splitted_space_shott) > 1 and len(product_code_splitted_space_shott[0]) >= 4:
+            possible_product_codes.append(product_code_splitted_space_shott[0])
+            if product_code_splitted_space_shott[0].find('-SCHOTT') > -1:
+                possible_product_codes.append(code.replace('-SCHOTT', ''))
+            else:
+                possible_product_codes.append(code + '-SCHOTT')
+        
+        #add all codes
         possible_product_codes = list(set(possible_product_codes))
-        possible_product_codes.sort(reverse=True)
+        possible_product_codes.sort(key=len, reverse=True)
         return possible_product_codes
 
     def find_product_code_in_db(self, product_codes, strict_level):
@@ -413,12 +439,14 @@ class TeamImage:
                 #title = title.encode('utf8').decode('utf8')
                 #break
                 row = cursor.fetchone()
-            if rowcount > 1 and rowcount < 4:
-                self.warnings.append('SQL: More than one [' + str(rowcount) + '] product returned for the code: [' + product_code + ']')
+            if rowcount > 1:
+                self.errors.append('SQL: More than one [' + str(rowcount) + '] product returned for the code: [' + product_code + ']')
+            '''
             if rowcount >= 4:
                 self.product_code_from_db = ''
                 self.products_from_db.clear()
                 self.errors.append('SQL: Too many records [' + str(rowcount) + '] returned for the code: [' + product_code + ']')
+            '''
         return rowcount
     
     def image_has_template(self, image_path, template_path):
@@ -678,3 +706,19 @@ for filename in onlyfiles:
 
 cursor.close()
 SQL_CONNECTION.close()
+
+'''
+import requests
+
+#http://docs.python-requests.org/en/latest/user/quickstart/#post-a-multipart-encoded-file
+
+url = "http://localhost:5000/api/product/attachment/file-name-01.jpg"
+fin = open('C:\\Users\\Sławek\\Documents\\file-name-01.jpg', 'rb')
+files = {'product_image': fin}
+token='eyJhbGciOiJIUzI1NiIsImlhdCI6MTUxOTI1MDE2NywiZXhwIjoxNTE5MjUzNzY3fQ.eyJjb25maXJtIjoyfQ.bTfMeo-EbSi3pP3sQAUjhO9oAeRDqFibZRqwwnFCg74'
+try:
+    r = requests.put(url, headers={'Token' : token}, files=files)
+    print(r.text)
+finally:
+ fin.close()
+ '''
