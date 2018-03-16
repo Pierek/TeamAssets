@@ -99,7 +99,6 @@ def product(token, action):
                         ,Action = CASE WHEN """+str(row['status'])+""" = 200 THEN NULL ELSE Action END
                     WHERE product_code = '"""+row['product_code']+"'"
 
-                    print(update_item)
                     update_commit.querycommit(update_item)  # commit every transaction
             elif action == 'delete':
                 for row in server_response:
@@ -111,7 +110,6 @@ def product(token, action):
                         ,DeletedOn = CASE WHEN """+str(row['status'])+""" = 200 THEN GETDATE() ELSE NULL END
                     WHERE product_code = '"""+row['product_code']+"'"
 
-                    print(update_item)
                     update_commit.querycommit(update_item)  # commit every transaction
 
 
