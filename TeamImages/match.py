@@ -37,7 +37,7 @@ for imagePath in glob.glob(args["images"] + "/*.jpg"):
     found = [0]
 
     # loop over the scales of the image
-    for scale in np.linspace(0.01, 1.0, 200)[::-1]:
+    for scale in np.linspace(0.01, 1.0, 20)[::-1]: #200
         #print(scale)
         # resize the image according to the scale, and keep track
         # of the ratio of the resizing
@@ -71,15 +71,15 @@ for imagePath in glob.glob(args["images"] + "/*.jpg"):
             cv2.rectangle(clone, (maxLoc[0], maxLoc[1]),
                 (maxLoc[0] + tW, maxLoc[1] + tH), (0, 0, 255), 2)
             cv2.imshow("Visualize", clone)
-            cv2.waitKey(0)
+            #cv2.waitKey(0)
 
     # unpack the bookkeeping varaible and compute the (x, y) coordinates
     # of the bounding box based on the resized ratio
     if found is not None:
-        print(os.path.basename(imagePath) + ' Correlation: ' + str(found[0]))
         (_, maxLoc, r) = found
         (startX, startY) = (int(maxLoc[0] * r), int(maxLoc[1] * r))
         (endX, endY) = (int((maxLoc[0] + tW) * r), int((maxLoc[1] + tH) * r))
+        print(os.path.basename(imagePath) + ' Correlation: ' + str(found[0]) + ' X: ' + str(startX))
 
         # draw a bounding box around the detected result and display the image
         cv2.rectangle(image, (startX, startY), (endX, endY), (0, 0, 255), 2)

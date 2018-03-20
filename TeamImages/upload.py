@@ -13,9 +13,9 @@ import numpy as np
 import imutils
 import cv2
 
-VERSION = 0.13
+VERSION = 0.14
 DEFAULT_DPI = 96 #72
-MIN_DPI = 72 #72
+MIN_DPI = 72
 STR_SEPARATOR = "; "
 LIST_SEPARATOR = "|"
 CSV_SEPARATOR = ","
@@ -28,7 +28,7 @@ IMAGE_FOLDER = os.path.join(PARENT_FOLDER, 'unprocessed')
 IMAGES_PROCESSED_FOLDER = os.path.join(PARENT_FOLDER, 'processed')
 IMAGES_ERRORS_FOLDER = os.path.join(PARENT_FOLDER, 'errors')
 PROCESS_ERRORS = []
-PROCESS_TEMPLATES = False
+PROCESS_TEMPLATES = True
 TEMPLATES = ['template_kalorik_h95_vertical.jpg', 'template_kalorik_w95_horizontal.jpg',
              'template_efbe_h95_vertical.jpg', 'template_efbe_w95_horizontal.jpg',
              'template_kitchen_h165_vertical.jpg', 'template_kitchen_w165_horizontal.jpg']
