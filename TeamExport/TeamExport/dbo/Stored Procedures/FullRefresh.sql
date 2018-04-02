@@ -33,6 +33,8 @@ BEGIN
 		
 
 		/* procedures */
+
+
 		EXEC import.populate_product
 
 		EXEC import.populate_client_dict
@@ -45,8 +47,13 @@ BEGIN
 
 		EXEC import.populate_price
 
-		/* check if some data. table is empty */
+		/* check if any data table is empty */
 		EXEC sp_MSforeachtable 'IF NOT EXISTS (SELECT 1 FROM ?) AND LEFT(''?'',6) = ''[data]'' RAISERROR (''Some tables are empty'',16,1)'
+
+		/* data checks */
+
+		EXEC log.run_preflight_check
+
 
 		/* if everything went ok, insert start and end time with OK status to the log table */
 		INSERT INTO log.job_log (start_datetime, finish_datetime, status) SELECT @start_time, GETDATE(), 'Success'

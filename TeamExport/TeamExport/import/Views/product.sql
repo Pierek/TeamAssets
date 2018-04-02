@@ -69,3 +69,4 @@ LEFT JOIN TEAM.dbo.Features Frange ON Frange.Parent = T.ID
 	AND Frange.ParentType = N'Towary' AND Frange.Name = N'range'
 LEFT JOIN TEAM.dbo.Features FKGO ON FKGO.Parent = T.ID
 	AND FKGO.ParentType = N'Towary' AND FKGO.Name = N'KGO WAGA'
+WHERE T.Blokada = 0 -- dont populate blocked products

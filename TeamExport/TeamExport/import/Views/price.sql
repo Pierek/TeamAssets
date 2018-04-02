@@ -9,7 +9,7 @@ SELECT
 	,PCD.price_client_id
 	,[netto_price] = CONVERT(decimal(10,2),C.NettoValue)
 	--,[brutto_price] = CONVERT(decimal(10,2),C.BruttoValue)
-	,[currency_code] = CASE WHEN C.NettoSymbol = 'LN' THEN 'PLN' ELSE C.NettoSymbol END -- to jest temporary raczej, powinni to poprawić
+	,[currency_code] = C.NettoSymbol
 	,[LastUpdate] = GETDATE()
 FROM TEAM.dbo.Ceny C
 INNER JOIN data.product P

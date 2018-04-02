@@ -149,7 +149,8 @@ BEGIN
 		WHEN NOT MATCHED BY SOURCE AND T.DeletedOn IS NULL
 		THEN UPDATE
 		SET  T.DeletedOn = GETDATE()
-			,T.Action = 'DELETE'; -- when object does not exist anymore, next request should be DELETE
+			,T.Action = CASE WHEN T.ResponseCode IS NULL THEN NULL -- when object does not exist anymore but havent been published yet then set action to NULL
+							 ELSE 'DELETE' END; -- when object does not exist anymore, next request should be DELETE
 
 		SET @EventRowcount = @@ROWCOUNT
 
