@@ -32,18 +32,6 @@
     <Compile Include="service\config.py" />
     <Compile Include="service\qry.py" />
     <Compile Include="service\__init__.py" />
-    <Compile Include="testscripts\columns.py" />
-    <Compile Include="testscripts\list_separation.py" />
-    <Compile Include="testscripts\product_del.py">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="testscripts\product_json.py" />
-    <Compile Include="testscripts\product_put.py">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="testscripts\return_query.py" />
-    <Compile Include="testscripts\test1.py" />
-    <Compile Include="testscripts\testest.py" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="api" />
