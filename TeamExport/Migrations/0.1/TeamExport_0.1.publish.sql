@@ -1699,7 +1699,7 @@ BEGIN
 
 		/* data checks */
 
-		EXEC log.run_preflight_check
+		--EXEC log.run_preflight_check
 
 
 		/* if everything went ok, insert start and end time with OK status to the log table */
