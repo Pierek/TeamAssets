@@ -1,0 +1,1 @@
+D:\Projects\TeamAssets\project\venv\Scripts\activate.bat && python D:\Projects\TeamAssets\project\fullrefresh.py
