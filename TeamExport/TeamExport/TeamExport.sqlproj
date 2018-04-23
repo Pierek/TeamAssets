@@ -114,8 +114,6 @@
     <Build Include="import\Stored Procedures\populate_price.sql" />
     <Build Include="export\Views\price.sql" />
     <Build Include="log\Tables\job_log.sql" />
-    <Build Include="log\Tables\preflight_checks.sql" />
-    <Build Include="log\Stored Procedures\run_preflight_check.sql" />
   </ItemGroup>
   <ItemGroup>
     <SqlCmdVariable Include="TEAM">
