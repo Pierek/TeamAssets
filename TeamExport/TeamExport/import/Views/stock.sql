@@ -30,7 +30,7 @@ FROM TEAM.dbo.Zasoby Z
 INNER JOIN data.product P
 	ON P.product_id = Z.Towar
 INNER JOIN data.client_dict C
-	ON C.client_id = Z.PartiaKontrahent
+	ON C.client_id = Z.PartiaKontrahentPartii
 INNER JOIN TEAM.dbo.DokHandlowe D
 	ON D.ID = Z.PartiaDokument
 INNER JOIN TEAM.dbo.DefDokHandlowych DF
@@ -53,7 +53,7 @@ FROM TEAM.dbo.Zasoby Z
 INNER JOIN data.product P
 	ON P.product_id = Z.Towar
 INNER JOIN data.client_dict C
-	ON C.client_id = Z.PartiaKontrahent
+	ON C.client_id = Z.PartiaKontrahentPartii
 INNER JOIN TEAM.dbo.DokHandlowe D
 	ON D.ID = Z.PartiaDokument
 INNER JOIN TEAM.dbo.DefDokHandlowych DF

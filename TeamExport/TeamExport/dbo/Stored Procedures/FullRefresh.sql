@@ -7,6 +7,7 @@ AS
 BEGIN
 
 	SET	XACT_ABORT, NOCOUNT ON
+	SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED -- with no lock everywhere
 
 	/* declare constants */
 	DECLARE  @DEBUG bit

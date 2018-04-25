@@ -124,13 +124,6 @@
     </SqlCmdVariable>
   </ItemGroup>
   <ItemGroup>
-    <ArtifactReference Include="TEAM.dacpac">
-      <HintPath>TEAM.dacpac</HintPath>
-      <SuppressMissingDependenciesErrors>True</SuppressMissingDependenciesErrors>
-      <DatabaseVariableLiteralValue>TEAM</DatabaseVariableLiteralValue>
-    </ArtifactReference>
-  </ItemGroup>
-  <ItemGroup>
     <None Include="TeamExport.publish.xml" />
     <None Include="TeamExport_1.publish.xml" />
     <PostDeploy Include="Profile\postdeploy.sql" />
@@ -142,5 +135,12 @@
   </ItemGroup>
   <ItemGroup>
     <RefactorLog Include="TeamExport.refactorlog" />
+  </ItemGroup>
+  <ItemGroup>
+    <ArtifactReference Include="TEAM.dacpac">
+      <HintPath>TEAM.dacpac</HintPath>
+      <SuppressMissingDependenciesErrors>False</SuppressMissingDependenciesErrors>
+      <DatabaseVariableLiteralValue>TEAM</DatabaseVariableLiteralValue>
+    </ArtifactReference>
   </ItemGroup>
 </Project>
