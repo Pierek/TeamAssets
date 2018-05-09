@@ -86,6 +86,9 @@ def product(token, action):
             # items is a final dictionary with a chunk data
             items['items'] = list_of_items
 
+            # reset list_of_items
+            list_of_items = []
+
             # send request and receive response
             server_response = api_request(token=token, jsondata=items, action=action, api_entity='api/product/')
 
@@ -147,6 +150,9 @@ def client_dict(token, action):
 
             # items is a final dictionary with a chunk data
             items['items'] = list_of_items
+
+            # reset list_of_items
+            list_of_items = []
 
             # send request and receive response
             server_response = api_request(token=token, jsondata=items, action=action, api_entity='api/client/')
@@ -212,6 +218,9 @@ def price_client_dict(token, action):
 
             # items is a final dictionary with a chunk data
             items['items'] = list_of_items
+
+            # reset list_of_items
+            list_of_items = []
 
             # send request and receive response
             server_response = api_request(token=token, jsondata=items, action=action, api_entity='api/client/price/')
@@ -279,6 +288,9 @@ def stock(token, action):
             # items is a final dictionary with a chunk data
             items['items'] = list_of_items
 
+            # reset list_of_items
+            list_of_items = []
+
             # send request and receive response
             server_response = api_request(token=token, jsondata=items, action=action, api_entity='api/product/stock/')
 
@@ -344,11 +356,15 @@ def price(token, action):
             # items is a final dictionary with a chunk data
             items['items'] = list_of_items
 
+            # reset list_of_items
+            list_of_items = []
+
             # send request and receive response
             server_response = api_request(token=token, jsondata=items, action=action, api_entity='api/product/price/')
 
             # create a connection to db
             update_commit = qry.Cursor()
+
 
             if action in ('post', 'put'):
                 for row in server_response:
