@@ -334,8 +334,8 @@ def price(token, action):
     # retrieve all data from the table
     all_items = qry.Cursor().queryresult("SELECT * FROM export.price WHERE Action = '" + action.upper() + "'")
 
-    # divide all rows into 2000 row chunks (2000 for price)
-    chunk_items = [all_items[i:i+2000] for i in range(0, len(all_items), 2000)]
+    # divide all rows into 5000 row chunks (5000 for price)
+    chunk_items = [all_items[i:i+5000] for i in range(0, len(all_items), 5000)]
 
     # create empty objects
     items = {}
@@ -344,7 +344,7 @@ def price(token, action):
 
     # create json-like dictionary
     if chunk_items:  # check if list is not empty
-        for chunk in chunk_items:  # for each chunk (2000 rows) send post/put request and update back the table
+        for chunk in chunk_items:  # for each chunk (5000 rows) send post/put request and update back the table
             if action in ('post', 'put'):
                 for row in chunk:
                     each_item['product_code'] = row[0]
