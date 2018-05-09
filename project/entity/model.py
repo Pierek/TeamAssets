@@ -1,5 +1,6 @@
 import service.qry as qry
 from api.request import api_request
+import logging
 
 def job_log(token):
     """send job_log data request from database to the server"""      
@@ -31,6 +32,7 @@ def job_log(token):
         # send request
         api_request(token=token, jsondata=items, action='post', api_entity='api/job/')
 
+    logging.info('Token refreshed')
 
 
 def product(token, action):
@@ -112,6 +114,7 @@ def product(token, action):
 
                     update_commit.querycommit(update_item)  # commit every transaction
 
+    logging.info('Product finished - {0}, count - {1} rows'.format(action, str(len(all_items))))
 
 
 def client_dict(token, action):
@@ -175,6 +178,7 @@ def client_dict(token, action):
                     # print(update_item)
                     update_commit.querycommit(update_item)  # commit every transaction
 
+    logging.info('Client-dict finished - {0}, count - {1} rows'.format(action, str(len(all_items))))
 
 
 #### price_client_code and client_price_code are mismatched!!!!! has to set only one name (db is price_client, apiserver is client_price)
@@ -237,6 +241,7 @@ def price_client_dict(token, action):
 
                     update_commit.querycommit(update_item)  # commit every transaction
 
+    logging.info('Price-client-dict finished - {0}, count - {1} rows'.format(action, str(len(all_items))))
 
 
 def stock(token, action):
@@ -308,14 +313,17 @@ def stock(token, action):
 
             ####        update_commit.querycommit(update_item)  # commit every transaction
 
+    logging.info('Stock finished - {0}, count - {1} rows'.format(action, str(len(all_items))))
+
+
 def price(token, action):
     """send price data request from database to the server"""
 
     # retrieve all data from the table
     all_items = qry.Cursor().queryresult("SELECT * FROM export.price WHERE Action = '" + action.upper() + "'")
 
-    # divide all rows into 10000 row chunks (10000 for price)
-    chunk_items = [all_items[i:i+10000] for i in range(0, len(all_items), 10000)]
+    # divide all rows into 2000 row chunks (2000 for price)
+    chunk_items = [all_items[i:i+2000] for i in range(0, len(all_items), 2000)]
 
     # create empty objects
     items = {}
@@ -324,7 +332,7 @@ def price(token, action):
 
     # create json-like dictionary
     if chunk_items:  # check if list is not empty
-        for chunk in chunk_items:  # for each chunk (10000 rows) send post/put request and update back the table
+        for chunk in chunk_items:  # for each chunk (2000 rows) send post/put request and update back the table
             if action in ('post', 'put'):
                 for row in chunk:
                     each_item['product_code'] = row[0]
@@ -353,3 +361,5 @@ def price(token, action):
                         AND price_client_code = '"""+row['client_price_code']+"'"
 
                     update_commit.querycommit(update_item)  # commit every transaction
+
+    logging.info('Price finished - {0}, count - {1} rows'.format(action, str(len(all_items))))
