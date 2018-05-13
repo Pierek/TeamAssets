@@ -33,6 +33,9 @@
     <Compile Include="service\config.py" />
     <Compile Include="service\qry.py" />
     <Compile Include="service\__init__.py" />
+    <Compile Include="testscripts\module1.py">
+      <SubType>Code</SubType>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="api" />

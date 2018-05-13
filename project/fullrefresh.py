@@ -4,8 +4,10 @@ from api.request import token_refresh
 from entity.model import product, client_dict, price_client_dict, stock, price, job_log
 import logging
 import os
+import datetime
 
-logging.basicConfig(filename=os.getcwd() + '/fullrefresh.log', format='%(asctime)s %(message)s', filemode='w', level=logging.DEBUG)
+
+logging.basicConfig(filename=os.getcwd() + '\\refresh_log\\fullrefresh' + datetime.datetime.today().strftime('%Y%m%d%H%M%S') + '.log', format='%(asctime)s %(message)s', level=logging.DEBUG)
 
 
 # get new token here

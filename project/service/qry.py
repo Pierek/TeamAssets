@@ -6,13 +6,26 @@ import logging
 class Cursor:
 
     def __init__(self):
-        app_settings = os.getenv('APP_SETTINGS', 'DevelopmentConfig')
-        app_config = getattr(service.config, app_settings)
+        TEAM_SERVER = os.getenv('APP_SETTINGS_TEAM_SERVER')
+        TEAM_DATABASE = os.getenv('APP_SETTINGS_TEAM_DATABASE')
+        TEAM_USER = os.getenv('APP_SETTINGS_TEAM_USER')
+        TEAM_PWD = os.getenv('APP_SETTINGS_TEAM_PWD')
+        if not TEAM_SERVER:
+            raise ValueError(logging.warning('You must have "APP_SETTINGS_TEAM_SERVER" variable'))
+        if not TEAM_DATABASE:
+            raise ValueError(logging.warning('You must have "APP_SETTINGS_TEAM_DATABASE" variable'))
+        if not TEAM_USER:
+            raise ValueError(logging.warning('You must have "APP_SETTINGS_TEAM_USER" variable'))
+        if not TEAM_PWD:
+            raise ValueError(logging.warning('You must have "APP_SETTINGS_TEAM_PWD" variable'))
+        #app_settings = os.getenv('APP_SETTINGS', 'DevelopmentConfig')
+        #app_config = getattr(service.config, app_settings)
+
         try:
-            cnxn = pyodbc.connect('DRIVER={SQL Server};SERVER=' + app_config.TEAM_SERVER +
-                                  ';DATABASE=' + app_config.TEAM_DATABASE +
-                                  ';UID=' + app_config.TEAM_USER +
-                                  ';PWD=' + app_config.TEAM_PWD)
+            cnxn = pyodbc.connect('DRIVER={SQL Server};SERVER=' + TEAM_SERVER +
+                                  ';DATABASE=' + TEAM_DATABASE +
+                                  ';UID=' + TEAM_USER +
+                                  ';PWD=' + TEAM_PWD)
             self.cursor = cnxn.cursor()
         except pyodbc.Error as e:
             logging.warning(e.args[1].encode('utf-8'))

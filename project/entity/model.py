@@ -76,6 +76,8 @@ def product(token, action):
                     each_item['rep_state'] = row[19]
                     each_item['rep_state_www'] = row[20]
                     each_item['kgo'] = row[21]
+                    each_item['price_zero'] = row[22]
+                    each_item['price_zero_mod_date'] = row[23]
                     list_of_items.append(each_item.copy())
 
             elif action == 'delete':
