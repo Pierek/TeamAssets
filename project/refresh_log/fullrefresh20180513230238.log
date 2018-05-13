@@ -1,0 +1,3 @@
+2018-05-13 23:02:38,688 Starting new HTTP connection (1): 127.0.0.1
+2018-05-13 23:02:45,555 http://127.0.0.1:5000 "POST /api/auth/ HTTP/1.1" 200 147
+2018-05-13 23:02:45,556 You must have "APP_SETTINGS_TEAM_USER" variable
