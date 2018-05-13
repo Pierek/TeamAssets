@@ -13,3 +13,5 @@ migrations
 *.file
 
 uploads
+
+refresh_log/
