@@ -27,6 +27,8 @@ SELECT
 	,[rep_state]
 	,[rep_state_www]
 	,[kgo] = CONVERT(nvarchar(10),kgo)
+	,[price_zero] = CONVERT(nvarchar(9), price_zero)
+	,[price_zero_mod] = CONVERT(nvarchar(10), price_zero_mod)
 	,[Action]
 	,[ResponseCode]
 	,[ResponseDate]

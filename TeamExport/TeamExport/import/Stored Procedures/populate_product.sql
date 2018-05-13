@@ -58,6 +58,8 @@ BEGIN
 		OR		 T.rep_state <> S.rep_state OR (T.rep_state IS NULL AND S.rep_state IS NOT NULL) OR (T.rep_state IS NOT NULL AND S.rep_state IS NULL)
 		OR		 T.rep_state_www <> S.rep_state_www OR (T.rep_state_www IS NULL AND S.rep_state_www IS NOT NULL) OR (T.rep_state_www IS NOT NULL AND S.rep_state_www IS NULL)
 		OR		 T.kgo <> S.kgo OR (T.kgo IS NULL AND S.kgo IS NOT NULL) OR (T.kgo IS NOT NULL AND S.kgo IS NULL)
+		OR		 T.price_zero <> S.price_zero OR (T.price_zero IS NULL AND S.price_zero IS NOT NULL) OR (T.price_zero IS NOT NULL AND S.price_zero IS NULL)
+		OR		 T.price_zero_mod <> S.price_zero_mod OR (T.price_zero_mod IS NULL AND S.price_zero_mod IS NOT NULL) OR (T.price_zero_mod IS NOT NULL AND S.price_zero_mod IS NULL)
 
 		)
 
@@ -85,6 +87,8 @@ BEGIN
 			,T.rep_state = S.rep_state
 			,T.rep_state_www = S.rep_state_www
 			,T.kgo = S.kgo
+			,T.price_zero = S.price_zero
+			,T.price_zero_mod = S.price_zero_mod
 			,T.LastUpdate = S.LastUpdate
 			,T.Action = 'PUT' -- when there is a change, next request should be PUT
 				
@@ -114,6 +118,8 @@ BEGIN
 			,rep_state
 			,rep_state_www
 			,kgo
+			,price_zero
+			,price_zero_mod
 			,LastUpdate
 			,Action
 		)
@@ -142,6 +148,8 @@ BEGIN
 			,S.rep_state
 			,S.rep_state_www
 			,S.kgo
+			,S.price_zero
+			,S.price_zero_mod
 			,S.LastUpdate
 			,'POST' -- when there is a new object, next request should be POST
 		)

@@ -23,6 +23,8 @@
 	,[rep_state]              bit NULL
 	,[rep_state_www]          bit NULL
 	,[kgo]                    float NULL
+	,[price_zero]             decimal(9,2) NULL
+	,[price_zero_mod]         date NULL
 	,[LastUpdate]             datetime NOT NULL
 	,[ResponseCode]           varchar(3) NULL
 	,[ResponseDate]           datetime NULL

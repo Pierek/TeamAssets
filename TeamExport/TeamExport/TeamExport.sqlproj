@@ -8,7 +8,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectVersion>4.1</ProjectVersion>
     <ProjectGuid>{5a017a09-5377-4e6d-aa58-efa3d283dc3a}</ProjectGuid>
-    <DSP>Microsoft.Data.Tools.Schema.Sql.Sql130DatabaseSchemaProvider</DSP>
+    <DSP>Microsoft.Data.Tools.Schema.Sql.Sql100DatabaseSchemaProvider</DSP>
     <OutputType>Database</OutputType>
     <RootPath>
     </RootPath>
@@ -114,6 +114,8 @@
     <Build Include="import\Stored Procedures\populate_price.sql" />
     <Build Include="export\Views\price.sql" />
     <Build Include="log\Tables\job_log.sql" />
+    <Build Include="log\Stored Procedures\run_preflight_check.sql" />
+    <Build Include="log\Tables\preflight_checks.sql" />
   </ItemGroup>
   <ItemGroup>
     <SqlCmdVariable Include="TEAM">

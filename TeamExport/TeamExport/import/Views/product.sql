@@ -10,7 +10,7 @@ SELECT
 	,[product_code] = LTRIM(RTRIM(T.Kod))
 	,[product_description] = LTRIM(RTRIM(T.Nazwa))
 	,[promo] = CASE WHEN LTRIM(RTRIM(FPROM.Data)) = '' THEN NULL ELSE LTRIM(RTRIM(FPROM.Data)) END
-	,[ean] =  CASE WHEN LTRIM(RTRIM(ean)) = '' THEN NULL ELSE LTRIM(RTRIM(T.EAN)) END
+	,[ean] =  CASE WHEN LTRIM(RTRIM(T.EAN)) = '' THEN NULL ELSE LTRIM(RTRIM(T.EAN)) END
 	,[integral_code] = CASE WHEN LTRIM(RTRIM(FIntref.Data)) = '' THEN NULL ELSE LTRIM(RTRIM(FIntref.Data)) END
 	,[series] = CASE WHEN LTRIM(RTRIM(FSerie.Data)) = '' THEN NULL ELSE LTRIM(RTRIM(FSerie.Data)) END 
 	,[category] = CASE WHEN LTRIM(RTRIM(FPOD.Data)) = '' THEN NULL ELSE LTRIM(RTRIM(FPOD.Data)) END
@@ -29,6 +29,8 @@ SELECT
 	,[rep_state] = CASE WHEN FRS.Data IS NULL THEN 0 ELSE CONVERT(bit,LTRIM(RTRIM(FRS.Data))) END
 	,[rep_state_www] = CASE WHEN FRSWWW.Data IS NULL THEN 0 ELSE CONVERT(bit,LTRIM(RTRIM(FRSWWW.Data))) END
 	,[kgo] = (CONVERT(float,LTRIM(RTRIM(FKGO.Data))) * 0.09) -- kgo wartosc jest wyliczana jako wartosc KGO WAGA * 0,09 zgadza sie dla wszystkich produktów
+	,[price_zero] = CONVERT(decimal(9,2),LTRIM(RTRIM(REPLACE(FCENA.Data,',','.'))))
+	,[price_zero_mod] = CONVERT(date,LTRIM(RTRIM(REPLACE(FCENAD.Data,'~',''))))
 	,[LastUpdate] = GETDATE()
 FROM TEAM.dbo.Towary T
 LEFT JOIN TEAM.dbo.Features FSerie ON FSerie.Parent = T.ID
@@ -69,4 +71,8 @@ LEFT JOIN TEAM.dbo.Features Frange ON Frange.Parent = T.ID
 	AND Frange.ParentType = N'Towary' AND Frange.Name = N'range'
 LEFT JOIN TEAM.dbo.Features FKGO ON FKGO.Parent = T.ID
 	AND FKGO.ParentType = N'Towary' AND FKGO.Name = N'KGO WAGA'
+LEFT JOIN TEAM.dbo.Features FCENA ON FCENA.Parent = T.ID
+	AND FCENA.ParentType = N'Towary' AND FCENA.Name = N'cena zero' AND FCENA.Lp = 0
+LEFT JOIN TEAM.dbo.Features FCENAD ON FCENAD.Parent = T.ID
+	AND FCENAD.ParentType = N'Towary' AND FCENAD.Name = N'cena zero' AND FCENAD.Lp = 1
 WHERE T.Blokada = 0 -- dont populate blocked products
