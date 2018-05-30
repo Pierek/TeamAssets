@@ -45,7 +45,7 @@ BEGIN
 		SET  T.price_client_code = S.price_client_code
 			,T.price_client_description = S.price_client_description
 			,T.LastUpdate = S.LastUpdate
-			,T.Action = 'PUT' -- when there is a change, next request should be PUT
+			,T.Action = CASE WHEN T.Action = 'POST' THEN 'POST' ELSE 'PUT' END -- when there is a change, next request should be PUT
 				
 		WHEN NOT MATCHED BY TARGET
 		THEN INSERT

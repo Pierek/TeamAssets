@@ -90,7 +90,7 @@ BEGIN
 			,T.price_zero = S.price_zero
 			,T.price_zero_mod = S.price_zero_mod
 			,T.LastUpdate = S.LastUpdate
-			,T.Action = 'PUT' -- when there is a change, next request should be PUT
+			,T.Action = CASE WHEN T.Action = 'POST' THEN 'POST' ELSE 'PUT' END -- when there is a change, next request should be PUT
 				
 		WHEN NOT MATCHED BY TARGET
 		THEN INSERT
