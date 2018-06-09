@@ -1,46 +1,57 @@
 """Parse and upload images"""
+import glob
 import os
+import re
 import sys
 from math import floor
-import re
-import glob
-import requests
-import pyodbc
-from PIL import Image
+import cv2
+import imutils
+import numpy as np
 #import PIL.ExifTags
 import piexif
-import numpy as np
-import imutils
-import cv2
+import pyodbc
+import requests
+from PIL import Image
+from resizeimage import resizeimage
+import json
+from shutil import copy2
 
-VERSION = 0.14
+VERSION = 0.15
 DEFAULT_DPI = 96 #72
 MIN_DPI = 72
 STR_SEPARATOR = "; "
 LIST_SEPARATOR = "|"
 CSV_SEPARATOR = ","
-ALLOWED_EXTENSIONS = ['.jpg', '.jpeg', '.png']#, '.gif'
-URL = 'http://192.168.0.51:5000/fileupload'
+ALLOWED_EXTENSIONS = ['.jpg', '.jpeg', '.png']
+FILE_UPLOAD_URL = 'https://teampolska.eu/api/product/attachment/{0}' #'http://teampolska.eu/fileupload'
 EXIF_TAG_SEPARATOR = "|"
-#PARENT_FOLDER = r'C:\! D\jakubas.eu_team\ZDJECIA INTERNET'
-PARENT_FOLDER = r'C:\! D\jakubas.eu_team\ZDJECIA INTERNET\KALORIK'
+PARENT_FOLDER = r'C:\OEC\CodeBase\_teamservices.jakubas.eu\ZDJECIA INTERNET\KALORIK'
 IMAGE_FOLDER = os.path.join(PARENT_FOLDER, 'unprocessed')
-IMAGES_PROCESSED_FOLDER = os.path.join(PARENT_FOLDER, 'processed')
-IMAGES_ERRORS_FOLDER = os.path.join(PARENT_FOLDER, 'errors')
+IMAGE_PROCESSED_FOLDER = os.path.join(PARENT_FOLDER, 'processed')
+IMAGE_ERRORS_FOLDER = os.path.join(PARENT_FOLDER, 'errors')
+IMAGE_THUMBNAIL_FOLDER = os.path.join(PARENT_FOLDER, 'thumbnails')
+
 PROCESS_ERRORS = []
-PROCESS_TEMPLATES = True
+CREATE_THUMBNAILS = True
+PROCESS_TEMPLATES = False
 TEMPLATES = ['template_kalorik_h95_vertical.jpg', 'template_kalorik_w95_horizontal.jpg',
              'template_efbe_h95_vertical.jpg', 'template_efbe_w95_horizontal.jpg',
              'template_kitchen_h165_vertical.jpg', 'template_kitchen_w165_horizontal.jpg']
 VISUALIZE = False
-CORRELATION_TRESHOLD = 0.330 #0.300 #0.275
+CORRELATION_TRESHOLD = 0.330 #no logo recognized below this level
 #SQL_CONNECTION = pyodbc.connect('DSN=Team;Uid=team_reader;Pwd=team_reader;')
-UPLOAD_FILES = 0
-FILENAME_FILTER = '' #SP2#TO1008AG#A#Schott Typ 836
+UPLOAD_FILES = True
+FILENAME_FILTER = 'BL1000_offer'
+THUMBNAIL_HEIGHT = 96 #72, 96, 128, 150
+THUMBNAIL_FORMAT = 'PNG' #'JPEG',
+PROCESS_DB_DATA = True
+SQL_CONNECTION = None
+SQL_CURSOR = None
+TOKEN = "eyJleHAiOjE1Mjc0Nzg1ODYsImFsZyI6IkhTMjU2IiwiaWF0IjoxNTI3NDc0OTg2fQ.eyJjb25maXJtIjoyfQ.O98Lsp1VlunsZuJIhj2ODE9sfyywZY8U0EvnjGK1JOs"
 
-def rreplace(s, old, new, occurrence):
-    li = s.rsplit(old, occurrence)
-    return new.join(li)
+def rreplace(given_string, old, new, occurrence):
+    split_list = given_string.rsplit(old, occurrence)
+    return new.join(split_list)
 
 def list_to_str(lst):
     '''Creates string from string list separated using default separator'''
@@ -86,30 +97,35 @@ class TeamImage:
         self.exif_image_keywords = ''
         self.exif_image_author = ''
         self.new_filename = ''
+        self.processed_filepath = ''
+        self.new_thumbnail_filename = ''
+        self.thumbnail_filepath = ''
 
         self.get_metadata_from_image_file(self.file_path)
         self.parse_file_name()
 
         if len(self.metadata_image_format) > 0 and len(self.filename_image_type) > 0 and\
                 self.metadata_image_format != self.filename_image_type:
-            self.errors.append('FIL: File extension "{0}" and file type "{1}" do not match'.format(self.filename_image_type, self.metadata_image_format))
+            self.errors.append('FIL: File extension "{0}" and file type "{1}" do not match'\
+                .format(self.filename_image_type, self.metadata_image_format))
 
-        products_count = self.find_product_code_in_db(self.possible_product_codes, 1)
-        if products_count == 1:
-            if self.product_code_from_file_name.lower() != self.product_code_from_db.lower():
-                self.warnings.append('PCE: Product code from file does not match database product code')
-            if self.product_code_from_db.find(' ') > -1:
-                self.warnings.append('PCE: Product code contain space character')
-            
-        #elif products_count > 1:
-        #    if len(self.product_code_from_db) > 0:
-        #        if self.product_code_from_file_name.lower() != self.product_code_from_db.lower():
-        #            self.errors.append('PCE: Product code from file does not match database product code')
-            #if self.find_product_code_in_db(self.possible_product_codes, 2) == 0:
-            #    if self.find_product_code_in_db(self.possible_product_codes, 3) == 0:
-            #        self.find_product_code_in_db(self.possible_product_codes, 4)
-        elif products_count == 0: #len(self.product_code_from_db) == 0:
-            self.errors.append('PCE: Product code "{0}" was not found in database'.format(self.product_code_from_file_name))
+        if PROCESS_DB_DATA is True:
+            products_count = self.find_product_code_in_db(self.possible_product_codes, 1)
+            if products_count == 1:
+                if self.product_code_from_file_name.lower() != self.product_code_from_db.lower():
+                    self.warnings.append('PCE: Product code from file does not match database product code')
+                if self.product_code_from_db.find(' ') > -1:
+                    self.warnings.append('PCE: Product code contain space character')
+            #elif products_count > 1:
+            #    if len(self.product_code_from_db) > 0:
+            #        if self.product_code_from_file_name.lower() != self.product_code_from_db.lower():
+            #            self.errors.append('PCE: Product code from file does not match database product code')
+                #if self.find_product_code_in_db(self.possible_product_codes, 2) == 0:
+                #    if self.find_product_code_in_db(self.possible_product_codes, 3) == 0:
+                #        self.find_product_code_in_db(self.possible_product_codes, 4)
+            elif products_count == 0: #len(self.product_code_from_db) == 0:
+                self.errors.append('PCE: Product code "{0}" was not found in database'\
+                    .format(self.product_code_from_file_name))
 
         if PROCESS_TEMPLATES:
             for template in TEMPLATES:
@@ -124,25 +140,34 @@ class TeamImage:
                     self.logo_removed = True
             if self.filename_logo_removed != self.logo_removed:
                 self.warnings.append('LOG: Filename logo information does not match recorded image logo value')
-        
-        
+
         if self.filename_dpi > -1 and self.metadata_image_dpi != self.filename_dpi:
             self.errors.append('DPI: Image DPI: {0} does not match filename DPI: {1}'.format(self.metadata_image_dpi, self.filename_dpi))
-        
-        if self.filename_is_offer == True and self.filename_is_boxoffer == True:
+
+        if self.filename_is_offer is True and self.filename_is_boxoffer is True:
             self.errors.append('FIL: There are "offer" and "boxoffer" attributes in filename which is not allowed')
-        elif self.filename_is_offer == True and self.filename_arranged == True:
+        elif self.filename_is_offer is True and self.filename_arranged is True:
             self.errors.append('FIL: There are "offer" and "arr" attributes in filename which is not allowed')
-        elif self.filename_is_boxoffer == True and self.filename_arranged == True:
+        elif self.filename_is_boxoffer is True\
+                and self.filename_arranged is True:
             self.errors.append('FIL: There are "boxoffer" and "arr" attributes in filename which is not allowed')
-        
-        self.new_filename = self.create_filename()
-    
+
+        self.new_filename = self.create_filename()[0]
+        self.new_thumbnail_filename = self.create_filename()[1]
+        self.processed_filepath = os.path.join(IMAGE_PROCESSED_FOLDER, self.new_filename)
+        self.thumbnail_filepath = os.path.join(IMAGE_THUMBNAIL_FOLDER, self.new_thumbnail_filename)
+        #os.rename(self.file_path, self.processed_filepath)
+        copy2(self.file_path,self.processed_filepath)
+
+        if CREATE_THUMBNAILS is True:
+            self.create_thumbnail(self.processed_filepath, self.thumbnail_filepath)
+
     def create_filename(self):
         """Create file name from attributes"""
         new_filename = ''
+        new_thumbnail_filename = ''
         if len(self.product_code_from_db) > 0:
-            new_filename += self.product_code_from_db.upper().replace('/','-')
+            new_filename += self.product_code_from_db.upper().replace('/', '-')
         else:
             new_filename += self.product_code_from_file_name.upper()
         if self.filename_is_offer or self.filename_is_boxoffer or self.filename_arranged:
@@ -166,23 +191,34 @@ class TeamImage:
             if self.filename_image_sequence == 0:
                 self.filename_image_sequence += 1
             new_filename += '_v' + str(self.filename_image_sequence).zfill(2)
+        new_thumbnail_filename = new_filename
+        new_thumbnail_filename += '_Th' + str(THUMBNAIL_HEIGHT)
+
         if self.filename_attributes:
             attributes = ''
-            for x in range(0, len(self.filename_attributes)):
-                if self.filename_attributes[x] is not None and len(self.filename_attributes[x]) > 0:
-                    if x == 0:
-                        attributes += self.filename_attributes[x]
+            for iterator in range(0, len(self.filename_attributes)):
+                if self.filename_attributes[iterator] is not None and len(self.filename_attributes[iterator]) > 0:
+                    if iterator == 0:
+                        attributes += self.filename_attributes[iterator]
                     else:
-                        attributes += '-' + self.filename_attributes[x]
+                        attributes += '-' + self.filename_attributes[iterator]
             if len(attributes) > 0:
                 new_filename += '_' + attributes
+                new_thumbnail_filename += '_' + attributes
+
         if self.filename_image_type == 'JPEG':
             new_filename += '.jpg'
         elif self.filename_image_type == 'PNG':
             new_filename += '.png'
         else:
             new_filename += self.file_extension
-        return new_filename
+        
+        if THUMBNAIL_FORMAT == 'JPEG':
+            new_thumbnail_filename += '.jpg'
+        elif THUMBNAIL_FORMAT == 'PNG':
+            new_thumbnail_filename += '.png'
+
+        return (new_filename, new_thumbnail_filename)
 
     def __str__(self):
         return self.file_name + STR_SEPARATOR\
@@ -222,7 +258,7 @@ class TeamImage:
                     self.errors.append('DPI: Image DPI is set too low: {0}'.format(x_dpi))
                 else:
                     self.warnings.append('DPI: Metadata DPI information is not consistent [x_dpi=' + str(x_dpi)
-                        + ', y_dpi = ' + str(y_dpi) + ']. Default value will be used.')
+                                         + ', y_dpi = ' + str(y_dpi) + ']. Default value will be used.')
                     if x_dpi > y_dpi and x_dpi >= DEFAULT_DPI:
                         image_file.save(image_path, dpi=(x_dpi, x_dpi))
                     elif y_dpi > x_dpi and y_dpi >= DEFAULT_DPI:
@@ -235,6 +271,22 @@ class TeamImage:
         except Exception as ex:
             exc_type = ex.__class__.__name__
             self.errors.append("IMG: Unable to process image [" + self.file_name + "] Exception Type: " + str(exc_type) + " Error: " + str(ex))
+        finally:
+            if image_file is not None:
+                image_file.close()
+
+    def create_thumbnail(self, image_path, thumbnail_path):
+        """Create thumbnail(s) for provided image"""
+        try:
+            image_file = Image.open(image_path)
+            #for tile_height in THUMBNAIL_HEIGHT:
+            #    for tile_format in THUMBNAIL_FORMAT:
+            thumbnail = resizeimage.resize_height(image_file, THUMBNAIL_HEIGHT)
+            thumbnail.save(thumbnail_path)
+        except Exception as ex:
+            exc_type = ex.__class__.__name__
+            self.errors.append("IMG: Unable to create thumbnail image [" + self.file_name
+                               + "] Exception Type: " + str(exc_type) + " Error: " + str(ex))
         finally:
             if image_file is not None:
                 image_file.close()
@@ -264,7 +316,7 @@ class TeamImage:
 
         image_name_splitted = self.temp_file_name_no_extension.split('_')
         self.product_code_from_file_name = image_name_splitted[0].upper()
-        
+
         #self.possible_product_codes.append(self.product_code_from_file_name)
         #if(self.product_code_from_file_name.find('-') > -1):
         #    self.possible_product_codes.append(rreplace(self.product_code_from_file_name, '-', '/', 1))
@@ -303,7 +355,7 @@ class TeamImage:
                 elif part == 'label':
                     self.filename_is_label = True
                     processed_attribute = True
-                elif part =='arr':
+                elif part == 'arr':
                     self.filename_arranged = True
                     processed_attribute = True
                 elif (len(part) == 1 and re.match(r'[0-9]', part)) \
@@ -342,7 +394,7 @@ class TeamImage:
         split_char = '-'
         possible_product_codes = list()
         possible_product_codes.append(product_code)
-        if(product_code.find('-') > -1):
+        if product_code.find('-') > -1:
             possible_product_codes.append(rreplace(product_code, '-', '/', 1))
 
         product_code_splitted = product_code.split(split_char)
@@ -365,7 +417,7 @@ class TeamImage:
                 possible_product_codes.append(new_code)
                 if len(new_code_short) > 0:
                     possible_product_codes.append(new_code_short)
-        
+
         #KALORIK
         possible_product_codes_2 = list()
         for code in possible_product_codes:
@@ -376,7 +428,7 @@ class TeamImage:
 
         for code_2 in possible_product_codes_2:
             possible_product_codes.append(code_2)
-        
+
         product_code_splitted_space = product_code.split(' ')
         if len(product_code_splitted_space) > 1 and len(product_code_splitted_space[0]) >= 4:
             possible_product_codes.append(product_code_splitted_space[0])
@@ -384,7 +436,7 @@ class TeamImage:
                 possible_product_codes.append(code.replace('-KALORIK', ''))
             else:
                 possible_product_codes.append(code + '-KALORIK')
-        
+
         #SCHOTT
         possible_product_schott1 = list()
         for code_schott1 in possible_product_codes:
@@ -403,7 +455,7 @@ class TeamImage:
                 possible_product_codes.append(code.replace('-SCHOTT', ''))
             else:
                 possible_product_codes.append(code + '-SCHOTT')
-        
+
         #add all codes
         possible_product_codes = list(set(possible_product_codes))
         possible_product_codes.sort(key=len, reverse=True)
@@ -412,26 +464,26 @@ class TeamImage:
     def find_product_code_in_db(self, product_codes, strict_level):
         rowcount = 0
         for product_code in product_codes:
-            product_code_for_like = product_code.replace("'","''").replace("%", "[%]").replace("_", "[_]")
+            product_code_for_like = product_code.replace("'", "''").replace("%", "[%]").replace("_", "[_]")
             sql = "SELECT [ID],[Guid],[Kod],[Nazwa],[NumerKatalogowy] FROM [TEAM].[dbo].[Towary] WHERE Kod LIKE '" + product_code_for_like + "%'"
             if strict_level == 1:
-                sql = "SELECT [ID],[Guid],[Kod],[Nazwa],[NumerKatalogowy] FROM [TEAM].[dbo].[Towary] WHERE Kod = '" + product_code.replace("'","''") + "'"
+                sql = "SELECT [ID],[Guid],[Kod],[Nazwa],[NumerKatalogowy] FROM [TEAM].[dbo].[Towary] WHERE Kod = '" + product_code.replace("'", "''") + "'"
             elif strict_level == 2:
                 sql = "SELECT [ID],[Guid],[Kod],[Nazwa],[NumerKatalogowy] FROM [TEAM].[dbo].[Towary] WHERE Kod LIKE '" + product_code_for_like + "%'"
             elif strict_level == 3:
                 sql = "SELECT [ID],[Guid],[Kod],[Nazwa],[NumerKatalogowy] FROM [TEAM].[dbo].[Towary] WHERE Kod LIKE '%" + product_code_for_like + "%'"
             elif strict_level == 4:
                 sql = "SELECT [ID],[Guid],[Kod],[Nazwa],[NumerKatalogowy] FROM [TEAM].[dbo].[Towary] WHERE REPLACE(Kod,'/','-') LIKE '%" + product_code_for_like + "%'"
-            
-            cursor.execute(sql)
-            row = cursor.fetchone()
+
+            SQL_CURSOR.execute(sql)
+            row = SQL_CURSOR.fetchone()
             while row:
                 rowcount = rowcount + 1
                 if rowcount == 1:
                     self.product_code_from_db = row[2].lower().encode('utf-8', 'ignore').decode(sys.stdout.encoding)
                 try:
-                    self.products_from_db.append(str(row[0])+'~"'\
-                        + row[1]+'"~"'
+                    self.products_from_db.append(
+                        str(row[0])+'~"' + row[1]+'"~"'
                         + row[2].lower().encode('utf-8', 'ignore').decode(sys.stdout.encoding).replace('"', '""')+'"~"'\
                         + row[3].lower().encode('utf-8', 'ignore').decode(sys.stdout.encoding).replace('"', '""')+'"~"'\
                         + row[4].lower().encode('utf-8', 'ignore').decode(sys.stdout.encoding).replace('"', '""')+'"')
@@ -441,7 +493,7 @@ class TeamImage:
                 #title.encode('utf-8', 'ignore').decode(sys.stdout.encoding)
                 #title = title.encode('utf8').decode('utf8')
                 #break
-                row = cursor.fetchone()
+                row = SQL_CURSOR.fetchone()
             if rowcount > 1:
                 self.errors.append('SQL: More than one [' + str(rowcount) + '] product returned for the code: [' + product_code + ']')
             '''
@@ -451,7 +503,7 @@ class TeamImage:
                 self.errors.append('SQL: Too many records [' + str(rowcount) + '] returned for the code: [' + product_code + ']')
             '''
         return rowcount
-    
+
     def image_has_template(self, image_path, template_path):
         has_template = False
 
@@ -491,7 +543,7 @@ class TeamImage:
                 # draw a bounding box around the detected region
                 clone = np.dstack([edged, edged, edged])
                 cv2.rectangle(clone, (maxLoc[0], maxLoc[1]),
-                            (maxLoc[0] + tW, maxLoc[1] + tH), (0, 0, 255), 2)
+                              (maxLoc[0] + tW, maxLoc[1] + tH), (0, 0, 255), 2)
                 cv2.imshow("Visualize", clone)
                 cv2.waitKey(0)
 
@@ -546,7 +598,7 @@ def exif_str_2_tuple(input_string):
     converted_list = list()
     for char in input_string:
         char2int = ord(char)
-        if(char2int < 256):
+        if char2int < 256:
             converted_list.append(char2int)
             converted_list.append(0)
         else:
@@ -648,10 +700,10 @@ def is_image_path_valid():
         PROCESS_ERRORS.append('DIR: Parent folder: "{0}" does not exists'.format(PARENT_FOLDER))
     if not os.path.isdir(IMAGE_FOLDER):
         PROCESS_ERRORS.append('DIR: Unprocessed images folder: "{0}" does not exists'.format(IMAGE_FOLDER))
-    if not os.path.isdir(IMAGES_PROCESSED_FOLDER):
-        PROCESS_ERRORS.append('DIR: Processed images folder: "{0}" does not exists'.format(IMAGES_PROCESSED_FOLDER))
-    if not os.path.isdir(IMAGES_ERRORS_FOLDER):
-        PROCESS_ERRORS.append('DIR: Error images folder: "{0}" does not exists'.format(IMAGES_ERRORS_FOLDER))
+    if not os.path.isdir(IMAGE_PROCESSED_FOLDER):
+        PROCESS_ERRORS.append('DIR: Processed images folder: "{0}" does not exists'.format(IMAGE_PROCESSED_FOLDER))
+    if not os.path.isdir(IMAGE_ERRORS_FOLDER):
+        PROCESS_ERRORS.append('DIR: Error images folder: "{0}" does not exists'.format(IMAGE_ERRORS_FOLDER))
     if len(os.listdir(PARENT_FOLDER)) != 3:
         PROCESS_ERRORS.append('DIR: Parent folder: "{0}" contains other files or folders'.format(PARENT_FOLDER))
     if PROCESS_ERRORS:
@@ -662,12 +714,13 @@ def is_image_path_valid():
 #==========SCRIPT========
 #check paths are ok
 #is_image_path_valid()
-SQL_CONNECTION = None
-try:
-    SQL_CONNECTION = pyodbc.connect('Driver={SQL Server Native Client 11.0};'
-                                    + 'Server=localhost;Database=TEAM;Uid=team_reader;Pwd=team_reader;')
-except Exception as ex:
-    PROCESS_ERRORS.append('SQL: Unable to connect to database server. Error: {0}'.format(repr(ex)))
+
+if PROCESS_DB_DATA is True:
+    try:
+        SQL_CONNECTION = pyodbc.connect('Driver={SQL Server Native Client 11.0};'
+                                        + 'Server=localhost;Database=TEAM;Uid=team_reader;Pwd=team_reader;')
+    except Exception as ex:
+        PROCESS_ERRORS.append('SQL: Unable to connect to database server. Error: {0}'.format(repr(ex)))
 
 if PROCESS_ERRORS:
     for error in PROCESS_ERRORS:
@@ -677,15 +730,17 @@ if PROCESS_ERRORS:
 #print('All good. We are ready to rumble')
 #exit(0)
 
-cursor = SQL_CONNECTION.cursor()
+if SQL_CONNECTION is not None:
+    SQL_CURSOR = SQL_CONNECTION.cursor()
 print(get_column_descriptions())
 #onlyfiles = [f for f in listdir(IMAGE_FOLDER) if isfile(join(IMAGE_FOLDER, f))]
 onlyfiles = os.listdir(IMAGE_FOLDER)
 for filename in onlyfiles:
     if os.path.isfile(os.path.join(IMAGE_FOLDER, filename)):
-        if 1 == 1: #os.path.splitext(filename)[-1].lower() in ALLOWED_EXTENSIONS\
-            #and (filename.startswith(FILENAME_FILTER)\
-            #or len(FILENAME_FILTER.strip()) == 0):#startswith<->find >= 0
+        if os.path.splitext(filename)[-1].lower() in ALLOWED_EXTENSIONS\
+            and (filename.find(FILENAME_FILTER) >= 0\
+            or len(FILENAME_FILTER.strip()) == 0):#startswith<->find >= 0
+            team_image = None
             try:
                 #print(filename, end=';')
                 team_image = TeamImage(os.path.join(IMAGE_FOLDER, filename))
@@ -693,32 +748,47 @@ for filename in onlyfiles:
                 #process_exif(os.path.join(IMAGE_FOLDER, filename))
             except UnicodeEncodeError as ex:
                 exc_type = ex.__class__.__name__
-                print('FILE: ' + team_image.file_name + ' Exception Type: ' + exc_type)
+                print('FILE: ' + filename + ' Exception Type: ' + exc_type)
             except Exception as ex1:
                 exc_type = ex1.__class__.__name__
-                print('FILE: ' + team_image.file_name + ' Exception Type: '\
+                print('FILE: ' + filename + ' Exception Type: '\
                         + exc_type + ' Message: ' + repr(ex1))
 
             #process_image(IMAGE_FOLDER, filename)
+            
             if UPLOAD_FILES:
-                files = {'file': open(os.path.join(IMAGE_FOLDER, filename), 'rb')}
-                r = requests.post(URL, files=files)
+                url = "https://teampolska.eu/api/product/attachment/{0}".format(team_image.new_filename)
+                #url = "https://teampolska.eu/api/product/attachment/BL1000-KALORIK_boxoffer.jpg"
+                fin = open(team_image.processed_filepath, 'rb')
+                files = {'product_image': fin}
+                token='eyJleHAiOjE1Mjc2MzAwOTMsImFsZyI6IkhTMjU2IiwiaWF0IjoxNTI3NjI2NDkzfQ.eyJjb25maXJtIjoyfQ.QQmU0ol5kpgJZyxWG1-bI0Pjb9Ad1AcowwCkv7VZVZw'
+                try:
+                    r = requests.put(url, headers={'Token' : token}, files=files)
+                    print(r.text)
+                except Exception as ex:
+                    print('Message: ' + repr(ex))
+                finally:
+                    fin.close()
+                '''
+                img_file = {'product_image': open(team_image.processed_filepath, 'rb')}
+                r = requests.put(URL + team_image.new_filename, headers={'Token' : TOKEN}, files=img_file)
                 print(r.text)
+                '''
+                tile_file = {'product_image': open(team_image.thumbnail_filepath, 'rb')}
+                r = requests.put(FILE_UPLOAD_URL.format(team_image.new_thumbnail_filename), headers={'Token' : token}, files=tile_file)
+                print(r.status_code)
+                
     if os.path.isdir(os.path.join(IMAGE_FOLDER, filename)):
         pass#print(IMAGE_FOLDER + filename + '\\')
 
-cursor.close()
-SQL_CONNECTION.close()
+if SQL_CONNECTION is not None:
+    SQL_CURSOR.close()
+    SQL_CONNECTION.close()
 
 '''
 import requests
-
-#http://docs.python-requests.org/en/latest/user/quickstart/#post-a-multipart-encoded-file
-
-url = "http://localhost:5000/api/product/attachment/file-name-01.jpg"
-fin = open('C:\\Users\\Sławek\\Documents\\file-name-01.jpg', 'rb')
+fin = open(filepath, 'rb')
 files = {'product_image': fin}
-token='eyJhbGciOiJIUzI1NiIsImlhdCI6MTUxOTI1MDE2NywiZXhwIjoxNTE5MjUzNzY3fQ.eyJjb25maXJtIjoyfQ.bTfMeo-EbSi3pP3sQAUjhO9oAeRDqFibZRqwwnFCg74'
 try:
     r = requests.put(url, headers={'Token' : token}, files=files)
     print(r.text)

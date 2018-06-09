@@ -6,9 +6,10 @@ import logging
 import os
 import datetime
 
+LOG_LOCATION = os.getenv('APP_SETTINGS_LOG_LOCATION')
 
-logging.basicConfig(filename=os.getcwd() + '\\refresh_log\\fullrefresh' + datetime.datetime.today().strftime('%Y%m%d%H%M%S') + '.log', format='%(asctime)s %(message)s', level=logging.DEBUG)
-
+#logging.basicConfig(filename=os.getcwd() + '\\refresh_log\\fullrefresh' + datetime.datetime.today().strftime('%Y%m%d%H%M%S') + '.log', format='%(asctime)s %(message)s', level=logging.DEBUG)
+logging.basicConfig(filename=LOG_LOCATION + 'fullrefresh' + datetime.datetime.today().strftime('%Y%m%d%H%M%S') + '.log', format='%(asctime)s %(message)s', level=logging.DEBUG)
 
 # get new token here
 token = token_refresh()
