@@ -35,7 +35,7 @@ BEGIN
 		USING [import].stock S
 		ON (
 			T.product_id = S.product_id
-			AND ISNULL(T.client_id,'') = ISNULL(S.client_id,'')
+			AND ISNULL(T.client_id,-1) = ISNULL(S.client_id,-1)
 			AND T.stock_type_code = S.stock_type_code
 			)
 		WHEN MATCHED AND ( 

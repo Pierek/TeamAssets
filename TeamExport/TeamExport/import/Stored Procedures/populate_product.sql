@@ -33,10 +33,10 @@ BEGIN
 
 		MERGE [data].product T
 		USING [import].product S
-		ON (T.product_code = S.product_code) 
+		ON (T.product_id = S.product_id) 
 		WHEN MATCHED AND ( 
 
-				 T.product_id <> S.product_id OR (T.product_id IS NULL AND S.product_id IS NOT NULL) OR (T.product_id IS NOT NULL AND S.product_id IS NULL)
+				 T.product_code <> S.product_code OR (T.product_code IS NULL AND S.product_code IS NOT NULL) OR (T.product_code IS NOT NULL AND S.product_code IS NULL)
 		OR		 T.product_description <> S.product_description OR (T.product_description IS NULL AND S.product_description IS NOT NULL) OR (T.product_description IS NOT NULL AND S.product_description IS NULL)
 		OR		 T.promo <> S.promo OR (T.promo IS NULL AND S.promo IS NOT NULL) OR (T.promo IS NOT NULL AND S.promo IS NULL)
 		OR		 T.ean <> S.ean OR (T.ean IS NULL AND S.ean IS NOT NULL) OR (T.ean IS NOT NULL AND S.ean IS NULL)
@@ -65,7 +65,7 @@ BEGIN
 
 
 		THEN UPDATE
-		SET  T.product_id = S.product_id
+		SET  T.product_code = S.product_code
 			,T.product_description = S.product_description
 			,T.promo = S.promo
 			,T.ean = S.ean
