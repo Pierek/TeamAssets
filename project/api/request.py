@@ -3,7 +3,7 @@
 import json
 import requests
 import os
-import service.config
+#import service.config
 import logging
 
 

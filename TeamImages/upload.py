@@ -13,41 +13,47 @@ import pyodbc
 import requests
 from PIL import Image
 from resizeimage import resizeimage
+from datetime import datetime
 import json
-from shutil import copy2
+import logging
+from shutil import copy2, move
+sys.path.append(r'..\project\api')
+from request import token_refresh
 
-VERSION = 0.15
-DEFAULT_DPI = 96 #72
+VERSION = 0.20
+DEFAULT_DPI = 96
 MIN_DPI = 72
 STR_SEPARATOR = "; "
 LIST_SEPARATOR = "|"
 CSV_SEPARATOR = ","
-ALLOWED_EXTENSIONS = ['.jpg', '.jpeg', '.png']
-FILE_UPLOAD_URL = 'https://teampolska.eu/api/product/attachment/{0}' #'http://teampolska.eu/fileupload'
 EXIF_TAG_SEPARATOR = "|"
-PARENT_FOLDER = r'C:\OEC\CodeBase\_teamservices.jakubas.eu\ZDJECIA INTERNET\KALORIK'
-IMAGE_FOLDER = os.path.join(PARENT_FOLDER, 'unprocessed')
-IMAGE_PROCESSED_FOLDER = os.path.join(PARENT_FOLDER, 'processed')
-IMAGE_ERRORS_FOLDER = os.path.join(PARENT_FOLDER, 'errors')
-IMAGE_THUMBNAIL_FOLDER = os.path.join(PARENT_FOLDER, 'thumbnails')
+ALLOWED_EXTENSIONS = ['.jpg', '.jpeg', '.png']
+APP_URL = os.getenv('APP_SETTINGS_URL')
+PARENT_FOLDER = os.getenv('APP_IMAGE_FOLDER')
+FILE_UPLOAD_ENDPOINT = 'api/product/attachment/'
+UPLOAD_FILES = True
 
-PROCESS_ERRORS = []
-CREATE_THUMBNAILS = True
+IMAGE_UNPROCESSED_FOLDER = os.path.join(PARENT_FOLDER, 'unprocessed')
+IMAGE_PROCESSED_FOLDER = os.path.join(PARENT_FOLDER, 'processed')
+IMAGE_ERROR_FOLDER = os.path.join(PARENT_FOLDER, 'errors')
+IMAGE_THUMBNAIL_FOLDER = os.path.join(PARENT_FOLDER, 'thumbnails')
+IMAGE_LOG_FOLDER = os.path.join(PARENT_FOLDER, 'logs')
+
 PROCESS_TEMPLATES = False
+CORRELATION_TRESHOLD = 0.330 #no logo recognized below this level
 TEMPLATES = ['template_kalorik_h95_vertical.jpg', 'template_kalorik_w95_horizontal.jpg',
              'template_efbe_h95_vertical.jpg', 'template_efbe_w95_horizontal.jpg',
              'template_kitchen_h165_vertical.jpg', 'template_kitchen_w165_horizontal.jpg']
 VISUALIZE = False
-CORRELATION_TRESHOLD = 0.330 #no logo recognized below this level
-#SQL_CONNECTION = pyodbc.connect('DSN=Team;Uid=team_reader;Pwd=team_reader;')
-UPLOAD_FILES = True
-FILENAME_FILTER = 'BL1000_offer'
-THUMBNAIL_HEIGHT = 96 #72, 96, 128, 150
-THUMBNAIL_FORMAT = 'PNG' #'JPEG',
-PROCESS_DB_DATA = True
+
+FILENAME_FILTER = 'box_offer' #will process files containing this string
+CREATE_THUMBNAILS = True
+THUMBNAIL_HEIGHT = 96
+THUMBNAIL_FORMAT = 'PNG'
+
+SQL_CONNECTION_STRING_TEMPLATE = 'Driver=%SQL_DRIVER%;Server=%SQL_SERVER%;Database=%SQL_DATABASE%;Uid=%SQL_LOGIN%;Pwd=%SQL_PASSWORD%;'
 SQL_CONNECTION = None
 SQL_CURSOR = None
-TOKEN = "eyJleHAiOjE1Mjc0Nzg1ODYsImFsZyI6IkhTMjU2IiwiaWF0IjoxNTI3NDc0OTg2fQ.eyJjb25maXJtIjoyfQ.O98Lsp1VlunsZuJIhj2ODE9sfyywZY8U0EvnjGK1JOs"
 
 def rreplace(given_string, old, new, occurrence):
     split_list = given_string.rsplit(old, occurrence)
@@ -109,23 +115,23 @@ class TeamImage:
             self.errors.append('FIL: File extension "{0}" and file type "{1}" do not match'\
                 .format(self.filename_image_type, self.metadata_image_format))
 
-        if PROCESS_DB_DATA is True:
-            products_count = self.find_product_code_in_db(self.possible_product_codes, 1)
-            if products_count == 1:
-                if self.product_code_from_file_name.lower() != self.product_code_from_db.lower():
-                    self.warnings.append('PCE: Product code from file does not match database product code')
-                if self.product_code_from_db.find(' ') > -1:
-                    self.warnings.append('PCE: Product code contain space character')
-            #elif products_count > 1:
-            #    if len(self.product_code_from_db) > 0:
-            #        if self.product_code_from_file_name.lower() != self.product_code_from_db.lower():
-            #            self.errors.append('PCE: Product code from file does not match database product code')
-                #if self.find_product_code_in_db(self.possible_product_codes, 2) == 0:
-                #    if self.find_product_code_in_db(self.possible_product_codes, 3) == 0:
-                #        self.find_product_code_in_db(self.possible_product_codes, 4)
-            elif products_count == 0: #len(self.product_code_from_db) == 0:
-                self.errors.append('PCE: Product code "{0}" was not found in database'\
-                    .format(self.product_code_from_file_name))
+        #check DB data
+        products_count = self.find_product_code_in_db(self.possible_product_codes, 1)
+        if products_count == 1:
+            if self.product_code_from_file_name.lower() != self.product_code_from_db.lower():
+                self.warnings.append('PCE: Product code from file does not match database product code')
+            if self.product_code_from_db.find(' ') > -1:
+                self.warnings.append('PCE: Product code contain space character')
+        #elif products_count > 1:
+        #    if len(self.product_code_from_db) > 0:
+        #        if self.product_code_from_file_name.lower() != self.product_code_from_db.lower():
+        #            self.errors.append('PCE: Product code from file does not match database product code')
+            #if self.find_product_code_in_db(self.possible_product_codes, 2) == 0:
+            #    if self.find_product_code_in_db(self.possible_product_codes, 3) == 0:
+            #        self.find_product_code_in_db(self.possible_product_codes, 4)
+        elif products_count == 0: #len(self.product_code_from_db) == 0:
+            self.errors.append('PCE: Product code "{0}" was not found in database'\
+                .format(self.product_code_from_file_name))
 
         if PROCESS_TEMPLATES:
             for template in TEMPLATES:
@@ -156,8 +162,11 @@ class TeamImage:
         self.new_thumbnail_filename = self.create_filename()[1]
         self.processed_filepath = os.path.join(IMAGE_PROCESSED_FOLDER, self.new_filename)
         self.thumbnail_filepath = os.path.join(IMAGE_THUMBNAIL_FOLDER, self.new_thumbnail_filename)
-        #os.rename(self.file_path, self.processed_filepath)
-        copy2(self.file_path,self.processed_filepath)
+        if os.path.isfile(self.processed_filepath):
+            os.remove(self.file_path)
+        else:
+            os.rename(self.file_path, self.processed_filepath)
+        #copy2(self.file_path,self.processed_filepath)
 
         if CREATE_THUMBNAILS is True:
             self.create_thumbnail(self.processed_filepath, self.thumbnail_filepath)
@@ -695,55 +704,98 @@ def process_exif(image_path):
     #image_file.save()
     image_file.close()
 
-def is_image_path_valid():
-    if not os.path.isdir(PARENT_FOLDER):
-        PROCESS_ERRORS.append('DIR: Parent folder: "{0}" does not exists'.format(PARENT_FOLDER))
-    if not os.path.isdir(IMAGE_FOLDER):
-        PROCESS_ERRORS.append('DIR: Unprocessed images folder: "{0}" does not exists'.format(IMAGE_FOLDER))
-    if not os.path.isdir(IMAGE_PROCESSED_FOLDER):
-        PROCESS_ERRORS.append('DIR: Processed images folder: "{0}" does not exists'.format(IMAGE_PROCESSED_FOLDER))
-    if not os.path.isdir(IMAGE_ERRORS_FOLDER):
-        PROCESS_ERRORS.append('DIR: Error images folder: "{0}" does not exists'.format(IMAGE_ERRORS_FOLDER))
-    if len(os.listdir(PARENT_FOLDER)) != 3:
-        PROCESS_ERRORS.append('DIR: Parent folder: "{0}" contains other files or folders'.format(PARENT_FOLDER))
-    if PROCESS_ERRORS:
-        return False
+def check_folder_structure(process_id):
+    folders_ok = True
+    if not os.path.exists(PARENT_FOLDER):
+        logging.error("Image directory does not exists: '{0}'".format(PARENT_FOLDER))
+        folders_ok = False
     else:
-        return True
+        if not os.path.isdir(PARENT_FOLDER):
+            logging.error("Image directory path: '{0}' is not valid.".format(PARENT_FOLDER))
+            folders_ok = False
+
+    if folders_ok:
+        try:
+            if not os.path.isdir(IMAGE_ERROR_FOLDER):
+                os.makedirs(IMAGE_ERROR_FOLDER)
+            if not os.path.isdir(IMAGE_LOG_FOLDER):
+                os.makedirs(IMAGE_LOG_FOLDER)
+            if not os.path.isdir(IMAGE_PROCESSED_FOLDER):
+                os.makedirs(IMAGE_PROCESSED_FOLDER)
+            if not os.path.isdir(IMAGE_THUMBNAIL_FOLDER):
+                os.makedirs(IMAGE_THUMBNAIL_FOLDER)
+            if not os.path.isdir(IMAGE_UNPROCESSED_FOLDER):
+                os.makedirs(IMAGE_UNPROCESSED_FOLDER)
+        except Exception as ex:
+            logging.error("Exception occured while creating flder structure. Error description: '{0}'".format(repr(ex)))
+            folders_ok = False
+    
+    if folders_ok:
+        #move all items from parent to unprocessed/errors folder
+        for filename in os.listdir(PARENT_FOLDER):
+            try:
+                if os.path.join(PARENT_FOLDER, filename) not in [IMAGE_ERROR_FOLDER, IMAGE_LOG_FOLDER, IMAGE_PROCESSED_FOLDER, IMAGE_THUMBNAIL_FOLDER, IMAGE_UNPROCESSED_FOLDER]:
+                    if os.path.isfile(os.path.join(PARENT_FOLDER, filename)):
+                        if os.path.splitext(filename)[-1].lower() in ALLOWED_EXTENSIONS:
+                            if os.path.isfile(os.path.join(IMAGE_UNPROCESSED_FOLDER, filename)):
+                                move(os.path.join(PARENT_FOLDER, filename), os.path.join(IMAGE_ERROR_FOLDER, "{0}_{1}".format(process_id,filename)))
+                                print("Warning: File: '{0}' already exists in unprocessed folder and has been moved to destination '{1}'. Object will not be processed.".format(os.path.join(PARENT_FOLDER, filename), os.path.join(IMAGE_ERROR_FOLDER, "{0}_{1}".format(process_id,filename))))
+                            else:
+                                move(os.path.join(PARENT_FOLDER, filename), os.path.join(IMAGE_UNPROCESSED_FOLDER, filename))
+                                print("Info: File: '{0}' was moved to location '{1}'".format(os.path.join(PARENT_FOLDER, filename), os.path.join(IMAGE_UNPROCESSED_FOLDER, filename)))
+                        else:
+                            move(os.path.join(PARENT_FOLDER, filename), os.path.join(IMAGE_ERROR_FOLDER, "{0}_{1}".format(process_id,filename)))
+                            print("Warning: File: '{0}' has not allowed extension: '{1}' and has been moved to destination '{2}'. Object will not be processed.".format(os.path.join(PARENT_FOLDER, filename), os.path.splitext(filename)[-1].lower(), os.path.join(IMAGE_ERROR_FOLDER, "{0}_{1}".format(process_id,filename))))
+                    elif os.path.isdir(os.path.join(PARENT_FOLDER, filename)):
+                        move(os.path.join(PARENT_FOLDER, filename), os.path.join(IMAGE_ERROR_FOLDER, "{0}_{1}".format(process_id,filename)))
+                        print("Warning: Item: '{0}' is a directory, which is not expected in this location and it was moved to destination: '{1}'. Object will not be processed.".format(os.path.join(PARENT_FOLDER, filename), os.path.join(IMAGE_ERROR_FOLDER, "{0}_{1}".format(process_id,filename))))
+            except PermissionError as ex:
+                print("Error: Unable to move item: '{0}' to destination location. Item is opened in another process or current user does not have permission to move it. System error description: '{1}'".format(os.path.join(PARENT_FOLDER, filename), repr(ex)))
+                folders_ok = False
+            except Exception as ex:
+                print("Error: Exception occured while moving object: '{0}'. System error description: '{1}'".format(os.path.join(PARENT_FOLDER, filename), repr(ex)))
+                folders_ok = False
+            except:
+                print("Error: Unspecified error occured while moving object: '{0}'").format(os.path.join(PARENT_FOLDER, filename))
+                folders_ok = False
+    return folders_ok
 
 #==========SCRIPT========
-#check paths are ok
-#is_image_path_valid()
+#get process timestamp/id
+process_id = datetime.now().strftime("%Y-%m-%d_%H.%M.%S.%f")
+logging.basicConfig(filename=os.path.join(IMAGE_LOG_FOLDER, process_id + '.log'), format='%(asctime)s:%(levelname)s:%(message)s')#level=logging.DEBUG
+logging.info("TeamImage process [{0}] version: '{1}'".format(process_id, VERSION))
 
-if PROCESS_DB_DATA is True:
-    try:
-        SQL_CONNECTION = pyodbc.connect('Driver={SQL Server Native Client 11.0};'
-                                        + 'Server=localhost;Database=TEAM;Uid=team_reader;Pwd=team_reader;')
-    except Exception as ex:
-        PROCESS_ERRORS.append('SQL: Unable to connect to database server. Error: {0}'.format(repr(ex)))
-
-if PROCESS_ERRORS:
-    for error in PROCESS_ERRORS:
-        print(error)
+if check_folder_structure(process_id) == False:
+    logging.critical("Error occured while validating folder structure inside directory: '{0}'".format(PARENT_FOLDER))
     exit(1)
 
-#print('All good. We are ready to rumble')
-#exit(0)
+ConnectionString = SQL_CONNECTION_STRING_TEMPLATE.replace('%SQL_SERVER%', os.getenv('APP_SETTINGS_TEAM_SERVER'))
+ConnectionString = ConnectionString.replace('%SQL_DRIVER%', os.getenv('APP_SETTINGS_SQL_DRIVER'))
+ConnectionString = ConnectionString.replace('%SQL_DATABASE%', os.getenv('APP_SETTINGS_TEAM_DATABASE'))
+ConnectionString = ConnectionString.replace('%SQL_LOGIN%', os.getenv('APP_SETTINGS_TEAM_USER'))
+ConnectionString = ConnectionString.replace('%SQL_PASSWORD%', os.getenv('APP_SETTINGS_TEAM_PWD'))
+try:
+    SQL_CONNECTION = pyodbc.connect(ConnectionString)
+    logging.info("Connected to server: '{0}'".format(os.getenv('APP_SETTINGS_TEAM_SERVER')))
+except Exception as ex:
+    logging.critical("Unable to connect to database server: '{0}'. Error: {1}".format(os.getenv('APP_SETTINGS_TEAM_SERVER'), repr(ex)))
+    exit(1)
 
 if SQL_CONNECTION is not None:
     SQL_CURSOR = SQL_CONNECTION.cursor()
 print(get_column_descriptions())
 #onlyfiles = [f for f in listdir(IMAGE_FOLDER) if isfile(join(IMAGE_FOLDER, f))]
-onlyfiles = os.listdir(IMAGE_FOLDER)
+onlyfiles = os.listdir(IMAGE_UNPROCESSED_FOLDER)
 for filename in onlyfiles:
-    if os.path.isfile(os.path.join(IMAGE_FOLDER, filename)):
+    if os.path.isfile(os.path.join(IMAGE_UNPROCESSED_FOLDER, filename)):
         if os.path.splitext(filename)[-1].lower() in ALLOWED_EXTENSIONS\
             and (filename.find(FILENAME_FILTER) >= 0\
             or len(FILENAME_FILTER.strip()) == 0):#startswith<->find >= 0
             team_image = None
             try:
                 #print(filename, end=';')
-                team_image = TeamImage(os.path.join(IMAGE_FOLDER, filename))
+                team_image = TeamImage(os.path.join(IMAGE_UNPROCESSED_FOLDER, filename))
                 print(team_image)
                 #process_exif(os.path.join(IMAGE_FOLDER, filename))
             except UnicodeEncodeError as ex:
@@ -755,15 +807,108 @@ for filename in onlyfiles:
                         + exc_type + ' Message: ' + repr(ex1))
 
             #process_image(IMAGE_FOLDER, filename)
-            
-            if UPLOAD_FILES:
-                url = "https://teampolska.eu/api/product/attachment/{0}".format(team_image.new_filename)
-                #url = "https://teampolska.eu/api/product/attachment/BL1000-KALORIK_boxoffer.jpg"
+            if UPLOAD_FILES and team_image is not None and team_image.product_code_from_db is not None:
+                #send post with metadata
+                list_of_items = []
+                file_data = {}
+                tile_data = {}
+                items = {}
+
+                #file_data
+                file_data["product_code"] = team_image.product_code_from_db.upper()
+                file_data["file_name"] = team_image.new_filename
+                file_data["tile_file_name"] = team_image.new_thumbnail_filename
+                file_data["file_size"] = str(os.path.getsize(team_image.processed_filepath))
+                if team_image.filename_image_type == 'JPEG':
+                    file_data["mime"] = "jpg"
+                elif team_image.filename_image_type == 'PNG':
+                    file_data["mime"] = "png"
+                file_data["width"] = team_image.metadata_image_width
+                file_data["height"] = team_image.metadata_image_height
+                if team_image.filename_is_offer:
+                    file_data["category"] = 'offer'
+                elif team_image.filename_is_boxoffer:
+                    file_data["category"] = 'boxoffer'
+                elif team_image.filename_arranged:
+                    file_data["category"] = 'arranged'
+                if team_image.logo_removed:
+                    file_data["no_logo"] = "Y"
+                else:
+                    file_data["no_logo"] = "N"
+                if team_image.filename_is_label:
+                    file_data["label"] = "Y"
+                else:
+                    file_data["label"] = "N"
+                file_data["DPI"] = str(team_image.metadata_image_dpi)
+                file_data["version"] = str(team_image.filename_image_sequence)
+                if team_image.filename_attributes:
+                    attributes = ''
+                    for iterator in range(0, len(team_image.filename_attributes)):
+                        if team_image.filename_attributes[iterator] is not None and len(team_image.filename_attributes[iterator]) > 0:
+                            if iterator == 0:
+                                attributes += team_image.filename_attributes[iterator]
+                            else:
+                                attributes += '-' + team_image.filename_attributes[iterator]
+                    if len(attributes) > 0:
+                        file_data["atributes"] = attributes
+                    else:
+                        file_data["atributes"] = ""
+                list_of_items.append(file_data)
+                #tile_data
+                tile_data["product_code"] = team_image.product_code_from_db.upper()
+                tile_data["file_name"] = team_image.new_thumbnail_filename
+                tile_data["tile_file_name"] = ""
+                tile_data["file_size"] = str(os.path.getsize(team_image.thumbnail_filepath))
+                tile_data["mime"] = "png"
+                tile_data["width"] = int(team_image.metadata_image_width * (THUMBNAIL_HEIGHT/team_image.metadata_image_height))
+                tile_data["height"] = THUMBNAIL_HEIGHT
+                tile_data["category"] = 'tile'
+                if team_image.logo_removed:
+                    tile_data["no_logo"] = "Y"
+                else:
+                    tile_data["no_logo"] = "N"
+                if team_image.filename_is_label:
+                    tile_data["label"] = "Y"
+                else:
+                    tile_data["label"] = "N"
+                tile_data["DPI"] = str(team_image.metadata_image_dpi)
+                tile_data["version"] = str(team_image.filename_image_sequence)
+                if team_image.filename_attributes:
+                    attributes = ''
+                    for iterator in range(0, len(team_image.filename_attributes)):
+                        if team_image.filename_attributes[iterator] is not None and len(team_image.filename_attributes[iterator]) > 0:
+                            if iterator == 0:
+                                attributes += team_image.filename_attributes[iterator]
+                            else:
+                                attributes += '-' + team_image.filename_attributes[iterator]
+                    if len(attributes) > 0:
+                        tile_data["atributes"] = attributes
+                    else:
+                        tile_data["atributes"] = ""
+                list_of_items.append(tile_data)
+                
+                items['items'] = list_of_items
+                json_data = json.dumps(items)
+
+                token = token_refresh()
+                url0 = APP_URL + FILE_UPLOAD_ENDPOINT
+                headers = {"Token": token, "Content-Type": "application/json"}
+                try:
+                    r = requests.post(url0, headers=headers, data=json_data)#json=json_data
+                    print(r.text)
+                    #print(r.status_code)
+                    #print(r.request.headers)
+                    if r.status_code != 200:
+                        exit()
+                except requests.exceptions.RequestException as e:
+                    logging.warning(e)
+                
+                url1 = APP_URL + FILE_UPLOAD_ENDPOINT + team_image.new_filename
                 fin = open(team_image.processed_filepath, 'rb')
                 files = {'product_image': fin}
-                token='eyJleHAiOjE1Mjc2MzAwOTMsImFsZyI6IkhTMjU2IiwiaWF0IjoxNTI3NjI2NDkzfQ.eyJjb25maXJtIjoyfQ.QQmU0ol5kpgJZyxWG1-bI0Pjb9Ad1AcowwCkv7VZVZw'
                 try:
-                    r = requests.put(url, headers={'Token' : token}, files=files)
+                    r = requests.put(url1, headers={'Token' : token}, files=files)
+                    #print(r.request.headers)
                     print(r.text)
                 except Exception as ex:
                     print('Message: ' + repr(ex))
@@ -774,24 +919,16 @@ for filename in onlyfiles:
                 r = requests.put(URL + team_image.new_filename, headers={'Token' : TOKEN}, files=img_file)
                 print(r.text)
                 '''
+                url2 = APP_URL + FILE_UPLOAD_ENDPOINT + team_image.new_thumbnail_filename
                 tile_file = {'product_image': open(team_image.thumbnail_filepath, 'rb')}
-                r = requests.put(FILE_UPLOAD_URL.format(team_image.new_thumbnail_filename), headers={'Token' : token}, files=tile_file)
-                print(r.status_code)
+                r = requests.put(url2, headers={'Token' : token}, files=tile_file)
+                print(r.text)
+                #print(r.status_code)
                 
-    if os.path.isdir(os.path.join(IMAGE_FOLDER, filename)):
+    if os.path.isdir(os.path.join(IMAGE_UNPROCESSED_FOLDER, filename)):
         pass#print(IMAGE_FOLDER + filename + '\\')
 
 if SQL_CONNECTION is not None:
-    SQL_CURSOR.close()
+    if SQL_CURSOR is not None:
+        SQL_CURSOR.close()
     SQL_CONNECTION.close()
-
-'''
-import requests
-fin = open(filepath, 'rb')
-files = {'product_image': fin}
-try:
-    r = requests.put(url, headers={'Token' : token}, files=files)
-    print(r.text)
-finally:
- fin.close()
- '''
