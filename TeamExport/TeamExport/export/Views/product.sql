@@ -29,6 +29,8 @@ SELECT
 	,[kgo] = CONVERT(nvarchar(10),kgo)
 	,[price_zero] = CONVERT(nvarchar(9), price_zero)
 	,[price_zero_mod] = CONVERT(nvarchar(10), price_zero_mod)
+	,[tkg]
+	,[full_cont_del]
 	,[Action]
 	,[ResponseCode]
 	,[ResponseDate]

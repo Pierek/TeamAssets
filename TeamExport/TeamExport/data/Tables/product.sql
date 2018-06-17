@@ -25,6 +25,8 @@
 	,[kgo]                    float NULL
 	,[price_zero]             decimal(9,2) NULL
 	,[price_zero_mod]         date NULL
+	,[tkg]                    bit NULL
+	,[full_cont_del]          bit NULL
 	,[LastUpdate]             datetime NOT NULL
 	,[ResponseCode]           varchar(3) NULL
 	,[ResponseDate]           datetime NULL
