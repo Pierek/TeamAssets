@@ -60,6 +60,8 @@ BEGIN
 		OR		 T.kgo <> S.kgo OR (T.kgo IS NULL AND S.kgo IS NOT NULL) OR (T.kgo IS NOT NULL AND S.kgo IS NULL)
 		OR		 T.price_zero <> S.price_zero OR (T.price_zero IS NULL AND S.price_zero IS NOT NULL) OR (T.price_zero IS NOT NULL AND S.price_zero IS NULL)
 		OR		 T.price_zero_mod <> S.price_zero_mod OR (T.price_zero_mod IS NULL AND S.price_zero_mod IS NOT NULL) OR (T.price_zero_mod IS NOT NULL AND S.price_zero_mod IS NULL)
+		OR		 T.tkg <> S.tkg OR (T.tkg IS NULL AND S.tkg IS NOT NULL) OR (T.tkg IS NOT NULL AND S.tkg IS NULL)
+		OR		 T.full_cont_del <> S.full_cont_del OR (T.full_cont_del IS NULL AND S.full_cont_del IS NOT NULL) OR (T.full_cont_del IS NOT NULL AND S.full_cont_del IS NULL)
 
 		)
 
@@ -89,6 +91,8 @@ BEGIN
 			,T.kgo = S.kgo
 			,T.price_zero = S.price_zero
 			,T.price_zero_mod = S.price_zero_mod
+			,T.tkg = S.tkg
+			,T.full_cont_del = S.full_cont_del
 			,T.LastUpdate = S.LastUpdate
 			,T.Action = CASE WHEN T.Action = 'POST' THEN 'POST' ELSE 'PUT' END -- when there is a change, next request should be PUT
 				
@@ -120,6 +124,8 @@ BEGIN
 			,kgo
 			,price_zero
 			,price_zero_mod
+			,tkg
+			,full_cont_del
 			,LastUpdate
 			,Action
 		)
@@ -150,6 +156,8 @@ BEGIN
 			,S.kgo
 			,S.price_zero
 			,S.price_zero_mod
+			,S.tkg
+			,S.full_cont_del
 			,S.LastUpdate
 			,'POST' -- when there is a new object, next request should be POST
 		)

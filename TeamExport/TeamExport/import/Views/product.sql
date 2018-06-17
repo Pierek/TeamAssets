@@ -31,6 +31,8 @@ SELECT
 	,[kgo] = (CONVERT(float,LTRIM(RTRIM(FKGO.Data))) * 0.09) -- kgo wartosc jest wyliczana jako wartosc KGO WAGA * 0,09 zgadza sie dla wszystkich produktów
 	,[price_zero] = CONVERT(decimal(9,2),LTRIM(RTRIM(REPLACE(FCENA.Data,',','.'))))
 	,[price_zero_mod] = CONVERT(date,LTRIM(RTRIM(REPLACE(FCENAD.Data,'~',''))))
+	,[tkg] = CASE WHEN TKG.Data IS NULL THEN 0 ELSE CONVERT(bit,LTRIM(RTRIM(TKG.Data))) END
+	,[full_cont_del] = CASE WHEN FCD.Data IS NULL THEN 0 ELSE CONVERT(bit,LTRIM(RTRIM(FCD.Data))) END
 	,[LastUpdate] = GETDATE()
 FROM TEAM.dbo.Towary T
 LEFT JOIN TEAM.dbo.Features FSerie ON FSerie.Parent = T.ID
@@ -75,4 +77,8 @@ LEFT JOIN TEAM.dbo.Features FCENA ON FCENA.Parent = T.ID
 	AND FCENA.ParentType = N'Towary' AND FCENA.Name = N'cena zero' AND FCENA.Lp = 0
 LEFT JOIN TEAM.dbo.Features FCENAD ON FCENAD.Parent = T.ID
 	AND FCENAD.ParentType = N'Towary' AND FCENAD.Name = N'cena zero' AND FCENAD.Lp = 1
+LEFT JOIN TEAM.dbo.Features TKG ON TKG.Parent = T.ID
+	AND TKG.ParentType = N'Towary' AND TKG.Name = N'rap TKG'
+LEFT JOIN TEAM.dbo.Features FCD ON FCD.Parent = T.ID
+	AND FCD.ParentType = N'Towary' AND FCD.Name = N'Full Cont Del'
 WHERE T.Blokada = 0 -- dont populate blocked products
