@@ -14,36 +14,47 @@ logging.basicConfig(filename=LOG_LOCATION + 'fullrefresh' + datetime.datetime.to
 # get new token here
 token = token_refresh()
 
-# run job_log request
+#create job object
 a = Job(token=token)
 
-a.job_log()
 
 if a.status() == 'Success':
-    # run product data
-    product(token=token, action='delete')
-    product(token=token, action='put')
-    product(token=token, action='post')
+    try:
+        # run product data
+        product(token=token, action='delete')
+        product(token=token, action='put')
+        product(token=token, action='post')
 
 
-    ## run client data
-    client_dict(token=token, action='delete')
-    client_dict(token=token, action='put')
-    client_dict(token=token, action='post')
+        ## run client data
+        client_dict(token=token, action='delete')
+        client_dict(token=token, action='put')
+        client_dict(token=token, action='post')
 
 
-    ## run price_client data
-    price_client_dict(token=token, action='delete')
-    price_client_dict(token=token, action='put')
-    price_client_dict(token=token, action='post')
+        ## run price_client data
+        price_client_dict(token=token, action='delete')
+        price_client_dict(token=token, action='put')
+        price_client_dict(token=token, action='post')
 
 
-    # run stock data
-    stock(token=token, action='put')
-    stock(token=token, action='post')
+        # run stock data
+        stock(token=token, action='put')
+        stock(token=token, action='post')
 
 
-    # run price data
-    price(token=token, action='put')
-    price(token=token, action='post')
+
+        # run price data
+        price(token=token, action='put')
+        price(token=token, action='post')
+
+        #log that process is finished
+        a.sync_success()
+
+    except:
+        a.sync_error()
+        logging.warning('Unexpected error while sending jsons')
+
+else:
+    a.data_error()
 

@@ -15,8 +15,9 @@ class Job:
                                                 FROM log.job_log ORDER BY job_id DESC """)
         self.token = token
 
-    def job_log(self):
-        """send job_log data request from database to the server"""      
+    
+    def sync_error(self):
+        """send sync process error"""      
      
         items = {}
         list_of_items = []
@@ -27,7 +28,7 @@ class Job:
             each_item['id'] = self.log_row[0][0]
             each_item['start_datetime'] = self.log_row[0][1]
             each_item['finish_datetime'] = self.log_row[0][2]
-            each_item['status'] = self.log_row[0][3]
+            each_item['status'] = 'Sync - Error'
             list_of_items.append(each_item.copy())
 
             # items is a final dictionary with a chunk data
@@ -36,7 +37,52 @@ class Job:
             # send request
             api_request(token=self.token, jsondata=items, action='post', api_entity='api/job/')
 
-        logging.info('Token refreshed')
+
+    def data_error(self):
+        """send sql process error"""      
+     
+        items = {}
+        list_of_items = []
+        each_item = {}
+
+        # create json-like dictionary
+        if self.log_row:  # check if list is not empty
+            each_item['id'] = self.log_row[0][0]
+            each_item['start_datetime'] = self.log_row[0][1]
+            each_item['finish_datetime'] = self.log_row[0][2]
+            each_item['status'] = 'Data - Error'
+            list_of_items.append(each_item.copy())
+
+            # items is a final dictionary with a chunk data
+            items['items'] = list_of_items
+
+            # send request
+            api_request(token=self.token, jsondata=items, action='post', api_entity='api/job/')
+
+
+
+    def sync_success(self):
+        """send sync process success"""      
+     
+        items = {}
+        list_of_items = []
+        each_item = {}
+
+        # create json-like dictionary
+        if self.log_row:  # check if list is not empty
+            each_item['id'] = self.log_row[0][0]
+            each_item['start_datetime'] = self.log_row[0][1]
+            each_item['finish_datetime'] = self.log_row[0][2]
+            each_item['status'] = 'Sync - Success'
+            list_of_items.append(each_item.copy())
+
+            # items is a final dictionary with a chunk data
+            items['items'] = list_of_items
+
+            # send request
+            api_request(token=self.token, jsondata=items, action='post', api_entity='api/job/')
+
+
 
     def status(self):
         return str(self.log_row[0][3])
