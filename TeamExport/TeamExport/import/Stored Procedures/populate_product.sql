@@ -51,7 +51,7 @@ BEGIN
 		OR		 T.dimension_h <> S.dimension_h OR (T.dimension_h IS NULL AND S.dimension_h IS NOT NULL) OR (T.dimension_h IS NOT NULL AND S.dimension_h IS NULL)
 		OR		 T.dimension_w <> S.dimension_w OR (T.dimension_w IS NULL AND S.dimension_w IS NOT NULL) OR (T.dimension_w IS NOT NULL AND S.dimension_w IS NULL)
 		OR		 T.dimension_l <> S.dimension_l OR (T.dimension_l IS NULL AND S.dimension_l IS NOT NULL) OR (T.dimension_l IS NOT NULL AND S.dimension_l IS NULL)
-		OR		 T.pallete_capacity <> S.pallete_capacity OR (T.pallete_capacity IS NULL AND S.pallete_capacity IS NOT NULL) OR (T.pallete_capacity IS NOT NULL AND S.pallete_capacity IS NULL)
+		OR		 T.palette_capacity <> S.palette_capacity OR (T.palette_capacity IS NULL AND S.palette_capacity IS NOT NULL) OR (T.palette_capacity IS NOT NULL AND S.palette_capacity IS NULL)
 		OR		 T.box_dimension_h <> S.box_dimension_h OR (T.box_dimension_h IS NULL AND S.box_dimension_h IS NOT NULL) OR (T.box_dimension_h IS NOT NULL AND S.box_dimension_h IS NULL)
 		OR		 T.box_dimension_w <> S.box_dimension_w OR (T.box_dimension_w IS NULL AND S.box_dimension_w IS NOT NULL) OR (T.box_dimension_w IS NOT NULL AND S.box_dimension_w IS NULL)
 		OR		 T.box_dimension_l <> S.box_dimension_l OR (T.box_dimension_l IS NULL AND S.box_dimension_l IS NOT NULL) OR (T.box_dimension_l IS NOT NULL AND S.box_dimension_l IS NULL)
@@ -62,6 +62,8 @@ BEGIN
 		OR		 T.price_zero_mod <> S.price_zero_mod OR (T.price_zero_mod IS NULL AND S.price_zero_mod IS NOT NULL) OR (T.price_zero_mod IS NOT NULL AND S.price_zero_mod IS NULL)
 		OR		 T.tkg <> S.tkg OR (T.tkg IS NULL AND S.tkg IS NOT NULL) OR (T.tkg IS NOT NULL AND S.tkg IS NULL)
 		OR		 T.full_cont_del <> S.full_cont_del OR (T.full_cont_del IS NULL AND S.full_cont_del IS NOT NULL) OR (T.full_cont_del IS NOT NULL AND S.full_cont_del IS NULL)
+		OR		 T.weight_net <> S.weight_net OR (T.weight_net IS NULL AND S.weight_net IS NOT NULL) OR (T.weight_net IS NOT NULL AND S.weight_net IS NULL)
+		OR		 T.weight_gross <> S.weight_gross OR (T.weight_gross IS NULL AND S.weight_gross IS NOT NULL) OR (T.weight_gross IS NOT NULL AND S.weight_gross IS NULL)
 
 		)
 
@@ -82,7 +84,7 @@ BEGIN
 			,T.dimension_h = S.dimension_h
 			,T.dimension_w = S.dimension_w
 			,T.dimension_l = S.dimension_l
-			,T.pallete_capacity = S.pallete_capacity
+			,T.palette_capacity = S.palette_capacity
 			,T.box_dimension_h = S.box_dimension_h
 			,T.box_dimension_w = S.box_dimension_w
 			,T.box_dimension_l = S.box_dimension_l
@@ -93,6 +95,8 @@ BEGIN
 			,T.price_zero_mod = S.price_zero_mod
 			,T.tkg = S.tkg
 			,T.full_cont_del = S.full_cont_del
+			,T.weight_net = S.weight_net
+			,T.weight_gross = S.weight_gross
 			,T.LastUpdate = S.LastUpdate
 			,T.Action = CASE WHEN T.Action = 'POST' THEN 'POST' ELSE 'PUT' END -- when there is a change, next request should be PUT
 				
@@ -115,7 +119,7 @@ BEGIN
 			,dimension_h
 			,dimension_w
 			,dimension_l
-			,pallete_capacity
+			,palette_capacity
 			,box_dimension_h
 			,box_dimension_w
 			,box_dimension_l
@@ -126,6 +130,8 @@ BEGIN
 			,price_zero_mod
 			,tkg
 			,full_cont_del
+			,weight_net
+			,weight_gross
 			,LastUpdate
 			,Action
 		)
@@ -147,7 +153,7 @@ BEGIN
 			,S.dimension_h
 			,S.dimension_w
 			,S.dimension_l
-			,S.pallete_capacity
+			,S.palette_capacity
 			,S.box_dimension_h
 			,S.box_dimension_w
 			,S.box_dimension_l
@@ -158,6 +164,8 @@ BEGIN
 			,S.price_zero_mod
 			,S.tkg
 			,S.full_cont_del
+			,S.weight_net
+			,S.weight_gross
 			,S.LastUpdate
 			,'POST' -- when there is a new object, next request should be POST
 		)

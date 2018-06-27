@@ -22,7 +22,7 @@ SELECT
 	,[dimension_h] = CONVERT(decimal(7,3),LTRIM(RTRIM(REPLACE(Fwys.Data,',','.'))))
 	,[dimension_w] = CONVERT(decimal(7,3),LTRIM(RTRIM(REPLACE(Fszer.Data,',','.'))))
 	,[dimension_l] = CONVERT(decimal(7,3),LTRIM(RTRIM(REPLACE(Fdł.Data,',','.'))))
-	,[pallete_capacity] = CONVERT(int,LTRIM(RTRIM(FMAX.Data)))
+	,[palette_capacity] = CONVERT(int,LTRIM(RTRIM(FMAX.Data)))
 	,[box_dimension_h] = CONVERT(decimal(7,3),LTRIM(RTRIM(REPLACE(FKwys.Data,',','.'))))
 	,[box_dimension_w] = CONVERT(decimal(7,3),LTRIM(RTRIM(REPLACE(FKszer.Data,',','.'))))
 	,[box_dimension_l] = CONVERT(decimal(7,3),LTRIM(RTRIM(REPLACE(FKdł.Data,',','.'))))
@@ -33,6 +33,8 @@ SELECT
 	,[price_zero_mod] = CONVERT(date,LTRIM(RTRIM(REPLACE(FCENAD.Data,'~',''))))
 	,[tkg] = CASE WHEN TKG.Data IS NULL THEN 0 ELSE CONVERT(bit,LTRIM(RTRIM(TKG.Data))) END
 	,[full_cont_del] = CASE WHEN FCD.Data IS NULL THEN 0 ELSE CONVERT(bit,LTRIM(RTRIM(FCD.Data))) END
+	,[weight_net] = ISNULL(T.MasaNettoValue,0)
+	,[weight_gross] = ISNULL(T.MasaBruttoValue,0)
 	,[LastUpdate] = GETDATE()
 FROM TEAM.dbo.Towary T
 LEFT JOIN TEAM.dbo.Features FSerie ON FSerie.Parent = T.ID

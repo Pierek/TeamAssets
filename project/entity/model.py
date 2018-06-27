@@ -122,7 +122,7 @@ def product(token, action):
                     each_item['dimension_h'] = row[12]
                     each_item['dimension_w'] = row[13]
                     each_item['dimension_l'] = row[14]
-                    each_item['pallete_capacity'] = row[15]
+                    each_item['palette_capacity'] = row[15]
                     each_item['box_dimension_h'] = row[16]
                     each_item['box_dimension_w'] = row[17]
                     each_item['box_dimension_l'] = row[18]
@@ -133,6 +133,8 @@ def product(token, action):
                     each_item['price_zero_mod_date'] = row[23]
                     each_item['tkg'] = row[24]
                     each_item['full_cont_del'] = row[25]
+                    each_item['weight_net'] = row[26]
+                    each_item['weight_gross'] = row[27]
                     list_of_items.append(each_item.copy())
 
             elif action == 'delete':
