@@ -33,16 +33,16 @@ BEGIN
 
 		MERGE [data].client_dict T
 		USING [import].client_dict S
-		ON (T.client_code = S.client_code) 
+		ON (T.client_id = S.client_id) 
 		WHEN MATCHED AND ( 
 
-			T.client_id <> S.client_id OR (T.client_id IS NULL AND S.client_id IS NOT NULL) OR (T.client_id IS NOT NULL AND S.client_id IS NULL)
+			T.client_code <> S.client_code OR (T.client_code IS NULL AND S.client_code IS NOT NULL) OR (T.client_code IS NOT NULL AND S.client_code IS NULL)
 		OR	T.client_description <> S.client_description OR (T.client_description IS NULL AND S.client_description IS NOT NULL) OR (T.client_description IS NOT NULL AND S.client_description IS NULL)
 		)
 
 
 		THEN UPDATE
-		SET  T.client_id = S.client_id
+		SET  T.client_code = S.client_code
 			,T.client_description = S.client_description
 			,T.LastUpdate = S.LastUpdate
 			,T.Action = CASE WHEN T.Action = 'POST' THEN 'POST' ELSE 'PUT' END -- when there is a change, next request should be PUT

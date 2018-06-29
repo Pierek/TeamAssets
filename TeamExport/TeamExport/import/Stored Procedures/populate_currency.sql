@@ -33,16 +33,16 @@ BEGIN
 
 		MERGE [data].currency T
 		USING [import].currency S
-		ON (T.currency_code = S.currency_code) 
+		ON (T.currency_id = S.currency_id) 
 		WHEN MATCHED AND ( 
 
-			T.currency_id <> S.currency_id OR (T.currency_id IS NULL AND S.currency_id IS NOT NULL) OR (T.currency_id IS NOT NULL AND S.currency_id IS NULL)
+			T.currency_code <> S.currency_code OR (T.currency_code IS NULL AND S.currency_code IS NOT NULL) OR (T.currency_code IS NOT NULL AND S.currency_code IS NULL)
 		OR	T.currency_description <> S.currency_description OR (T.currency_description IS NULL AND S.currency_description IS NOT NULL) OR (T.currency_description IS NOT NULL AND S.currency_description IS NULL)
 		)
 
 
 		THEN UPDATE
-		SET  T.currency_id = S.currency_id
+		SET  T.currency_code = S.currency_code
 			,T.currency_description = S.currency_description
 			,T.LastUpdate = S.LastUpdate 
 				

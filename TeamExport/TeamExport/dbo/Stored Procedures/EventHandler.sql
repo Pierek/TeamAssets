@@ -90,6 +90,21 @@ BEGIN
 			,@ErrorSeverity
 			,@ErrorState
 		)
+
+		IF (@ErrorMessage IS NOT NULL AND @@NESTLEVEL = 2)
+		BEGIN
+			DECLARE @subject varchar(100) = 'TeamExport build notifier'
+			DECLARE @body nvarchar(max) = @ErrorMessage
+
+
+			EXEC msdb.dbo.sp_send_dbmail
+				 @profile_name = 'TeamProfile'
+				,@recipients='purwinp@gmail.com'
+				,@subject=@subject
+				,@body=@body
+		END
+
+
 	END	TRY
 	BEGIN CATCH		
 		DECLARE @NewErrorMessage nvarchar(MAX)

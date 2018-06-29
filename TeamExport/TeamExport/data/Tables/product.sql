@@ -16,7 +16,7 @@
 	,[dimension_h]            decimal(7,3) NULL
 	,[dimension_w]            decimal(7,3) NULL
 	,[dimension_l]            decimal(7,3) NULL
-	,[pallete_capacity]       int NULL
+	,[palette_capacity]       int NULL
 	,[box_dimension_h]        decimal(7,3) NULL
 	,[box_dimension_w]        decimal(7,3) NULL
 	,[box_dimension_l]        decimal(7,3) NULL
@@ -25,6 +25,10 @@
 	,[kgo]                    float NULL
 	,[price_zero]             decimal(9,2) NULL
 	,[price_zero_mod]         date NULL
+	,[tkg]                    bit NULL
+	,[full_cont_del]          bit NULL
+	,[weight_net]			  float NOT NULL
+	,[weight_gross]			  float NOT NULL
 	,[LastUpdate]             datetime NOT NULL
 	,[ResponseCode]           varchar(3) NULL
 	,[ResponseDate]           datetime NULL

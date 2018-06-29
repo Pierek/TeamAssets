@@ -30,9 +30,12 @@ def token_refresh():
 
     json_data = json.loads(response.text)
     if json_data['token']:
+        logging.info('Token refreshed')
         return json_data['token']
     else:
         raise ValueError('missing token')
+
+
 
 
 
