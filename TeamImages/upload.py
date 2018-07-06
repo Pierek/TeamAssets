@@ -16,11 +16,24 @@ from resizeimage import resizeimage
 from datetime import datetime
 import json
 import logging
+import argparse
 from shutil import copy2, move
 sys.path.append(r'..\project\api')
 from request import token_refresh
 
-VERSION = 0.21
+'''
+TO DO:
+-Do not move files to processed folder before image upload (in case of failure)
+-Add more command line arguments
+-Add config file
+-More advanced SQL search - including manufacture check
+-Keep templates in separate folder
+-Web requests in dedicated method
+-Merge TeamImages with TeamAssets
+-Refactoring
+'''
+
+VERSION = 0.22
 DEFAULT_DPI = 96
 MIN_DPI = 72
 STR_SEPARATOR = "; "
@@ -47,7 +60,7 @@ TEMPLATES = ['template_kalorik_h95_vertical.jpg', 'template_kalorik_w95_horizont
              'template_kitchen_h165_vertical.jpg', 'template_kitchen_w165_horizontal.jpg']
 VISUALIZE = False
 
-FILENAME_FILTER = 'DAT1000-' #will process files containing this string - case sensitive
+FILENAME_FILTER = '' #will process only files containing this string - case sensitive
 CREATE_THUMBNAILS = True
 THUMBNAIL_HEIGHT = 96
 THUMBNAIL_FORMAT = 'PNG'
@@ -164,7 +177,7 @@ class TeamImage:
         self.new_thumbnail_filename = self.create_filename()[1]
         self.processed_filepath = os.path.join(IMAGE_PROCESSED_FOLDER, self.new_filename)
         self.thumbnail_filepath = os.path.join(IMAGE_THUMBNAIL_FOLDER, self.new_thumbnail_filename)
-        
+
         if len(self.errors) == 0:
             if os.path.isfile(self.processed_filepath):
                 #current file already exists in processed folder
@@ -764,8 +777,27 @@ def check_folder_structure(process_id):
 
 #========================================================= SCRIPT =========================================================#
 process_id = datetime.now().strftime("%Y-%m-%d_%H.%M.%S.%f") #get process timestamp/id
+arg_parser = argparse.ArgumentParser()
+arg_parser.add_argument("-ll", "--loglevel", choices=['debug','info','warning','error','critical'], default='warning', required=False, help="Information type captured in log file")
+arg_parser.add_argument("-ff", "--filenamefilter", default='', required=False, help="Only files containing this value will be processed (case sensitive)")
+args = vars(arg_parser.parse_args())
+
+loglevel = logging.WARNING
+if args["loglevel"] == "debug":
+    loglevel = logging.DEBUG
+elif args["loglevel"] == "info":
+    loglevel = logging.INFO
+elif args["loglevel"] == "warning":
+    loglevel = logging.WARNING
+elif args["loglevel"] == "error":
+    loglevel = logging.ERROR
+elif args["loglevel"] == "critical":
+    loglevel = logging.CRITICAL
+
+FILENAME_FILTER = args["filenamefilter"]
+
 logging.basicConfig(handlers=[logging.FileHandler(filename=os.path.join(IMAGE_LOG_FOLDER, process_id + '.log'), encoding='utf-8')], \
-                    format='%(asctime)s:%(levelname)s:%(message)s', level=logging.INFO) #, level=logging.INFO - default is WARNING
+                    format='%(asctime)s:%(levelname)s:%(message)s', level=loglevel) #, level=logging.INFO - default is WARNING
 logging.info("TeamImage process [{0}] version: '{1}'".format(process_id, VERSION))
 IMAGE_CURRENT_ERROR_FOLDER = os.path.join(IMAGE_ERROR_FOLDER, process_id)
 IMAGE_UNPROCESSED_ERROR_FOLDER = os.path.join(IMAGE_CURRENT_ERROR_FOLDER, IMAGE_UNPROCESSED_FOLDER.rsplit('\\', 1)[1])
@@ -850,8 +882,8 @@ for filename in onlyfiles:
                         file_data["category"] = 'boxoffer'
                     elif team_image.filename_arranged:
                         file_data["category"] = 'arranged'
-                    #else:
-                    #    file_data["category"] = 'nondef'
+                    else:
+                        file_data["category"] = 'undefined'
                     if team_image.logo_removed:
                         file_data["no_logo"] = "Y"
                     else:
@@ -919,7 +951,9 @@ for filename in onlyfiles:
                         #print(r.text)
                         #print(r.status_code)
                         #print(r.request.headers)
-                        if r.status_code != 200:
+                        if r.status_code >= 200 and r.status_code < 300:
+                            logging.info("Metadata for file: '{0}' was uploaded successfully".format(team_image.new_filename))
+                        else:
                             logging.error("Status code: '{0}' was returned while sending file's: '{1}' metadata to server. Message {2}".format(r.status_code, team_image.new_filename, repr(re)))
                             continue
                     except requests.exceptions.RequestException as re:
@@ -935,13 +969,15 @@ for filename in onlyfiles:
                     try:
                         r = requests.put(url1, headers={'Token' : token}, files=files)
                         #print(r.request.headers)
-                        if r.status_code != 200:
+                        if r.status_code >= 200 and r.status_code < 300:
+                            response_dict = json.loads(r.text)
+                            if response_dict.get("status") == "200":
+                                logging.info("Image file: '{0}' was uploaded successfully".format(team_image.new_filename))
+                            else:
+                                logging.error("Server has processed request but status code: {0} was returned while processing image file: '{1}'".format(response_dict.get("status"), team_image.new_thumbnail_filename, repr(re)))
+                        else:
                             logging.error("Status code: '{0}' was returned while uploading file: '{1}' to server.".format(r.status_code, team_image.new_filename))
                             continue
-                        else:
-                            response_dict = json.loads(r.text)
-                            if response_dict.get("status") != "200":
-                                logging.error("Server has processed request but status code: {0} was returned while processing image file: '{1}'".format(response_dict.get("status"), team_image.new_thumbnail_filename, repr(re)))
                     except requests.exceptions.RequestException as re:
                         logging.error("RequestException was captured while uploading image file: '{0}' to server. Message {1}".format(team_image.new_filename, repr(re)))
                         continue
@@ -957,13 +993,15 @@ for filename in onlyfiles:
                         tile_file = open(team_image.thumbnail_filepath, 'rb')
                         files = {'product_image': tile_file}
                         r = requests.put(url2, headers={'Token' : token}, files=files)
-                        if r.status_code != 200:
+                        if r.status_code >= 200 and r.status_code < 300:
+                            response_dict = json.loads(r.text)
+                            if response_dict.get("status") == "200":
+                                logging.info("Thumbnail file: '{0}' was uploaded successfully".format(team_image.new_thumbnail_filename))
+                            else:
+                                logging.error("Server has processed request but status code: {0} was returned while processing tile file: '{1}'".format(response_dict.get("status"), team_image.new_thumbnail_filename, repr(re)))
+                        else:
                             logging.error("Status code: '{0}' was returned while uploading tile file: '{1}' to server".format(r.status_code, team_image.new_thumbnail_filename))
                             continue
-                        else:
-                            response_dict = json.loads(r.text)
-                            if response_dict.get("status") != "200":
-                                logging.error("Server has processed request but status code: {0} was returned while processing tile file: '{1}'".format(response_dict.get("status"), team_image.new_thumbnail_filename, repr(re)))
                     except requests.exceptions.RequestException as re:
                         logging.error("RequestException was captured while uploading tile file: '{0}' to server. Message {1}".format(team_image.new_thumbnail_filename, repr(re)))
                         continue
