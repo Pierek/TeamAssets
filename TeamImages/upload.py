@@ -30,6 +30,7 @@ TO DO:
 -Keep templates in separate folder
 -Web requests in dedicated method
 -Merge TeamImages with TeamAssets
+-Add try/catch to SQL calls
 -Refactoring
 '''
 
@@ -284,6 +285,11 @@ class TeamImage:
             self.metadata_image_dpi = DEFAULT_DPI
             if image_file.info.get('dpi'):
                 x_dpi, y_dpi = image_file.info['dpi']
+                if x_dpi != round(x_dpi) or y_dpi != round(y_dpi):
+                    self.warnings.append("DPI: Image file has DPI as floating point number: x={0}, y={1}. It will be converted to integer: x={2}, y={3}".format(x_dpi, y_dpi, round(x_dpi), round(y_dpi)))
+                    x_dpi = int(round(x_dpi))
+                    y_dpi = int(round(y_dpi))
+                    image_file.save(image_path, dpi=(x_dpi, y_dpi))
                 if x_dpi == y_dpi and x_dpi >= MIN_DPI:
                     self.metadata_image_dpi = x_dpi
                 elif x_dpi == y_dpi and x_dpi > 0 and x_dpi < MIN_DPI:
@@ -778,8 +784,10 @@ def check_folder_structure(process_id):
 #========================================================= SCRIPT =========================================================#
 process_id = datetime.now().strftime("%Y-%m-%d_%H.%M.%S.%f") #get process timestamp/id
 arg_parser = argparse.ArgumentParser()
-arg_parser.add_argument("-ll", "--loglevel", choices=['debug','info','warning','error','critical'], default='warning', required=False, help="Information type captured in log file")
-arg_parser.add_argument("-ff", "--filenamefilter", default='', required=False, help="Only files containing this value will be processed (case sensitive)")
+arg_parser.add_argument("-ll", "--loglevel", choices=['debug', 'info', 'warning', 'error', 'critical'],\
+                        default='warning', required=False, help="Information type captured in log file")
+arg_parser.add_argument("-ff", "--filenamefilter", default='', required=False,\
+                        help="Only files containing this value will be processed (case sensitive)")
 args = vars(arg_parser.parse_args())
 
 loglevel = logging.WARNING
@@ -952,7 +960,12 @@ for filename in onlyfiles:
                         #print(r.status_code)
                         #print(r.request.headers)
                         if r.status_code >= 200 and r.status_code < 300:
-                            logging.info("Metadata for file: '{0}' was uploaded successfully".format(team_image.new_filename))
+                            response_dict = json.loads(r.text)
+                            if response_dict.get("status") == "200":
+                                logging.info("Metadata for file: '{0}' was uploaded successfully".format(team_image.new_filename))
+                            else:
+                                logging.error("Server has processed request but status code: {0} was returned while processing metadata for file: '{1}'".format(response_dict.get("status"), team_image.new_filename))
+                                continue
                         else:
                             logging.error("Status code: '{0}' was returned while sending file's: '{1}' metadata to server. Message {2}".format(r.status_code, team_image.new_filename, repr(re)))
                             continue
@@ -974,7 +987,8 @@ for filename in onlyfiles:
                             if response_dict.get("status") == "200":
                                 logging.info("Image file: '{0}' was uploaded successfully".format(team_image.new_filename))
                             else:
-                                logging.error("Server has processed request but status code: {0} was returned while processing image file: '{1}'".format(response_dict.get("status"), team_image.new_thumbnail_filename, repr(re)))
+                                logging.error("Server has processed request but status code: {0} was returned while processing image file: '{1}'".format(response_dict.get("status"), team_image.new_thumbnail_filename))
+                                continue
                         else:
                             logging.error("Status code: '{0}' was returned while uploading file: '{1}' to server.".format(r.status_code, team_image.new_filename))
                             continue
@@ -998,7 +1012,8 @@ for filename in onlyfiles:
                             if response_dict.get("status") == "200":
                                 logging.info("Thumbnail file: '{0}' was uploaded successfully".format(team_image.new_thumbnail_filename))
                             else:
-                                logging.error("Server has processed request but status code: {0} was returned while processing tile file: '{1}'".format(response_dict.get("status"), team_image.new_thumbnail_filename, repr(re)))
+                                logging.error("Server has processed request but status code: {0} was returned while processing tile file: '{1}'".format(response_dict.get("status"), team_image.new_thumbnail_filename))
+                                continue
                         else:
                             logging.error("Status code: '{0}' was returned while uploading tile file: '{1}' to server".format(r.status_code, team_image.new_thumbnail_filename))
                             continue
