@@ -32,9 +32,10 @@ TO DO:
 -Merge TeamImages with TeamAssets
 -Add try/catch to SQL calls
 -Refactoring
+-Reuse token and refresh only after unsuccesull call
 '''
 
-VERSION = 0.22
+VERSION = 0.24
 DEFAULT_DPI = 96
 MIN_DPI = 72
 STR_SEPARATOR = "; "
@@ -131,7 +132,7 @@ class TeamImage:
             self.errors.append('FIL: File extension "{0}" and file type "{1}" do not match'\
                 .format(self.filename_image_type, self.metadata_image_format))
 
-        #check DB data
+        logging.debug('*** CHECK DB DATA ***')
         products_count = self.find_product_code_in_db(self.possible_product_codes, 1)
         if products_count == 1:
             if self.product_code_from_file_name.lower() != self.product_code_from_db.lower():
@@ -149,6 +150,7 @@ class TeamImage:
             self.errors.append('PCE: Product code "{0}" was not found in database'\
                 .format(self.product_code_from_file_name))
 
+        logging.debug('*** PROCESS TEMPLATES ***')
         if PROCESS_TEMPLATES:
             for template in TEMPLATES:
                 correlation = 0.0
@@ -163,6 +165,7 @@ class TeamImage:
             if self.filename_logo_removed != self.logo_removed:
                 self.warnings.append('LOG: Filename logo information does not match recorded image logo value')
 
+        logging.debug('*** DPI CHECK ***')
         if self.filename_dpi > -1 and self.metadata_image_dpi != self.filename_dpi:
             self.errors.append('DPI: Image DPI: {0} does not match filename DPI: {1}'.format(self.metadata_image_dpi, self.filename_dpi))
 
@@ -179,19 +182,17 @@ class TeamImage:
         self.processed_filepath = os.path.join(IMAGE_PROCESSED_FOLDER, self.new_filename)
         self.thumbnail_filepath = os.path.join(IMAGE_THUMBNAIL_FOLDER, self.new_thumbnail_filename)
 
-        if len(self.errors) == 0:
+        if self.errors == 0:
             if os.path.isfile(self.processed_filepath):
-                #current file already exists in processed folder
-                #os.rename(self.file_path, self.processed_filepath + self.process_id)
-                #logging.error("File: '{0}' already exists in folder: 'IMAGE_PROCESSED_FOLDER'. It will be saved as:")
-                self.errors.append("File: '{0}' already exists in folder: '{1}'".format(self.new_filename, IMAGE_PROCESSED_FOLDER))
-            else:
-                try:
-                    os.rename(self.file_path, self.processed_filepath)
-                    #copy2(self.file_path,self.processed_filepath)
-                except Exception as ex:
-                    self.errors.append("Unable to move file: '{0}' to folder: '{1}'. Message: {2}".format(self.file_path, IMAGE_PROCESSED_FOLDER, repr(ex)))
+                logging.warning("File: '{0}' already exists in 'processed' folder: '{1}' and will be replace with newer version with the same name".format(self.new_filename, IMAGE_PROCESSED_FOLDER))
+                #self.errors.append("File: '{0}' already exists in folder: '{1}'".format(self.new_filename, IMAGE_PROCESSED_FOLDER))
+            try:
+                os.rename(self.file_path, self.processed_filepath)
+                #copy2(self.file_path,self.processed_filepath)
+            except Exception as ex:
+                self.errors.append("Unable to move file: '{0}' to folder: '{1}'. Message: {2}".format(self.file_path, IMAGE_PROCESSED_FOLDER, repr(ex)))
 
+            logging.debug('*** CREATE THUMBNAILS ***')
             if CREATE_THUMBNAILS is True:
                 self.create_thumbnail(self.processed_filepath, self.thumbnail_filepath)
 
@@ -315,6 +316,7 @@ class TeamImage:
 
     def create_thumbnail(self, image_path, thumbnail_path):
         """Create thumbnail(s) for provided image"""
+        image_file = None
         try:
             image_file = Image.open(image_path)
             #for tile_height in THUMBNAIL_HEIGHT:
@@ -327,7 +329,8 @@ class TeamImage:
                                + "] Exception Type: " + str(exc_type) + " Error: " + str(ex))
         finally:
             if image_file is not None:
-                image_file.close()
+                pass # we no longer have to close this file
+                #image_file.close()
 
     def parse_file_name(self):
         """Get image attrubutes from file name"""
@@ -785,12 +788,16 @@ def check_folder_structure(process_id):
 process_id = datetime.now().strftime("%Y-%m-%d_%H.%M.%S.%f") #get process timestamp/id
 arg_parser = argparse.ArgumentParser()
 arg_parser.add_argument("-ll", "--loglevel", choices=['debug', 'info', 'warning', 'error', 'critical'],\
-                        default='warning', required=False, help="Information type captured in log file")
+                        required=False, help="Information type captured in log file") #default='warning',
 arg_parser.add_argument("-ff", "--filenamefilter", default='', required=False,\
                         help="Only files containing this value will be processed (case sensitive)")
 args = vars(arg_parser.parse_args())
 
 loglevel = logging.WARNING
+gettrace = getattr(sys, 'gettrace', None)
+if gettrace():
+    loglevel = logging.DEBUG
+
 if args["loglevel"] == "debug":
     loglevel = logging.DEBUG
 elif args["loglevel"] == "info":
@@ -952,36 +959,77 @@ for filename in onlyfiles:
                     json_data = json.dumps(items)
 
                     token = token_refresh()
-                    url0 = APP_URL + FILE_UPLOAD_ENDPOINT
                     headers = {"Token": token, "Content-Type": "application/json"}
+                    file_exists_on_server = False
+                    url_get = APP_URL + FILE_UPLOAD_ENDPOINT + team_image.new_filename
                     try:
-                        r = requests.post(url0, headers=headers, data=json_data)#json=json_data
-                        #print(r.text)
-                        #print(r.status_code)
-                        #print(r.request.headers)
+                        r = requests.get(url_get, headers=headers, data=json_data)
+                        logging.debug("Response code: {0}".format(r.status_code))
+                        logging.debug("Response body: {0}".format(r.text).replace("\r", "<CR>").replace("\n","<LF>"))
                         if r.status_code >= 200 and r.status_code < 300:
+                            file_exists_on_server = True
                             response_dict = json.loads(r.text)
-                            if response_dict.get("status") == "200":
-                                logging.info("Metadata for file: '{0}' was uploaded successfully".format(team_image.new_filename))
-                            else:
-                                logging.error("Server has processed request but status code: {0} was returned while processing metadata for file: '{1}'".format(response_dict.get("status"), team_image.new_filename))
-                                continue
+                            logging.info("File: '{0}' already exists on server".format(team_image.new_filename))
                         else:
-                            logging.error("Status code: '{0}' was returned while sending file's: '{1}' metadata to server. Message {2}".format(r.status_code, team_image.new_filename, repr(re)))
+                            logging.error("Status code: '{0}' was returned while checking file's data: {1} on server".format(r.status_code, team_image.new_filename))
                             continue
                     except requests.exceptions.RequestException as re:
-                        logging.error("RequestException was captured while sending file's: '{0}' metadata to server. Message {1}".format(team_image.new_filename, repr(re)))
+                        logging.error("RequestException was captured while checking file's: '{0}' metadata on server. Message {1}".format(team_image.new_filename, repr(re)))
                         continue
                     except Exception as ex:
-                        logging.error("Exception was captured while sending file's: '{0}' metadata to server. Message {1}".format(team_image.new_filename, repr(re)))
+                        logging.error("Exception was captured while checking file's: '{0}' metadata on server. Message {1}".format(team_image.new_filename, repr(ex)))
                         continue
-                    
-                    url1 = APP_URL + FILE_UPLOAD_ENDPOINT + team_image.new_filename
+
+                    if not file_exists_on_server:
+                        url_post_meta = APP_URL + FILE_UPLOAD_ENDPOINT
+                        try:
+                            r = requests.post(url_post_meta, headers=headers, data=json_data)
+                            logging.debug("Response code: {0}".format(r.status_code))
+                            logging.debug("Response body: {0}".format(r.text).replace("\r", "<CR>").replace("\n", "<LF>"))
+                            if r.status_code >= 200 and r.status_code < 300:
+                                response_dict = json.loads(r.text)
+                                if response_dict[0].get("status") == "200" and response_dict[1].get("status") == "200":
+                                    logging.info("Metadata for file: '{0}' and thumbnail '{1}' was uploaded successfully".format(team_image.new_filename, team_image.new_thumbnail_filename))
+                                else:
+                                    logging.error("Server has processed request but status codes: {0}/{1} were returned while processing metadata for file: '{2}' and thumbnail: '{3}'".format(response_dict[0].get("status"), response_dict[1].get("status"), team_image.new_filename, team_image.new_thumbnail_filename))
+                                    continue
+                            else:
+                                logging.error("Status code: '{0}' was returned while sending metadata to server".format(r.status_code))
+                                continue
+                        except requests.exceptions.RequestException as re:
+                            logging.error("RequestException was captured while sending file's: '{0}' metadata to server. Message {1}".format(team_image.new_filename, repr(re)))
+                            continue
+                        except Exception as ex:
+                            logging.error("Exception was captured while sending file's: '{0}' metadata to server. Message {1}".format(team_image.new_filename, repr(ex)))
+                            continue
+                    else:
+                        url_put_meta = APP_URL + FILE_UPLOAD_ENDPOINT
+                        try:
+                            r = requests.put(url_put_meta, headers=headers, data=json_data)
+                            logging.debug("Response code: {0}".format(r.status_code))
+                            logging.debug("Response body: {0}".format(r.text).replace("\r", "<CR>").replace("\n", "<LF>"))
+                            if r.status_code >= 200 and r.status_code < 300:
+                                response_dict = json.loads(r.text)
+                                if response_dict[0].get("status") == "200" and response_dict[1].get("status") == "200":
+                                    logging.info("Metadata for file: '{0}' and thumbnail '{1}' was uploaded successfully".format(team_image.new_filename, team_image.new_thumbnail_filename))
+                                else:
+                                    logging.error("Server has processed request but status codes: {0}/{1} were returned while processing metadata for file: '{2}' and thumbnail: '{3}'".format(response_dict[0].get("status"), response_dict[1].get("status"), team_image.new_filename, team_image.new_thumbnail_filename))
+                                    continue
+                            else:
+                                logging.error("Status code: '{0}' was returned while sending metadata to server".format(r.status_code))
+                                continue
+                        except requests.exceptions.RequestException as re:
+                            logging.error("RequestException was captured while sending file's: '{0}' metadata to server. Message {1}".format(team_image.new_filename, repr(re)))
+                            continue
+                        except Exception as ex:
+                            logging.error("Exception was captured while sending file's: '{0}' metadata to server. Message {1}".format(team_image.new_filename, repr(ex)))
+                            continue
+
+                    url_put_file = APP_URL + FILE_UPLOAD_ENDPOINT + 'image/' + team_image.new_filename
                     fin = open(team_image.processed_filepath, 'rb')
                     files = {'product_image': fin}
                     try:
-                        r = requests.put(url1, headers={'Token' : token}, files=files)
-                        #print(r.request.headers)
+                        r = requests.put(url_put_file, headers={'Token' : token}, files=files)
                         if r.status_code >= 200 and r.status_code < 300:
                             response_dict = json.loads(r.text)
                             if response_dict.get("status") == "200":
@@ -996,17 +1044,17 @@ for filename in onlyfiles:
                         logging.error("RequestException was captured while uploading image file: '{0}' to server. Message {1}".format(team_image.new_filename, repr(re)))
                         continue
                     except Exception as ex:
-                        logging.error("Exception was captured while uploading image file: '{0}' to server. Message {1}".format(team_image.new_filename, repr(re)))
+                        logging.error("Exception was captured while uploading image file: '{0}' to server. Message {1}".format(team_image.new_filename, repr(ex)))
                         continue
                     finally:
                         fin.close()
-                    
+
                     tile_file = None
                     try:
-                        url2 = APP_URL + FILE_UPLOAD_ENDPOINT + team_image.new_thumbnail_filename
+                        url_put_thumbnail = APP_URL + FILE_UPLOAD_ENDPOINT + 'image/' + team_image.new_thumbnail_filename
                         tile_file = open(team_image.thumbnail_filepath, 'rb')
                         files = {'product_image': tile_file}
-                        r = requests.put(url2, headers={'Token' : token}, files=files)
+                        r = requests.put(url_put_thumbnail, headers={'Token' : token}, files=files)
                         if r.status_code >= 200 and r.status_code < 300:
                             response_dict = json.loads(r.text)
                             if response_dict.get("status") == "200":
@@ -1021,7 +1069,7 @@ for filename in onlyfiles:
                         logging.error("RequestException was captured while uploading tile file: '{0}' to server. Message {1}".format(team_image.new_thumbnail_filename, repr(re)))
                         continue
                     except Exception as ex:
-                        logging.error("Exception was captured while uploading tile file: '{0}' to server. Message {1}".format(team_image.new_thumbnail_filename, repr(re)))
+                        logging.error("Exception was captured while uploading tile file: '{0}' to server. Message {1}".format(team_image.new_thumbnail_filename, repr(ex)))
                         continue
                     finally:
                         tile_file.close()
