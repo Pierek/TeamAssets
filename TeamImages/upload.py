@@ -294,16 +294,16 @@ class TeamImage:
                     y_dpi = int(round(y_dpi))
                     image_file.save(image_path, dpi=(x_dpi, y_dpi))
                 if x_dpi == y_dpi and x_dpi >= MIN_DPI:
-                    self.metadata_image_dpi = x_dpi
+                    self.metadata_image_dpi = int(x_dpi)
                 elif x_dpi == y_dpi and x_dpi > 0 and x_dpi < MIN_DPI:
                     self.errors.append('DPI: Image DPI is set too low: {0}'.format(x_dpi))
                 else:
                     self.warnings.append('DPI: Metadata DPI information is not consistent [x_dpi=' + str(x_dpi)
                                          + ', y_dpi = ' + str(y_dpi) + ']. Default value will be used.')
                     if x_dpi > y_dpi and x_dpi >= DEFAULT_DPI:
-                        image_file.save(image_path, dpi=(x_dpi, x_dpi))
+                        image_file.save(image_path, dpi=(int(x_dpi), int(x_dpi)))
                     elif y_dpi > x_dpi and y_dpi >= DEFAULT_DPI:
-                        image_file.save(image_path, dpi=(y_dpi, y_dpi))
+                        image_file.save(image_path, dpi=(int(y_dpi), int(y_dpi)))
                     else:
                         image_file.save(image_path, dpi=(DEFAULT_DPI, DEFAULT_DPI))
             else:
