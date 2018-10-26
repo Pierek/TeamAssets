@@ -19,7 +19,7 @@ import json
 import logging
 import argparse
 from shutil import copy2, move
-sys.path.append(r'..\project\api')
+#sys.path.append(r'..\project\api')
 from request import token_refresh
 
 '''
@@ -36,7 +36,7 @@ TO DO:
 -Reuse token and refresh only after unsuccesull call
 '''
 
-VERSION = 0.24
+VERSION = 0.30
 DEFAULT_DPI = 96
 MIN_DPI = 72
 STR_SEPARATOR = "; "
@@ -97,6 +97,10 @@ class TeamImage:
         self.file_name_no_extension = os.path.splitext(self.file_name)[0].lower()
         self.file_extension = os.path.splitext(self.file_name)[-1].lower()
         self.temp_file_name_no_extension = ""
+        self.metadata_image_format = ""
+        self.metadata_image_width = 0
+        self.metadata_image_height = 0
+        self.metadata_image_dpi = 0
         self.product_code_from_file_name = ""
         self.possible_product_codes = []
         self.warnings = []
@@ -126,62 +130,68 @@ class TeamImage:
         self.thumbnail_filepath = ''
 
         self.get_metadata_from_image_file(self.file_path)
-        self.parse_file_name()
+        
+        if not self.errors:
+            self.parse_file_name()
 
-        if len(self.metadata_image_format) > 0 and len(self.filename_image_type) > 0 and\
-                self.metadata_image_format != self.filename_image_type:
-            self.errors.append('FIL: File extension "{0}" and file type "{1}" do not match'\
-                .format(self.filename_image_type, self.metadata_image_format))
+        if not self.errors:
+            if len(self.metadata_image_format) > 0 and len(self.filename_image_type) > 0 and\
+                    self.metadata_image_format != self.filename_image_type:
+                self.errors.append('FIL: File extension "{0}" and file type "{1}" do not match'\
+                    .format(self.filename_image_type, self.metadata_image_format))
+        
+        if not self.errors:
+            logging.debug('*** CHECK DB DATA ***')
+            products_count = self.find_product_code_in_db(self.possible_product_codes, 1)
+            if products_count == 1:
+                if self.product_code_from_file_name.lower() != self.product_code_from_db.lower():
+                    self.warnings.append('PCE: Product code from file does not match database product code')
+                if self.product_code_from_db.find(' ') > -1:
+                    self.warnings.append('PCE: Product code contain space character')
+            #elif products_count > 1:
+            #    if len(self.product_code_from_db) > 0:
+            #        if self.product_code_from_file_name.lower() != self.product_code_from_db.lower():
+            #            self.errors.append('PCE: Product code from file does not match database product code')
+                #if self.find_product_code_in_db(self.possible_product_codes, 2) == 0:
+                #    if self.find_product_code_in_db(self.possible_product_codes, 3) == 0:
+                #        self.find_product_code_in_db(self.possible_product_codes, 4)
+            elif products_count == 0: #len(self.product_code_from_db) == 0:
+                self.errors.append('PCE: Product code "{0}" was not found in database'\
+                    .format(self.product_code_from_file_name))
 
-        logging.debug('*** CHECK DB DATA ***')
-        products_count = self.find_product_code_in_db(self.possible_product_codes, 1)
-        if products_count == 1:
-            if self.product_code_from_file_name.lower() != self.product_code_from_db.lower():
-                self.warnings.append('PCE: Product code from file does not match database product code')
-            if self.product_code_from_db.find(' ') > -1:
-                self.warnings.append('PCE: Product code contain space character')
-        #elif products_count > 1:
-        #    if len(self.product_code_from_db) > 0:
-        #        if self.product_code_from_file_name.lower() != self.product_code_from_db.lower():
-        #            self.errors.append('PCE: Product code from file does not match database product code')
-            #if self.find_product_code_in_db(self.possible_product_codes, 2) == 0:
-            #    if self.find_product_code_in_db(self.possible_product_codes, 3) == 0:
-            #        self.find_product_code_in_db(self.possible_product_codes, 4)
-        elif products_count == 0: #len(self.product_code_from_db) == 0:
-            self.errors.append('PCE: Product code "{0}" was not found in database'\
-                .format(self.product_code_from_file_name))
-
-        logging.debug('*** PROCESS TEMPLATES ***')
-        if PROCESS_TEMPLATES:
-            for template in TEMPLATES:
-                correlation = 0.0
-                correlation = self.image_has_template(self.file_path, template)
-                #print('Correlation: {0} for template: {1}'.format(correlation, template))
-                if correlation >= CORRELATION_TRESHOLD:
+        if not self.errors:
+            logging.debug('*** PROCESS TEMPLATES ***')
+            if PROCESS_TEMPLATES:
+                for template in TEMPLATES:
+                    correlation = 0.0
+                    correlation = self.image_has_template(self.file_path, template)
                     #print('Correlation: {0} for template: {1}'.format(correlation, template))
-                    self.logo_removed = False
-                    break
-                else:
-                    self.logo_removed = True
-            if self.filename_logo_removed != self.logo_removed:
-                self.warnings.append('LOG: Filename logo information does not match recorded image logo value')
+                    if correlation >= CORRELATION_TRESHOLD:
+                        #print('Correlation: {0} for template: {1}'.format(correlation, template))
+                        self.logo_removed = False
+                        break
+                    else:
+                        self.logo_removed = True
+                if self.filename_logo_removed != self.logo_removed:
+                    self.warnings.append('LOG: Filename logo information does not match recorded image logo value')
 
-        logging.debug('*** DPI CHECK ***')
-        if self.filename_dpi > -1 and self.metadata_image_dpi != self.filename_dpi:
-            self.errors.append('DPI: Image DPI: {0} does not match filename DPI: {1}'.format(self.metadata_image_dpi, self.filename_dpi))
+        if not self.errors:
+            logging.debug('*** DPI CHECK ***')
+            if self.filename_dpi > -1 and self.metadata_image_dpi != self.filename_dpi:
+                self.errors.append('DPI: Image DPI: {0} does not match filename DPI: {1}'.format(self.metadata_image_dpi, self.filename_dpi))
 
-        if self.filename_is_offer is True and self.filename_is_boxoffer is True:
-            self.errors.append('FIL: There are "offer" and "boxoffer" attributes in filename which is not allowed')
-        elif self.filename_is_offer is True and self.filename_arranged is True:
-            self.errors.append('FIL: There are "offer" and "arr" attributes in filename which is not allowed')
-        elif self.filename_is_boxoffer is True\
-                and self.filename_arranged is True:
-            self.errors.append('FIL: There are "boxoffer" and "arr" attributes in filename which is not allowed')
+            if self.filename_is_offer is True and self.filename_is_boxoffer is True:
+                self.errors.append('FIL: There are "offer" and "boxoffer" attributes in filename which is not allowed')
+            elif self.filename_is_offer is True and self.filename_arranged is True:
+                self.errors.append('FIL: There are "offer" and "arr" attributes in filename which is not allowed')
+            elif self.filename_is_boxoffer is True\
+                    and self.filename_arranged is True:
+                self.errors.append('FIL: There are "boxoffer" and "arr" attributes in filename which is not allowed')
 
-        self.new_filename = self.create_filename()[0]
-        self.new_thumbnail_filename = self.create_filename()[1]
-        self.processed_filepath = os.path.join(IMAGE_PROCESSED_FOLDER, self.new_filename)
-        self.thumbnail_filepath = os.path.join(IMAGE_THUMBNAIL_FOLDER, self.new_thumbnail_filename)
+            self.new_filename = self.create_filename()[0]
+            self.new_thumbnail_filename = self.create_filename()[1]
+            self.processed_filepath = os.path.join(IMAGE_PROCESSED_FOLDER, self.new_filename)
+            self.thumbnail_filepath = os.path.join(IMAGE_THUMBNAIL_FOLDER, self.new_thumbnail_filename)
 
         if not self.errors:
             if os.path.isfile(self.processed_filepath):
@@ -281,37 +291,40 @@ class TeamImage:
 
     def get_metadata_from_image_file(self, image_path):
         """Populate Image metadata from file"""
+        image_file = None
         try:
             image_file = Image.open(image_path)
-            self.metadata_image_format = image_file.format
-            self.metadata_image_width, self.metadata_image_height = image_file.size
-            self.metadata_image_dpi = DEFAULT_DPI
-            if image_file.info.get('dpi'):
-                x_dpi, y_dpi = image_file.info['dpi']
-                if x_dpi != round(x_dpi) or y_dpi != round(y_dpi):
-                    self.warnings.append("DPI: Image file has DPI as floating point number: x={0}, y={1}. It will be converted to integer: x={2}, y={3}".format(x_dpi, y_dpi, round(x_dpi), round(y_dpi)))
-                    x_dpi = int(round(x_dpi))
-                    y_dpi = int(round(y_dpi))
-                    image_file.save(image_path, dpi=(x_dpi, y_dpi))
-                if x_dpi == y_dpi and x_dpi >= MIN_DPI:
-                    self.metadata_image_dpi = int(x_dpi)
-                elif x_dpi == y_dpi and x_dpi > 0 and x_dpi < MIN_DPI:
-                    self.errors.append('DPI: Image DPI is set too low: {0}'.format(x_dpi))
-                else:
-                    self.warnings.append('DPI: Metadata DPI information is not consistent [x_dpi=' + str(x_dpi)
-                                         + ', y_dpi = ' + str(y_dpi) + ']. Default value will be used.')
-                    if x_dpi > y_dpi and x_dpi >= DEFAULT_DPI:
-                        image_file.save(image_path, dpi=(int(x_dpi), int(x_dpi)))
-                    elif y_dpi > x_dpi and y_dpi >= DEFAULT_DPI:
-                        image_file.save(image_path, dpi=(int(y_dpi), int(y_dpi)))
+            if image_file:
+                self.metadata_image_format = image_file.format
+                self.metadata_image_width, self.metadata_image_height = image_file.size
+                self.metadata_image_dpi = DEFAULT_DPI
+                if image_file.info.get('dpi'):
+                    x_dpi, y_dpi = image_file.info['dpi']
+                    if x_dpi != round(x_dpi) or y_dpi != round(y_dpi):
+                        self.warnings.append("DPI: Image file has DPI as floating point number: x={0}, y={1}. It will be converted to integer: x={2}, y={3}".format(x_dpi, y_dpi, round(x_dpi), round(y_dpi)))
+                        x_dpi = int(round(x_dpi))
+                        y_dpi = int(round(y_dpi))
+                        image_file.save(image_path, dpi=(x_dpi, y_dpi))
+                    if x_dpi == y_dpi and x_dpi >= MIN_DPI:
+                        self.metadata_image_dpi = int(x_dpi)
+                    elif x_dpi == y_dpi and x_dpi > 0 and x_dpi < MIN_DPI:
+                        self.errors.append('DPI: Image DPI is set too low: {0}'.format(x_dpi))
                     else:
-                        image_file.save(image_path, dpi=(DEFAULT_DPI, DEFAULT_DPI))
-            else:
-                self.warnings.append('DPI: Metadata does not contain DPI information. Default value will be used.')
-                image_file.save(image_path, dpi=(DEFAULT_DPI, DEFAULT_DPI))
+                        self.warnings.append('DPI: Metadata DPI information is not consistent [x_dpi=' + str(x_dpi)
+                                            + ', y_dpi = ' + str(y_dpi) + ']. Default value will be used.')
+                        if x_dpi > y_dpi and x_dpi >= DEFAULT_DPI:
+                            image_file.save(image_path, dpi=(int(x_dpi), int(x_dpi)))
+                        elif y_dpi > x_dpi and y_dpi >= DEFAULT_DPI:
+                            image_file.save(image_path, dpi=(int(y_dpi), int(y_dpi)))
+                        else:
+                            image_file.save(image_path, dpi=(DEFAULT_DPI, DEFAULT_DPI))
+                else:
+                    self.warnings.append('DPI: Metadata does not contain DPI information. Default value will be used.')
+                    image_file.save(image_path, dpi=(DEFAULT_DPI, DEFAULT_DPI))
+        except AttributeError as ar:
+            self.errors.append("IMG: Unable to process image [{0}]. Error in method get_metadata_from_image_file: {1}".format(self.file_name, repr(ar)))
         except Exception as ex:
-            exc_type = ex.__class__.__name__
-            self.errors.append("IMG: Unable to process image [" + self.file_name + "] Exception Type: " + str(exc_type) + " Error: " + str(ex))
+            self.errors.append("IMG: Unable to process image [{0}]. Image may be corrupted or invalid. Error: {1}".format(self.file_name, repr(ex)))
         finally:
             if image_file is not None:
                 image_file.close()
@@ -550,6 +563,9 @@ class TeamImage:
     def image_has_template(self, image_path, template_path):
         has_template = False
 
+        logging.debug('Method: image_has_template; image_path: {0}, template_path: {1}'.format(image_path, template_path))
+
+        logging.debug('Method: image_has_template; Stage #1')
         # load the image image, convert it to grayscale, and detect edges
         template = cv2.imread(template_path)
         template = cv2.cvtColor(template, cv2.COLOR_BGR2GRAY)
@@ -557,6 +573,7 @@ class TeamImage:
         (tH, tW) = template.shape[:2]
         #cv2.imshow("Template", template)
 
+        logging.debug('Method: image_has_template; Stage #2')
         # load the image, convert it to grayscale, and initialize the
         # bookkeeping variable to keep track of the matched region
         image = cv2.imread(image_path)
@@ -564,6 +581,7 @@ class TeamImage:
         found = (0, (0, 0), 0)
 
         # loop over the scales of the image
+        logging.debug('Method: image_has_template; Stage #3')
         for scale in np.linspace(0.01, 1.0, 200)[::-1]:
             # resize the image according to the scale, and keep track
             # of the ratio of the resizing
@@ -597,6 +615,7 @@ class TeamImage:
             #print(found[0], maxVal)
         # unpack the bookkeeping varaible and compute the (x, y) coordinates
         # of the bounding box based on the resized ratio
+        logging.debug('Method: image_has_template; Stage #4')
         if found is not None:
             (_, maxLoc, r) = found
             (startX, startY) = (int(maxLoc[0] * r), int(maxLoc[1] * r))
@@ -797,10 +816,6 @@ arg_parser.add_argument("-ff", "--filenamefilter", default='', required=False,\
 args = vars(arg_parser.parse_args())
 
 loglevel = logging.WARNING
-gettrace = getattr(sys, 'gettrace', None)
-if gettrace():
-    loglevel = logging.DEBUG
-
 if args["loglevel"] == "debug":
     loglevel = logging.DEBUG
 elif args["loglevel"] == "info":
@@ -813,6 +828,11 @@ elif args["loglevel"] == "critical":
     loglevel = logging.CRITICAL
 
 FILENAME_FILTER = args["filenamefilter"]
+
+gettrace = getattr(sys, 'gettrace', None)
+if gettrace(): #debugging
+    loglevel = logging.DEBUG
+    FILENAME_FILTER = 'AP48771_v04'
 
 logging.basicConfig(handlers=[logging.FileHandler(filename=os.path.join(IMAGE_LOG_FOLDER, process_id + '.log'), encoding='utf-8')], \
                     format='%(asctime)s:%(levelname)s:%(message)s', level=loglevel) #, level=logging.INFO - default is WARNING
@@ -861,7 +881,7 @@ for filename in onlyfiles:
                 try:
                     logging.info("Processing file: '{0}'".format(os.path.join(IMAGE_UNPROCESSED_FOLDER, filename)))
                     team_image = TeamImage(os.path.join(IMAGE_UNPROCESSED_FOLDER, filename), process_id)
-                    logging.info(team_image)
+                    logging.debug(team_image)
                     #process_exif(os.path.join(IMAGE_FOLDER, filename))
                 except UnicodeEncodeError as ex:
                     logging.error("UnicodeEncodeError captured while processing file: '{0}' Message: {1}".format(os.path.join(IMAGE_UNPROCESSED_FOLDER, filename), repr(ex)))
@@ -870,12 +890,13 @@ for filename in onlyfiles:
 
                 if UPLOAD_FILES == False:
                     logging.warning("Process is set NOT to upload images. UPLOAD_FILES variable is expected to be True.")
+
+                if team_image.errors:
+                    logging.error("File: '{0}' was processed with errors: '{1}'".format(os.path.join(IMAGE_UNPROCESSED_FOLDER, filename), list_to_str(team_image.errors)))
                 elif team_image is None:
                     logging.error("File: '{0}' was not processed correctly.".format(os.path.join(IMAGE_UNPROCESSED_FOLDER, filename)))
                 elif team_image.product_code_from_db is None or len(team_image.product_code_from_db) == 0:
                     logging.error("File: '{0}' was processed but product code was not found in data set".format(os.path.join(IMAGE_UNPROCESSED_FOLDER, filename)))
-                elif len(team_image.errors) > 0:
-                    logging.error("File: '{0}' was processed with errors: '{1}'".format(os.path.join(IMAGE_UNPROCESSED_FOLDER, filename), list_to_str(team_image.errors)))
                 else:
                     #send post with metadata
                     list_of_items = []
