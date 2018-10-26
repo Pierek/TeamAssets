@@ -33,6 +33,7 @@ INNER JOIN data.client_dict C
 	ON C.client_id = Z.PartiaKontrahentPartii
 INNER JOIN TEAM.dbo.DokHandlowe D
 	ON D.ID = Z.PartiaDokument
+	AND D.NumerPelny NOT LIKE 'ZD%'
 INNER JOIN TEAM.dbo.DefDokHandlowych DF
 	ON DF.ID = D.Definicja
 	AND DF.Nazwa = N'Rezerwacja odbiorcy'
@@ -56,6 +57,7 @@ INNER JOIN data.client_dict C
 	ON C.client_id = Z.PartiaKontrahentPartii
 INNER JOIN TEAM.dbo.DokHandlowe D
 	ON D.ID = Z.PartiaDokument
+	AND D.NumerPelny NOT LIKE 'ZD%'
 INNER JOIN TEAM.dbo.DefDokHandlowych DF
 	ON DF.ID = D.Definicja
 	AND DF.Nazwa = N'Zamówienie od odbiorcy'
@@ -75,6 +77,9 @@ SELECT
 FROM TEAM.dbo.Zasoby Z
 INNER JOIN data.product P
 	ON P.product_id = Z.Towar
+INNER JOIN TEAM.dbo.DokHandlowe D
+	ON D.ID = Z.PartiaDokument
+	AND D.NumerPelny NOT LIKE 'ZD%'
 WHERE Z.Magazyn = 1 -- czy tylko 1?
 	AND Z.Okres = 1 -- ??
 	AND Z.Kierunek = 1 -- stan fizyczny na 1
