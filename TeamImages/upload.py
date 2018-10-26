@@ -80,11 +80,11 @@ def list_to_str(lst):
     '''Creates string from string list separated using default separator'''
     list_as_string = ''
     if isinstance(lst, str) is False:
-        for iterator in range(0, len(lst)):
-            if iterator == 0:
-                list_as_string = str(lst[iterator])
+        for iterator_a in range(0, len(lst)):
+            if iterator_a == 0:
+                list_as_string = str(lst[iterator_a])
             else:
-                list_as_string = list_as_string + LIST_SEPARATOR + str(lst[iterator])
+                list_as_string = list_as_string + LIST_SEPARATOR + str(lst[iterator_a])
     return list_as_string
 
 class TeamImage:
